@@ -42,27 +42,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
 
 // Xử lý xoá sản phẩm
 if (isset($_GET['delete'])) {
-    $productID = intval($_GET['delete']); // Đảm bảo ID là số nguyên
+    $productID = $_GET['delete'];
 
-    // Kiểm tra giá trị productID
-    if ($productID > 0) {
-        // Câu lệnh SQL xoá sản phẩm
-        $sql = "DELETE FROM dbo.Products WHERE ProductID = ?";
-        $params = array($productID);
+    // Câu lệnh SQL xoá sản phẩm
+    $sql = "DELETE FROM dbo.Products WHERE ProductID = ?";
+    $params = array($productID);
 
-        // Thực thi câu lệnh
-        $stmt = sqlsrv_query($conn, $sql, $params);
+    // Thực thi câu lệnh
+    $stmt = sqlsrv_query($conn, $sql, $params);
 
-        // Kiểm tra kết quả
-        if ($stmt === false) {
-            echo "Lỗi khi xoá sản phẩm.";
-            die(print_r(sqlsrv_errors(), true));
-        } else {
-            header("Location: " . $_SERVER['PHP_SELF']); // Redirect để tránh việc gửi lại form
-            exit;
-        }
+    // Kiểm tra kết quả
+    if ($stmt === false) {
+        echo "Lỗi khi xoá sản phẩm.";
+        die(print_r(sqlsrv_errors(), true));
     } else {
-        echo "ID sản phẩm không hợp lệ.";
+        echo "Sản phẩm đã được xóa thành công.";
     }
 }
 
@@ -84,16 +78,14 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $productNames[] = $row['ProductName'];
     $quantities[] = $row['Quantity'];
 }
-
-// Đóng kết nối
-sqlsrv_close($conn);
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý sản phẩm</title>
-    <!-- Thêm thư viện Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -127,9 +119,8 @@ sqlsrv_close($conn);
         </tr>
 
         <?php
-        // Lấy lại danh sách sản phẩm để hiển thị trong bảng
-        $conn = sqlsrv_connect($serverName, $connectionOptions);
-        $stmt = sqlsrv_query($conn, $sql);
+        // Hiển thị danh sách sản phẩm
+        sqlsrv_execute($stmt); // Thực thi lại truy vấn
         while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
             echo "<tr>";
             echo "<td>" . $row['ProductID'] . "</td>";
@@ -141,22 +132,20 @@ sqlsrv_close($conn);
             echo "<td><a href='?delete=" . $row['ProductID'] . "'>Xoá</a></td>";
             echo "</tr>";
         }
-        sqlsrv_close($conn);
         ?>
     </table>
 
-    <h1>Biểu đồ số lượng sản phẩm</h1>
+    <h1>Biểu đồ sản phẩm</h1>
     <canvas id="myChart" width="400" height="200"></canvas>
     <script>
-        // Dữ liệu cho biểu đồ
         var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
-            type: 'bar', // Loại biểu đồ (có thể là 'bar', 'line', v.v.)
+            type: 'bar',
             data: {
-                labels: <?php echo json_encode($productNames); ?>, // Tên sản phẩm
+                labels: <?php echo json_encode($productNames); ?>,
                 datasets: [{
                     label: 'Số lượng sản phẩm',
-                    data: <?php echo json_encode($quantities); ?>, // Số lượng sản phẩm
+                    data: <?php echo json_encode($quantities); ?>,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
@@ -173,3 +162,8 @@ sqlsrv_close($conn);
     </script>
 </body>
 </html>
+
+<?php
+// Đóng kết nối
+sqlsrv_close($conn);
+?>
