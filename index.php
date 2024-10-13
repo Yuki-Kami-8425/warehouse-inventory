@@ -146,6 +146,10 @@ sqlsrv_close($conn);
 
     <h1>Biểu đồ số lượng sản phẩm</h1>
     <canvas id="myChart" width="400" height="200"></canvas>
+    
+    <h1>Biểu đồ tròn số lượng sản phẩm</h1>
+    <canvas id="pieChart" width="400" height="200"></canvas>
+
     <script>
         var productNames = <?php echo json_encode($productNames); ?>;
         var quantities = <?php echo json_encode($quantities); ?>;
@@ -219,9 +223,7 @@ sqlsrv_close($conn);
             }
         });
     </script>
-
-    <h1>Biểu đồ tròn số lượng sản phẩm</h1>
-    <canvas id="pieChart" width="400" height="200"></canvas>
 </body>
 </html>
+
 
