@@ -1,4 +1,4 @@
-<?php
+<?php 
 // Thông tin kết nối cơ sở dữ liệu Azure SQL
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
@@ -127,7 +127,7 @@ sqlsrv_close($conn);
         </tr>
 
         <?php
-        // Lấy lại danh sách sản phẩm để hiển thị trong bảng
+        // Kết nối lại để lấy danh sách sản phẩm
         $conn = sqlsrv_connect($serverName, $connectionOptions);
         $stmt = sqlsrv_query($conn, $sql);
         while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
@@ -170,9 +170,8 @@ sqlsrv_close($conn);
                 }
             }
         });
-        
+
         // Dữ liệu cho biểu đồ tròn
-        <canvas id="pieChart" width="400" height="200"></canvas>
         var ctxPie = document.getElementById('pieChart').getContext('2d');
         var pieChart = new Chart(ctxPie, {
             type: 'pie',
@@ -214,5 +213,8 @@ sqlsrv_close($conn);
             }
         });
     </script>
+
+    <h1>Biểu đồ tròn số lượng sản phẩm</h1>
+    <canvas id="pieChart" width="400" height="200"></canvas>
 </body>
 </html>
