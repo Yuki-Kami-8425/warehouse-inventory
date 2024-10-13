@@ -1,51 +1,3 @@
-<?php
-// Kết nối đến cơ sở dữ liệu
-$serverName = "YOUR_SERVER";
-$connectionOptions = array(
-    "Database" => "YOUR_DATABASE",
-    "Uid" => "YOUR_USERNAME",
-    "PWD" => "YOUR_PASSWORD"
-);
-
-// Xử lý thêm sản phẩm
-if (isset($_POST['add_product'])) {
-    $productName = $_POST['ProductName'];
-    $quantity = $_POST['Quantity'];
-    $location = $_POST['Location'];
-    $price = $_POST['Price'];
-
-    $sql = "INSERT INTO Products (ProductName, Quantity, Location, Price) VALUES (?, ?, ?, ?)";
-    $params = array($productName, $quantity, $location, $price);
-    
-    $conn = sqlsrv_connect($serverName, $connectionOptions);
-    $stmt = sqlsrv_query($conn, $sql, $params);
-    
-    if ($stmt) {
-        // Chuyển hướng sau khi thêm sản phẩm
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit();
-    } else {
-        echo "Có lỗi khi thêm sản phẩm: " . sqlsrv_errors();
-    }
-
-    sqlsrv_close($conn);
-}
-
-// Kết nối lại để lấy danh sách sản phẩm
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-$sql = "SELECT * FROM Products";
-$stmt = sqlsrv_query($conn, $sql);
-
-// Lấy tên sản phẩm và số lượng cho biểu đồ
-$productNames = [];
-$quantities = [];
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $productNames[] = $row['ProductName'];
-    $quantities[] = $row['Quantity'];
-}
-sqlsrv_close($conn);
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -110,6 +62,10 @@ sqlsrv_close($conn);
     <script>
         var productNames = <?php echo json_encode($productNames); ?>;
         var quantities = <?php echo json_encode($quantities); ?>;
+
+        // Kiểm tra dữ liệu trong console
+        console.log(productNames);
+        console.log(quantities);
 
         // Biểu đồ cột
         var ctx = document.getElementById('myChart').getContext('2d');
