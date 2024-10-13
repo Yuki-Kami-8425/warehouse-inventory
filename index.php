@@ -17,10 +17,10 @@ if ($conn === false) {
 
 // Xử lý thêm sản phẩm
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
-    $productName = $_POST['ProductName'];
-    $quantity = $_POST['Quantity'];
-    $location = $_POST['Location'];
-    $price = $_POST['Price'];
+    $productName = htmlspecialchars(trim($_POST['ProductName']));
+    $quantity = intval($_POST['Quantity']);
+    $location = htmlspecialchars(trim($_POST['Location']));
+    $price = floatval($_POST['Price']);
     $lastUpdated = date('Y-m-d H:i:s');
 
     // Câu lệnh SQL thêm sản phẩm mới (bỏ qua ProductID)
@@ -33,16 +33,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
 
     // Kiểm tra kết quả
     if ($stmt === false) {
+        error_log("Lỗi khi thêm sản phẩm: " . print_r(sqlsrv_errors(), true)); // Log error
         echo "Lỗi khi thêm sản phẩm.";
-        die(print_r(sqlsrv_errors(), true));
     } else {
-        echo "Sản phẩm mới đã được thêm thành công.";
+        header("Location: " . $_SERVER['PHP_SELF']); // Redirect to avoid form resubmission
+        exit;
     }
 }
 
 // Xử lý xoá sản phẩm
 if (isset($_GET['delete'])) {
-    $productID = $_GET['delete'];
+    $productID = intval($_GET['delete']); // Ensure ID is an integer
 
     // Câu lệnh SQL xoá sản phẩm
     $sql = "DELETE FROM dbo.Products WHERE ProductID = ?";
@@ -53,41 +54,37 @@ if (isset($_GET['delete'])) {
 
     // Kiểm tra kết quả
     if ($stmt === false) {
+        error_log("Lỗi khi xoá sản phẩm: " . print_r(sqlsrv_errors(), true)); // Log error
         echo "Lỗi khi xoá sản phẩm.";
-        die(print_r(sqlsrv_errors(), true));
     } else {
-        echo "Sản phẩm đã được xóa thành công.";
+        header("Location: " . $_SERVER['PHP_SELF']); // Redirect to avoid form resubmission
+        exit;
     }
 }
 
-// Truy vấn dữ liệu sản phẩm từ bảng Products để hiển thị trong bảng và biểu đồ
-$sql = "SELECT ProductName, Quantity, Price FROM dbo.Products";
+// Lấy danh sách sản phẩm để hiển thị trong bảng
+$sql = "SELECT * FROM dbo.Products";
 $stmt = sqlsrv_query($conn, $sql);
 
-$products = array();
-$quantities = array();
-$prices = array();
-
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $products[] = $row['ProductName'];
-    $quantities[] = $row['Quantity'];
-    $prices[] = $row['Price'];
+// Kiểm tra lỗi khi truy vấn
+if ($stmt === false) {
+    die(print_r(sqlsrv_errors(), true));
 }
-
-// Đóng kết nối cơ sở dữ liệu
-sqlsrv_free_stmt($stmt);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sản phẩm và biểu đồ</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Quản lý sản phẩm</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+    </style>
 </head>
 <body>
-    <h1>Quản lý sản phẩm</h1>
+    <h1>Thêm sản phẩm mới</h1>
     <form method="post" action="">
         <label for="ProductName">Tên sản phẩm:</label>
         <input type="text" name="ProductName" required><br><br>
@@ -104,78 +101,33 @@ sqlsrv_free_stmt($stmt);
         <input type="submit" name="add_product" value="Thêm sản phẩm">
     </form>
 
-    <h2>Danh sách sản phẩm</h2>
-    <table border="1">
+    <h1>Danh sách sản phẩm</h1>
+    <table>
         <tr>
+            <th>ProductID</th>
             <th>Tên sản phẩm</th>
             <th>Số lượng</th>
+            <th>Vị trí</th>
             <th>Giá</th>
+            <th>Cập nhật lần cuối</th>
             <th>Hành động</th>
         </tr>
 
         <?php
         // Hiển thị danh sách sản phẩm
-        foreach ($products as $index => $productName) {
+        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
             echo "<tr>";
-            echo "<td>" . $productName . "</td>";
-            echo "<td>" . $quantities[$index] . "</td>";
-            echo "<td>" . $prices[$index] . "</td>";
-            echo "<td><a href='?delete=" . $index . "'>Xoá</a></td>"; // Cần thay đổi index ở đây nếu muốn xóa theo ID thực tế
+            echo "<td>" . htmlspecialchars($row['ProductID']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['ProductName']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['Quantity']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['Location']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['Price']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['LastUpdated']->format('Y-m-d H:i:s')) . "</td>";
+            echo "<td><a href='?delete=" . htmlspecialchars($row['ProductID']) . "'>Xoá</a></td>";
             echo "</tr>";
         }
         ?>
     </table>
-
-    <h2>Biểu đồ tròn: Phân bổ số lượng sản phẩm</h2>
-    <canvas id="pieChart" width="400" height="400"></canvas>
-
-    <h2>Biểu đồ cột: Số lượng sản phẩm theo giá</h2>
-    <canvas id="barChart" width="400" height="400"></canvas>
-
-    <script>
-        // Lấy dữ liệu từ PHP
-        var productNames = <?php echo json_encode($products); ?>;
-        var productQuantities = <?php echo json_encode($quantities); ?>;
-        var productPrices = <?php echo json_encode($prices); ?>;
-
-        // Biểu đồ tròn: Phân bổ số lượng sản phẩm
-        var pieCtx = document.getElementById('pieChart').getContext('2d');
-        var pieChart = new Chart(pieCtx, {
-            type: 'pie',
-            data: {
-                labels: productNames,
-                datasets: [{
-                    label: 'Số lượng sản phẩm',
-                    data: productQuantities,
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
-                }]
-            }
-        });
-
-        // Biểu đồ cột: Số lượng sản phẩm theo giá
-        var barCtx = document.getElementById('barChart').getContext('2d');
-        var barChart = new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: productNames,
-                datasets: [{
-                    label: 'Giá sản phẩm (USD)',
-                    data: productPrices,
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                    borderColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    </script>
 </body>
 </html>
 
