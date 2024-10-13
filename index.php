@@ -1,91 +1,48 @@
-<?php 
-// Thông tin kết nối cơ sở dữ liệu Azure SQL
-$serverName = "eiusmartwarehouse.database.windows.net";
+<?php
+// Kết nối đến cơ sở dữ liệu
+$serverName = "YOUR_SERVER";
 $connectionOptions = array(
-    "Database" => "eiu_warehouse_24",
-    "Uid" => "eiuadmin",
-    "PWD" => "Khoa123456789"
+    "Database" => "YOUR_DATABASE",
+    "Uid" => "YOUR_USERNAME",
+    "PWD" => "YOUR_PASSWORD"
 );
 
-// Kết nối đến cơ sở dữ liệu
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-
-// Kiểm tra kết nối
-if ($conn === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
 // Xử lý thêm sản phẩm
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
+if (isset($_POST['add_product'])) {
     $productName = $_POST['ProductName'];
     $quantity = $_POST['Quantity'];
     $location = $_POST['Location'];
     $price = $_POST['Price'];
-    $lastUpdated = date('Y-m-d H:i:s');
 
-    // Câu lệnh SQL thêm sản phẩm mới (bỏ qua ProductID)
-    $sql = "INSERT INTO dbo.Products (ProductName, Quantity, Location, Price, LastUpdated)
-            VALUES (?, ?, ?, ?, ?)";
-    $params = array($productName, $quantity, $location, $price, $lastUpdated);
-
-    // Thực thi câu lệnh
+    $sql = "INSERT INTO Products (ProductName, Quantity, Location, Price) VALUES (?, ?, ?, ?)";
+    $params = array($productName, $quantity, $location, $price);
+    
+    $conn = sqlsrv_connect($serverName, $connectionOptions);
     $stmt = sqlsrv_query($conn, $sql, $params);
-
-    // Kiểm tra kết quả
-    if ($stmt === false) {
-        echo "Lỗi khi thêm sản phẩm.";
-        die(print_r(sqlsrv_errors(), true));
+    
+    if ($stmt) {
+        // Chuyển hướng sau khi thêm sản phẩm
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     } else {
-        echo "Sản phẩm mới đã được thêm thành công.";
+        echo "Có lỗi khi thêm sản phẩm: " . sqlsrv_errors();
     }
+
+    sqlsrv_close($conn);
 }
 
-// Xử lý xoá sản phẩm
-if (isset($_GET['delete'])) {
-    $productID = intval($_GET['delete']); // Đảm bảo ID là số nguyên
-
-    // Kiểm tra giá trị productID
-    if ($productID > 0) {
-        // Câu lệnh SQL xoá sản phẩm
-        $sql = "DELETE FROM dbo.Products WHERE ProductID = ?";
-        $params = array($productID);
-
-        // Thực thi câu lệnh
-        $stmt = sqlsrv_query($conn, $sql, $params);
-
-        // Kiểm tra kết quả
-        if ($stmt === false) {
-            echo "Lỗi khi xoá sản phẩm.";
-            die(print_r(sqlsrv_errors(), true));
-        } else {
-            header("Location: " . $_SERVER['PHP_SELF']); // Redirect để tránh việc gửi lại form
-            exit;
-        }
-    } else {
-        echo "ID sản phẩm không hợp lệ.";
-    }
-}
-
-// Lấy danh sách sản phẩm để hiển thị trong bảng
-$sql = "SELECT * FROM dbo.Products";
+// Kết nối lại để lấy danh sách sản phẩm
+$conn = sqlsrv_connect($serverName, $connectionOptions);
+$sql = "SELECT * FROM Products";
 $stmt = sqlsrv_query($conn, $sql);
 
-// Kiểm tra lỗi khi truy vấn
-if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
-// Tạo mảng để lưu dữ liệu cho biểu đồ
+// Lấy tên sản phẩm và số lượng cho biểu đồ
 $productNames = [];
 $quantities = [];
-
-// Lấy dữ liệu cho biểu đồ
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $productNames[] = $row['ProductName'];
     $quantities[] = $row['Quantity'];
 }
-
-// Đóng kết nối
 sqlsrv_close($conn);
 ?>
 
@@ -154,10 +111,6 @@ sqlsrv_close($conn);
         var productNames = <?php echo json_encode($productNames); ?>;
         var quantities = <?php echo json_encode($quantities); ?>;
 
-        // Kiểm tra dữ liệu trong console
-        console.log(productNames);
-        console.log(quantities);
-
         // Biểu đồ cột
         var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
@@ -225,5 +178,3 @@ sqlsrv_close($conn);
     </script>
 </body>
 </html>
-
-
