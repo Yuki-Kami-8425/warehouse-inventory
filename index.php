@@ -43,24 +43,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
 
 // Xử lý xoá sản phẩm
 if (isset($_GET['delete'])) {
-    $productID = intval($_GET['delete']); // Ensure ID is an integer
+    $productID = intval($_GET['delete']); // Đảm bảo ID là số nguyên
 
-    // Câu lệnh SQL xoá sản phẩm
-    $sql = "DELETE FROM dbo.Products WHERE ProductID = ?";
-    $params = array($productID);
+    // Kiểm tra giá trị productID
+    if ($productID > 0) {
+        // Câu lệnh SQL xoá sản phẩm
+        $sql = "DELETE FROM dbo.Products WHERE ProductID = ?";
+        $params = array($productID);
 
-    // Thực thi câu lệnh
-    $stmt = sqlsrv_query($conn, $sql, $params);
+        // Thực thi câu lệnh
+        $stmt = sqlsrv_query($conn, $sql, $params);
 
-    // Kiểm tra kết quả
-    if ($stmt === false) {
-        error_log("Lỗi khi xoá sản phẩm: " . print_r(sqlsrv_errors(), true)); // Log error
-        echo "Lỗi khi xoá sản phẩm.";
+        // Kiểm tra kết quả
+        if ($stmt === false) {
+            error_log("Lỗi khi xoá sản phẩm: " . print_r(sqlsrv_errors(), true)); // Log error
+            echo "Lỗi khi xoá sản phẩm.";
+        } else {
+            header("Location: " . $_SERVER['PHP_SELF']); // Redirect để tránh việc gửi lại form
+            exit;
+        }
     } else {
-        header("Location: " . $_SERVER['PHP_SELF']); // Redirect to avoid form resubmission
-        exit;
+        echo "ID sản phẩm không hợp lệ.";
     }
 }
+
 
 // Lấy danh sách sản phẩm để hiển thị trong bảng
 $sql = "SELECT * FROM dbo.Products";
