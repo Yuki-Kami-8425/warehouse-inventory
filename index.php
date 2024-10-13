@@ -1,3 +1,94 @@
+<?php 
+// Thông tin kết nối cơ sở dữ liệu Azure SQL
+$serverName = "eiusmartwarehouse.database.windows.net";
+$connectionOptions = array(
+    "Database" => "eiu_warehouse_24",
+    "Uid" => "eiuadmin",
+    "PWD" => "Khoa123456789"
+);
+
+// Kết nối đến cơ sở dữ liệu
+$conn = sqlsrv_connect($serverName, $connectionOptions);
+
+// Kiểm tra kết nối
+if ($conn === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
+
+// Xử lý thêm sản phẩm
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
+    $productName = $_POST['ProductName'];
+    $quantity = $_POST['Quantity'];
+    $location = $_POST['Location'];
+    $price = $_POST['Price'];
+    $lastUpdated = date('Y-m-d H:i:s');
+
+    // Câu lệnh SQL thêm sản phẩm mới (bỏ qua ProductID)
+    $sql = "INSERT INTO dbo.Products (ProductName, Quantity, Location, Price, LastUpdated)
+            VALUES (?, ?, ?, ?, ?)";
+    $params = array($productName, $quantity, $location, $price, $lastUpdated);
+
+    // Thực thi câu lệnh
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    // Kiểm tra kết quả
+    if ($stmt === false) {
+        echo "Lỗi khi thêm sản phẩm.";
+        die(print_r(sqlsrv_errors(), true));
+    } else {
+        echo "Sản phẩm mới đã được thêm thành công.";
+    }
+}
+
+// Xử lý xoá sản phẩm
+if (isset($_GET['delete'])) {
+    $productID = intval($_GET['delete']); // Đảm bảo ID là số nguyên
+
+    // Kiểm tra giá trị productID
+    if ($productID > 0) {
+        // Câu lệnh SQL xoá sản phẩm
+        $sql = "DELETE FROM dbo.Products WHERE ProductID = ?";
+        $params = array($productID);
+
+        // Thực thi câu lệnh
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        // Kiểm tra kết quả
+        if ($stmt === false) {
+            echo "Lỗi khi xoá sản phẩm.";
+            die(print_r(sqlsrv_errors(), true));
+        } else {
+            header("Location: " . $_SERVER['PHP_SELF']); // Redirect để tránh việc gửi lại form
+            exit;
+        }
+    } else {
+        echo "ID sản phẩm không hợp lệ.";
+    }
+}
+
+// Lấy danh sách sản phẩm để hiển thị trong bảng
+$sql = "SELECT * FROM dbo.Products";
+$stmt = sqlsrv_query($conn, $sql);
+
+// Kiểm tra lỗi khi truy vấn
+if ($stmt === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
+
+// Tạo mảng để lưu dữ liệu cho biểu đồ
+$productNames = [];
+$quantities = [];
+
+// Lấy dữ liệu cho biểu đồ
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $productNames[] = $row['ProductName'];
+    $quantities[] = $row['Quantity'];
+}
+
+// Đóng kết nối
+sqlsrv_close($conn);
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
