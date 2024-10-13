@@ -93,7 +93,6 @@ sqlsrv_close($conn);
 <html>
 <head>
     <title>Quản lý sản phẩm</title>
-    <!-- Thêm thư viện Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -148,15 +147,22 @@ sqlsrv_close($conn);
     <h1>Biểu đồ số lượng sản phẩm</h1>
     <canvas id="myChart" width="400" height="200"></canvas>
     <script>
-        // Dữ liệu cho biểu đồ
+        var productNames = <?php echo json_encode($productNames); ?>;
+        var quantities = <?php echo json_encode($quantities); ?>;
+
+        // Kiểm tra dữ liệu trong console
+        console.log(productNames);
+        console.log(quantities);
+
+        // Biểu đồ cột
         var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
-            type: 'bar', // Loại biểu đồ (có thể là 'bar', 'line', v.v.)
+            type: 'bar',
             data: {
-                labels: <?php echo json_encode($productNames); ?>, // Tên sản phẩm
+                labels: productNames,
                 datasets: [{
                     label: 'Số lượng sản phẩm',
-                    data: <?php echo json_encode($quantities); ?>, // Số lượng sản phẩm
+                    data: quantities,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
@@ -171,15 +177,15 @@ sqlsrv_close($conn);
             }
         });
 
-        // Dữ liệu cho biểu đồ tròn
+        // Biểu đồ tròn
         var ctxPie = document.getElementById('pieChart').getContext('2d');
         var pieChart = new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: <?php echo json_encode($productNames); ?>,
+                labels: productNames,
                 datasets: [{
                     label: 'Tỷ lệ số lượng sản phẩm',
-                    data: <?php echo json_encode($quantities); ?>,
+                    data: quantities,
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
                         'rgba(54, 162, 235, 0.2)',
@@ -218,3 +224,4 @@ sqlsrv_close($conn);
     <canvas id="pieChart" width="400" height="200"></canvas>
 </body>
 </html>
+
