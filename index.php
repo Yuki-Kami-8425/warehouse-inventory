@@ -15,28 +15,35 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
+// Biến để lưu thông báo phản hồi
+$message = "";
+
 // Xử lý thêm sản phẩm
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
-    $productName = $_POST['ProductName'];
-    $quantity = $_POST['Quantity'];
-    $location = $_POST['Location'];
-    $price = $_POST['Price'];
+    $productName = trim($_POST['ProductName']);
+    $quantity = intval($_POST['Quantity']);
+    $location = trim($_POST['Location']);
+    $price = floatval($_POST['Price']);
     $lastUpdated = date('Y-m-d H:i:s');
 
-    // Câu lệnh SQL thêm sản phẩm mới (bỏ qua ProductID)
-    $sql = "INSERT INTO dbo.Products (ProductName, Quantity, Location, Price, LastUpdated)
-            VALUES (?, ?, ?, ?, ?)";
-    $params = array($productName, $quantity, $location, $price, $lastUpdated);
-
-    // Thực thi câu lệnh
-    $stmt = sqlsrv_query($conn, $sql, $params);
-
-    // Kiểm tra kết quả
-    if ($stmt === false) {
-        echo "Lỗi khi thêm sản phẩm.";
-        die(print_r(sqlsrv_errors(), true));
+    // Kiểm tra dữ liệu đầu vào
+    if (empty($productName) || empty($location) || $quantity < 0 || $price < 0) {
+        $message = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
     } else {
-        echo "Sản phẩm mới đã được thêm thành công.";
+        // Câu lệnh SQL thêm sản phẩm mới (bỏ qua ProductID)
+        $sql = "INSERT INTO dbo.Products (ProductName, Quantity, Location, Price, LastUpdated)
+                VALUES (?, ?, ?, ?, ?)";
+        $params = array($productName, $quantity, $location, $price, $lastUpdated);
+
+        // Thực thi câu lệnh
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        // Kiểm tra kết quả
+        if ($stmt === false) {
+            $message = "Lỗi khi thêm sản phẩm: " . print_r(sqlsrv_errors(), true);
+        } else {
+            $message = "Sản phẩm mới đã được thêm thành công.";
+        }
     }
 }
 
@@ -55,14 +62,13 @@ if (isset($_GET['delete'])) {
 
         // Kiểm tra kết quả
         if ($stmt === false) {
-            echo "Lỗi khi xoá sản phẩm.";
-            die(print_r(sqlsrv_errors(), true));
+            $message = "Lỗi khi xoá sản phẩm: " . print_r(sqlsrv_errors(), true);
         } else {
             header("Location: " . $_SERVER['PHP_SELF']); // Redirect để tránh việc gửi lại form
             exit;
         }
     } else {
-        echo "ID sản phẩm không hợp lệ.";
+        $message = "ID sản phẩm không hợp lệ.";
     }
 }
 
@@ -96,7 +102,10 @@ sqlsrv_close($conn);
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Thêm sản phẩm mới</h1>
+    <h1>Quản lý sản phẩm</h1>
+    <p style="color: red;"><?php echo $message; ?></p>
+
+    <h2>Thêm sản phẩm mới</h2>
     <form method="post" action="">
         <label for="ProductName">Tên sản phẩm:</label>
         <input type="text" name="ProductName" required><br><br>
@@ -113,7 +122,7 @@ sqlsrv_close($conn);
         <input type="submit" name="add_product" value="Thêm sản phẩm">
     </form>
 
-    <h1>Danh sách sản phẩm</h1>
+    <h2>Danh sách sản phẩm</h2>
     <table border="1">
         <tr>
             <th>ProductID</th>
@@ -144,10 +153,10 @@ sqlsrv_close($conn);
         ?>
     </table>
 
-    <h1>Biểu đồ số lượng sản phẩm</h1>
+    <h2>Biểu đồ số lượng sản phẩm</h2>
     <canvas id="myChart" width="400" height="200"></canvas>
-    
-    <h1>Biểu đồ tròn số lượng sản phẩm</h1>
+
+    <h2>Biểu đồ tròn số lượng sản phẩm</h2>
     <canvas id="pieChart" width="400" height="200"></canvas>
 
     <script>
@@ -210,16 +219,7 @@ sqlsrv_close($conn);
                 }]
             },
             options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Tỷ lệ số lượng sản phẩm'
-                    }
-                }
+                responsive: true
             }
         });
     </script>
