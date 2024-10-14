@@ -94,8 +94,18 @@ sqlsrv_close($conn);
 <head>
     <title>Quản lý sản phẩm</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - Warehouse</title>
 </head>
 <body>
+    <h1>Hỏi AI về hàng hóa trong kho</h1>
+    <form method="post" action="ai-chat.php">
+        <label for="question">Đặt câu hỏi:</label>
+        <input type="text" id="question" name="question" required>
+        <button type="submit">Gửi</button>
+    </form>
+    
     <h1>Thêm sản phẩm mới</h1>
     <form method="post" action="">
         <label for="ProductName">Tên sản phẩm:</label>
