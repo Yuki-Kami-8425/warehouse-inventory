@@ -18,6 +18,11 @@ if ($conn === false) {
 $sql = "SELECT * FROM dbo.Products";
 $stmt = sqlsrv_query($conn, $sql);
 
+// Kiểm tra nếu truy vấn trả về lỗi
+if ($stmt === false) {
+    die(json_encode(["error" => sqlsrv_errors()]));
+}
+
 // Tạo mảng chứa dữ liệu sản phẩm
 $products = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
@@ -25,12 +30,14 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $products[] = $row;
 }
 
-// Trả về dữ liệu dưới dạng JSON
+// Đảm bảo không có bất kỳ đầu ra nào trước json_encode
+header('Content-Type: application/json');
 echo json_encode($products);
 
 // Đóng kết nối
 sqlsrv_close($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -60,35 +67,53 @@ sqlsrv_close($conn);
     <canvas id="pieChart" width="400" height="200"></canvas>
 
     <script>
-        // Hàm để cập nhật bảng sản phẩm
-        function updateProductTable(products) {
-            let tableContent = '';
-            products.forEach(product => {
-                tableContent += `
-                    <tr>
-                        <td>${product.ProductID}</td>
-                        <td>${product.ProductName}</td>
-                        <td>${product.Quantity}</td>
-                        <td>${product.Location}</td>
-                        <td>${product.Price}</td>
-                        <td>${product.LastUpdated}</td>
-                        <td><a href="?delete=${product.ProductID}">Xoá</a></td>
-                    </tr>
-                `;
-            });
-            $('#productTable').html(`
-                <tr>
-                    <th>ProductID</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Số lượng</th>
-                    <th>Vị trí</th>
-                    <th>Giá</th>
-                    <th>Cập nhật lần cuối</th>
-                    <th>Hành động</th>
-                </tr>
-                ${tableContent}
-            `);
+       function updateProductTable(products) {
+    let tableContent = '';
+    products.forEach(product => {
+        tableContent += `
+            <tr>
+                <td>${product.ProductID}</td>
+                <td>${product.ProductName}</td>
+                <td>${product.Quantity}</td>
+                <td>${product.Location}</td>
+                <td>${product.Price}</td>
+                <td>${product.LastUpdated}</td>
+                <td><a href="?delete=${product.ProductID}">Xoá</a></td>
+            </tr>
+        `;
+    });
+    $('#productTable').html(`
+        <tr>
+            <th>ProductID</th>
+            <th>Tên sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Vị trí</th>
+            <th>Giá</th>
+            <th>Cập nhật lần cuối</th>
+            <th>Hành động</th>
+        </tr>
+        ${tableContent}
+    `);
+}
+
+function fetchProducts() {
+    $.ajax({
+        url: 'get_products.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(products) {
+            updateProductTable(products);
+        },
+        error: function(error) {
+            console.log("Lỗi khi tải sản phẩm: ", error);
         }
+    });
+}
+
+// Gọi hàm để lấy sản phẩm
+fetchProducts();
+
+       
 
         // Hàm để cập nhật biểu đồ
         function updateCharts(products) {
