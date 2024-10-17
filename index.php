@@ -258,7 +258,6 @@ sqlsrv_close($conn);
         ?>
     </table>
         </div>
-
     </div>
 
 <script src="script.js"></script>
