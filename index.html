@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Warehouse</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
+        <ul>
+            <li><a href="#" onclick="showPage('home')"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
+            <li><a href="#" onclick="showPage('dashboard')"><i class="fas fa-tachometer-alt"></i><span class="link-text"> Dashboard</span></a></li>
+            <li><a href="#" onclick="showPage('edit-warehouse')"><i class="fas fa-edit"></i><span class="link-text"> Edit Warehouse</span></a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <div id="home" class="page">
+            <div class="slideshow-container">
+                <div class="slideshow">
+                    <img class="slide" src="warehouse1.jpg" alt="Warehouse 1">
+                    <img class="slide" src="warehouse2.jpg" alt="Warehouse 2">
+                    <img class="slide" src="warehouse3.jpg" alt="Warehouse 3">
+                </div>
+                <div class="dots">
+                    <span class="dot" onclick="showSlide(0)"></span>
+                    <span class="dot" onclick="showSlide(1)"></span>
+                    <span class="dot" onclick="showSlide(2)"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard" class="page" style="display:none;">Dashboard will be here.</div>
+        <div id="edit-warehouse" class="page" style="display:none;">Edit Warehouse will be here.</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
