@@ -132,11 +132,8 @@ sqlsrv_close($conn);
             </div>
         </div>
 
-        <div id="dashboard" class="page" style="display:none;">Dashboard will be here.</div>
-        <div id="edit-warehouse" class="page" style="display:none;">Edit Warehouse will be here.</div>
-    </div>
-
-    <h1>Quản lý sản phẩm</h1>
+        <div id="dashboard" class="page" style="display:none;">
+        <h1>Quản lý sản phẩm</h1>
     <p style="color: red;"><?php echo $message; ?></p>
 
     <h2>Thêm sản phẩm mới</h2>
@@ -186,8 +183,12 @@ sqlsrv_close($conn);
         sqlsrv_close($conn);
         ?>
     </table>
+        </div>
 
-    <h2>Biểu đồ số lượng sản phẩm</h2>
+
+
+        <div id="edit-warehouse" class="page" style="display:none;">
+        <h2>Biểu đồ số lượng sản phẩm</h2>
     <canvas id="myChart" width="400" height="200"></canvas>
 
     <h2>Biểu đồ tròn số lượng sản phẩm</h2>
@@ -257,6 +258,9 @@ sqlsrv_close($conn);
             }
         });
     </script>
+        </div>
+
+    </div>
 
 <script src="script.js"></script>
 
