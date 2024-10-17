@@ -112,10 +112,11 @@ sqlsrv_close($conn);
             </div>
         </div>
 
-        <div id="dashboard" class="page" style="display:none;">Dashboard will be here.</div>
-        <div id="edit-warehouse" class="page" style="display:none;">Edit Warehouse will be here.</div>
-    </div>
+        <div id="dashboard" class="page" style="display:none;">  
+             <h2>Biểu đồ</h2>
+        <canvas id="myChart"></canvas></div>
 
+        <div id="edit-warehouse" class="page" style="display:none;">
     <h1>Quản lý sản phẩm</h1>
     <p style="color: red;"><?php echo $message; ?></p>
     
@@ -150,6 +151,7 @@ sqlsrv_close($conn);
         <?php
         // Kết nối lại để lấy danh sách sản phẩm
         $conn = sqlsrv_connect($serverName, $connectionOptions);
+        $sql = "SELECT ProductID, ProductName, Quantity, Location, Price, LastUpdated FROM Products";
         $stmt = sqlsrv_query($conn, $sql);
         while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
             echo "<tr>";
@@ -164,6 +166,9 @@ sqlsrv_close($conn);
         }
         ?>
     </table>
+</div>
+
+    </div>
 
     <h2>Biểu đồ</h2>
     <canvas id="myChart"></canvas>
