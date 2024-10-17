@@ -18,7 +18,7 @@ function showSlides() {
     slides[slideIndex - 1].style.display = 'block';
     dots[slideIndex - 1].className += " active";
     
-    setTimeout(showSlides, 5000); // Change slide every 5 seconds
+    setTimeout(showSlides, 10000); // Change slide every 10 seconds
 }
 
 function showSlide(index) {

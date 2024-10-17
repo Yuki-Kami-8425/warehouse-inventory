@@ -15,7 +15,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(9, 9, 174, 0.371); /* Semi-transparent blue overlay */
+    background-color: rgba(32, 56, 176, 0.76); /* Semi-transparent blue overlay */
     z-index: -1;
 }
 
@@ -100,7 +100,7 @@ body::before {
 }
 
 .active {
-    background-color: #0a056e;
+    background-color: #ffffff;
 }
 
 .content {
@@ -112,7 +112,7 @@ body::before {
 .page {
     margin-top: 20px;
     font-size: 24px;
-    color: white;
+    color: rgba(37, 8, 133, 0.49);
 }
 
 /* Hidden sidebar */
