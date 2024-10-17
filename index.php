@@ -133,62 +133,8 @@ sqlsrv_close($conn);
         </div>
 
         <div id="dashboard" class="page" style="display:none;">
-        <h1>Quản lý sản phẩm</h1>
-    <p style="color: red;"><?php echo $message; ?></p>
 
-    <h2>Thêm sản phẩm mới</h2>
-    <form method="post" action="">
-        <label for="ProductName">Tên sản phẩm:</label>
-        <input type="text" name="ProductName" required><br><br>
-
-        <label for="Quantity">Số lượng:</label>
-        <input type="number" name="Quantity" required><br><br>
-
-        <label for="Location">Vị trí:</label>
-        <input type="text" name="Location" required><br><br>
-
-        <label for="Price">Giá:</label>
-        <input type="text" name="Price" required><br><br>
-
-        <input type="submit" name="add_product" value="Thêm sản phẩm">
-    </form>
-
-    <h2>Danh sách sản phẩm</h2>
-    <table border="1">
-        <tr>
-            <th>ProductID</th>
-            <th>Tên sản phẩm</th>
-            <th>Số lượng</th>
-            <th>Vị trí</th>
-            <th>Giá</th>
-            <th>Cập nhật lần cuối</th>
-            <th>Hành động</th>
-        </tr>
-
-        <?php
-        // Kết nối lại để lấy danh sách sản phẩm
-        $conn = sqlsrv_connect($serverName, $connectionOptions);
-        $stmt = sqlsrv_query($conn, $sql);
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            echo "<tr>";
-            echo "<td>" . $row['ProductID'] . "</td>";
-            echo "<td>" . $row['ProductName'] . "</td>";
-            echo "<td>" . $row['Quantity'] . "</td>";
-            echo "<td>" . $row['Location'] . "</td>";
-            echo "<td>" . $row['Price'] . "</td>";
-            echo "<td>" . $row['LastUpdated']->format('Y-m-d H:i:s') . "</td>";
-            echo "<td><a href='?delete=" . $row['ProductID'] . "'>Xoá</a></td>";
-            echo "</tr>";
-        }
-        sqlsrv_close($conn);
-        ?>
-    </table>
-        </div>
-
-
-
-        <div id="edit-warehouse" class="page" style="display:none;">
-        <h2>Biểu đồ số lượng sản phẩm</h2>
+    <h2>Biểu đồ số lượng sản phẩm</h2>
     <canvas id="myChart" width="400" height="200"></canvas>
 
     <h2>Biểu đồ tròn số lượng sản phẩm</h2>
@@ -258,6 +204,59 @@ sqlsrv_close($conn);
             }
         });
     </script>
+        </div>
+
+        <div id="edit-warehouse" class="page" style="display:none;">
+        <h1>Quản lý sản phẩm</h1>
+    <p style="color: red;"><?php echo $message; ?></p>
+
+    <h2>Thêm sản phẩm mới</h2>
+    <form method="post" action="">
+        <label for="ProductName">Tên sản phẩm:</label>
+        <input type="text" name="ProductName" required><br><br>
+
+        <label for="Quantity">Số lượng:</label>
+        <input type="number" name="Quantity" required><br><br>
+
+        <label for="Location">Vị trí:</label>
+        <input type="text" name="Location" required><br><br>
+
+        <label for="Price">Giá:</label>
+        <input type="text" name="Price" required><br><br>
+
+        <input type="submit" name="add_product" value="Thêm sản phẩm">
+    </form>
+
+    <h2>Danh sách sản phẩm</h2>
+    <table border="1">
+        <tr>
+            <th>ProductID</th>
+            <th>Tên sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Vị trí</th>
+            <th>Giá</th>
+            <th>Cập nhật lần cuối</th>
+            <th>Hành động</th>
+        </tr>
+
+        <?php
+        // Kết nối lại để lấy danh sách sản phẩm
+        $conn = sqlsrv_connect($serverName, $connectionOptions);
+        $stmt = sqlsrv_query($conn, $sql);
+        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            echo "<tr>";
+            echo "<td>" . $row['ProductID'] . "</td>";
+            echo "<td>" . $row['ProductName'] . "</td>";
+            echo "<td>" . $row['Quantity'] . "</td>";
+            echo "<td>" . $row['Location'] . "</td>";
+            echo "<td>" . $row['Price'] . "</td>";
+            echo "<td>" . $row['LastUpdated']->format('Y-m-d H:i:s') . "</td>";
+            echo "<td><a href='?delete=" . $row['ProductID'] . "'>Xoá</a></td>";
+            echo "</tr>";
+        }
+        sqlsrv_close($conn);
+        ?>
+    </table>
         </div>
 
     </div>
