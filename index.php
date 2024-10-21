@@ -355,6 +355,7 @@ sqlsrv_close($conn);
             position: relative; /* Để xác định vị trí cho tooltip */
         }
     </style>
+    
     <script>
         let slideIndex = 0;
         showSlides();
@@ -410,39 +411,44 @@ sqlsrv_close($conn);
             });
 
             links.forEach(link => {
-                link.classList.remove('active'); // Xóa lớp active
+                link.classList.remove('active');
             });
 
-            document.getElementById(pageId).style.display = 'block';
+            // Hiện trang tương ứng
+            let selectedPage = document.getElementById(pageId);
+            selectedPage.style.display = 'block';
 
+            // Thêm lớp active cho liên kết đã chọn
             const activeLink = [...links].find(link => link.onclick.toString().includes(pageId));
             if (activeLink) {
-                activeLink.classList.add('active'); // Thêm lớp active cho liên kết đã chọn
+                activeLink.classList.add('active');
             }
 
             // Đóng danh sách trạm nếu chọn Home hoặc Edit
             if (pageId === 'home' || pageId === 'edit-warehouse') {
-                document.querySelector('.station-list').classList.remove('open'); // Đóng danh sách trạm
+                document.querySelector('.station-list').classList.remove('open');
             }
         }
+
 
         function updateTime() {
             const now = new Date();
             const optionsDate = { day: 'numeric', month: 'numeric', year: 'numeric' };
             const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
-            
+
             const dateString = now.toLocaleDateString('en-GB', optionsDate); // 19/10/2024
             const timeString = now.toLocaleTimeString('en-US', optionsTime); // 1:52 PM
-            
+
             const sidebar = document.getElementById('sidebar');
 
-            // Khi thanh công cụ mở, hiển thị ngày trước giờ
-            if (sidebar.classList.contains('collapsed')) {
-                document.getElementById('datetime').innerHTML = `${dateString} ${timeString}`; // Ngày trước, giờ sau
+            // Khi thanh công cụ mở, hiển thị giờ ở trên và ngày ở dưới
+            if (!sidebar.classList.contains('collapsed')) {
+                document.getElementById('datetime').innerHTML = `${timeString}<br>${dateString}`; // Giờ trên, ngày dưới
             } else {
-                document.getElementById('datetime').innerHTML = `${dateString}<br>${timeString}`; // Ngày trên, giờ dưới
+                document.getElementById('datetime').innerHTML = `${dateString} ${timeString}`; // Cả hai trong một dòng
             }
         }
+
 
         function updateTime() {
             const now = new Date();
@@ -466,7 +472,7 @@ sqlsrv_close($conn);
             setInterval(updateTime, 1000);
             updateTime(); // Gọi ngay lập tức để thiết lập giá trị ban đầu
 
-        function toggleSidebar() {
+            function toggleSidebar() {
             let sidebar = document.getElementById('sidebar');
             let content = document.querySelector('.content');
 
@@ -479,9 +485,9 @@ sqlsrv_close($conn);
             }
 
             updateFooterPosition(); // Cập nhật vị trí của footer sau khi thay đổi thanh công cụ
-        }
+            }
 
-        function updateFooterPosition() {
+            function updateFooterPosition() {
             const sidebar = document.getElementById('sidebar');
             const footer = document.getElementById('datetime');
 
@@ -516,6 +522,21 @@ sqlsrv_close($conn);
                 hideTooltip(); // Ẩn tooltip
             });
         });
+
+        document.querySelectorAll('.sidebar ul li a').forEach(item => {
+    item.addEventListener('mouseover', function(event) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = setTimeout(() => {
+            showTooltip(event, this);
+        }, 250);
+    });
+
+    item.addEventListener('mouseout', function() {
+        clearTimeout(tooltipTimeout);
+        hideTooltip();
+    });
+});
+
 
         function showTooltip(event, element) {
             const tooltip = document.createElement('div');
