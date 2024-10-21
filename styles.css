@@ -2,21 +2,7 @@ body, html {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: url('warehouse-bg.jpg') no-repeat center center fixed;
-    background-size: cover;
-    position: relative;
-    height: 100%;
-}
-
-body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(32, 56, 176, 0.76); /* Semi-transparent blue overlay */
-    z-index: -1;
+    background-color: #004080; /* Màu nền xanh đậm */
 }
 
 .sidebar {
@@ -24,10 +10,75 @@ body::before {
     top: 0;
     left: 0;
     height: 100%;
-    width: 250px;
-    background-color: #333;
+    width: 200px;
+    background-color: #2c3e50; /* Màu nền thanh bên */
     padding-top: 60px;
     transition: width 0.3s;
+}
+
+.slide:hover {
+    transform: scale(1.02); /* Phóng to một chút */
+    transition: transform 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+}
+
+
+.slideshow-container {
+    position: relative;
+    max-width: 100%;
+    margin: auto;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.slide-title {
+    font-size: 24px; /* Kích thước chữ cho tiêu đề */
+    color: white; /* Màu chữ */
+    margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
+}
+
+.slide {
+    display: none; /* Ẩn tất cả các slide mặc định */
+    position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
+}
+
+.slide img {
+    width: 650px; /* Chiều rộng cố định */
+    height: 350px; /* Chiều cao cố định */
+    object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
+}
+
+.dots {
+    position: relative; /* Để căn giữa dấu chấm */
+    text-align: center; /* Căn giữa dấu chấm */
+    margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
+}
+
+.dot {
+    height: 10px; /* Kích thước dấu chấm */
+    width: 10px; /* Kích thước dấu chấm */
+    margin: 0 5px; /* Khoảng cách giữa các dấu chấm */
+    background-color: white; /* Màu trắng */
+    border-radius: 50%; /* Đường viền tròn */
+    display: inline-block; /* Hiển thị thành dòng ngang */
+    cursor: pointer; /* Con trỏ khi hover vào */
+    transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
+}
+
+.dot.active {
+    height: 15px; /* Kích thước lớn hơn khi được chọn */
+    width: 15px; /* Kích thước lớn hơn khi được chọn */
+    background-color: #00BFFF; /* Màu xanh lam khi được chọn */
+}
+
+.dot:hover {
+    background-color: #00BFFF; /* Màu nền khi hover */
+    transform: scale(1.2); /* Phóng to một chút */
+    transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+}
+
+.sidebar ul li a.active {
+    color: #00BFFF; /* Màu xanh lam khi được chọn */
+    background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi được chọn (tùy chọn) */
 }
 
 .sidebar ul {
@@ -36,7 +87,7 @@ body::before {
 }
 
 .sidebar ul li {
-    padding: 15px;
+    padding: 10px;
     text-align: center;
 }
 
@@ -47,60 +98,28 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: color 0.3s; /* Thêm hiệu ứng chuyển màu */
+}
+
+.sidebar ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Màu nền khi hover */
+    color: #32CD32; /* Màu lục tươi khi đưa chuột vào */
+    transform: scale(1.05); /* Phóng to một chút */
+    transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+}
+
+.sidebar ul li a.selected {
+    color: #00BFFF; /* Màu xanh lam khi được chọn */
 }
 
 .sidebar ul li a i {
     margin-right: 10px;
+    transition: color 0.3s; /* Thêm hiệu ứng chuyển màu */
 }
 
-.toggle-btn {
-    position: absolute;
-    top: 15px;
-    left: 10px;
-    font-size: 30px;
-    color: white;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.slideshow-container {
-    position: relative;
-    max-width: 100%;
-    margin: auto;
-    padding: 20px 0;
-    text-align: center;
-}
-
-.slideshow {
-    display: flex;
-    overflow: hidden;
-}
-
-.slide {
-    display: none;
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-}
-
-.dots {
-    text-align: center;
-    margin-top: 15px;
-}
-
-.dot {
-    height: 15px;
-    width: 15px;
-    margin: 0 5px;
-    background-color: #bbb;
-    border-radius: 50%;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.active {
-    background-color: #ffffff;
+/* Áp dụng màu xanh lam cho icon khi được chọn */
+.sidebar ul li a.selected i {
+    color: #00BFFF;
 }
 
 .content {
@@ -112,7 +131,7 @@ body::before {
 .page {
     margin-top: 20px;
     font-size: 24px;
-    color: rgba(37, 8, 133, 0.49);
+    color: white;
 }
 
 /* Hidden sidebar */
@@ -134,4 +153,100 @@ body::before {
 
 .sidebar ul li a i {
     font-size: 24px;
+}
+
+.toggle-btn {
+    position: absolute;
+    top: 15px;
+    left: 10px;
+    font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
+    color: white; /* Màu của biểu tượng */
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
+    border-radius: 5px; /* Bo góc một chút */
+    transform: scale(1.1); /* Phóng to một chút */
+    transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+}
+
+
+/* Thêm transition cho danh sách trạm */
+.station-list {
+    overflow: hidden; /* Giữ nội dung bên trong không tràn ra khi thu nhỏ */
+    max-height: 0; /* Đặt chiều cao mặc định là 0 để ẩn */
+    transition: max-height 0.5s ease; /* Thêm hiệu ứng chuyển đổi chiều cao */
+}
+
+/* Khi mở danh sách trạm */
+.station-list.open {
+    max-height: 500px; /* Thiết lập chiều cao tối đa cho danh sách trạm khi mở */
+}
+
+/* Đặt kích thước chữ và biểu tượng cho các mục All và các trạm */
+.sidebar ul li a.station-link {
+    font-size: 16px; /* Kích thước chữ nhỏ hơn */
+}
+
+.sidebar ul li a.station-link i {
+    font-size: 20px; /* Kích thước biểu tượng nhỏ hơn */
+}
+
+/* Đặt kích thước chữ và biểu tượng cho các mục Home, Dashboard và Edit */
+.sidebar ul li a.main-link {
+    font-size: 18px; /* Kích thước chữ lớn hơn */
+}
+
+.sidebar ul li a.main-link i {
+    font-size: 24px; /* Kích thước biểu tượng lớn hơn */
+}
+
+
+.home-container {
+    display: flex; /* Sử dụng flexbox để căn chỉnh */
+    flex-direction: column; /* Đặt chiều dọc */
+    align-items: center; /* Căn giữa */
+}
+
+.datetime {
+    position: fixed; /* Đặt thành fixed để luôn ở dưới cùng */
+    bottom: 10px; /* Cách từ đáy cửa sổ */
+    left: 50%; /* Căn giữa theo chiều ngang */
+    transform: translateX(-50%); /* Đẩy về phía bên trái để căn giữa chính xác */
+    color: white; /* Màu chữ */
+    font-size: 12px; /* Kích thước chữ */
+    z-index: 1000; /* Đặt trên cùng để luôn nhìn thấy */
+    white-space: nowrap; /* Không cho phép xuống dòng */
+    overflow: hidden; /* Ẩn nội dung tràn */
+    text-overflow: ellipsis; /* Hiệu ứng ba chấm nếu nội dung quá dài */
+    max-width: 200px; /* Chiều rộng tối đa */
+    text-align: center; /* Căn giữa nội dung */
+    margin-top: 5px; /* Khoảng cách giữa nút Home và phần ngày giờ */
+    transition: left 0.3s ease, transform 0.3s ease; /* Thêm hiệu ứng chuyển tiếp */
+}
+
+.tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.75); /* Nền đen trong suốt */
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0; /* Ẩn ban đầu */
+    visibility: hidden; /* Ẩn ban đầu */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1000; /* Đặt tooltip luôn ở trên */
+}
+
+.tooltip.show {
+    opacity: 1; /* Hiển thị tooltip */
+    visibility: visible;
+}
+
+.sidebar ul li a {
+    position: relative; /* Để xác định vị trí cho tooltip */
 }
