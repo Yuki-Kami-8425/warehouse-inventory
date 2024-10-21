@@ -181,4 +181,3 @@ function hideTooltip() {
         tooltip.remove(); // Xóa tooltip khỏi DOM
     }
 }
-
