@@ -96,6 +96,7 @@ sqlsrv_close($conn);
 ?>
 
 <!DOCTYPE html>
+<html lang="en"></html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -172,6 +173,7 @@ sqlsrv_close($conn);
             <div id="station6" class="page" style="display:none;">Station 6 content will be here.</div>
             <div id="station7" class="page" style="display:none;">Station 7 content will be here.</div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
