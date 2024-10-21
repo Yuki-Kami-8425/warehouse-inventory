@@ -98,7 +98,7 @@ sqlsrv_close($conn);
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Warehouse</title>
     <link rel="stylesheet" href="styles.css">
@@ -107,160 +107,71 @@ sqlsrv_close($conn);
 </head>
 
 <body>
-<div class="sidebar" id="sidebar">
-        <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
-        <ul>
-            <li><a href="#" onclick="showPage('home')"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
-            <li><a href="#" onclick="showPage('dashboard')"><i class="fas fa-tachometer-alt"></i><span class="link-text"> Dashboard</span></a></li>
-            <li><a href="#" onclick="showPage('edit-warehouse')"><i class="fas fa-edit"></i><span class="link-text"> Edit Warehouse</span></a></li>
-        </ul>
-    </div>
+    <div class="sidebar" id="sidebar">
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <ul>
+                <li><a href="#" onclick="showPage('home');" class="main-link"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
+                <li>
+                    <a href="#" onclick="toggleStations(); showPage('dashboard');" class="main-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="link-text"> Dashboard</span>
+                    </a>
+                    <ul class="station-list">
+                        <li><a href="#" onclick="showPage('all');" class="station-link"><i class="fas fa-th-list"></i> <span class="link-text">All</span></a></li>
+                        <li><a href="#" onclick="showPage('station1');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 1</span></a></li>
+                        <li><a href="#" onclick="showPage('station2');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 2</span></a></li>
+                        <li><a href="#" onclick="showPage('station3');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 3</span></a></li>
+                        <li><a href="#" onclick="showPage('station4');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 4</span></a></li>
+                        <li><a href="#" onclick="showPage('station5');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 5</span></a></li>
+                        <li><a href="#" onclick="showPage('station6');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 6</span></a></li>
+                        <li><a href="#" onclick="showPage('station7');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 7</span></a></li>
+                    </ul>
+                </li>
+                <li><a href="#" onclick="showPage('edit-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> Edit</span></a></li>
+            </ul>
 
-    <div class="content">
-        <div id="home" class="page">
-            <div class="slideshow-container">
-                <div class="slideshow">
-                    <img class="slide" src="warehouse1.jpg" alt="Warehouse 1">
-                    <img class="slide" src="warehouse2.jpg" alt="Warehouse 2">
-                    <img class="slide" src="warehouse3.jpg" alt="Warehouse 3">
+            <div id="datetime" class="datetime"></div>
+        </div>
+
+        <div class="content">
+            <div id="home" class="page">
+                <div class="slideshow-container">
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                        <img class="slide-image" src="Picture1.png" alt="Slide 1">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                        <img class="slide-image" src="Picture2.png" alt="Slide 2">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                        <img class="slide-image" src="Picture3.png" alt="Slide 3">
+                    </div>
+                
+                    <div class="dots">
+                        <span class="dot" onclick="showSlide(1)"></span>
+                        <span class="dot" onclick="showSlide(2)"></span>
+                        <span class="dot" onclick="showSlide(3)"></span>
+                    </div>
                 </div>
-                <div class="dots">
-                    <span class="dot" onclick="showSlide(0)"></span>
-                    <span class="dot" onclick="showSlide(1)"></span>
-                    <span class="dot" onclick="showSlide(2)"></span>
-                </div>
+                
             </div>
-        </div>
 
-        <div id="dashboard" class="page" style="display:none;">
-
-    <h2>Biểu đồ số lượng sản phẩm</h2>
-    <canvas id="myChart" width="400" height="200"></canvas>
-
-    <h2>Biểu đồ tròn số lượng sản phẩm</h2>
-    <canvas id="pieChart" width="400" height="200"></canvas>
-
-    <script>
-        var productNames = <?php echo json_encode($productNames); ?>;
-        var quantities = <?php echo json_encode($quantities); ?>;
-
-        // Kiểm tra dữ liệu trong console
-        console.log(productNames);
-        console.log(quantities);
-
-        // Biểu đồ cột
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: productNames,
-                datasets: [{
-                    label: 'Số lượng sản phẩm',
-                    data: quantities,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // Biểu đồ tròn
-        var ctxPie = document.getElementById('pieChart').getContext('2d');
-        var pieChart = new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: productNames,
-                datasets: [{
-                    label: 'Tỷ lệ số lượng sản phẩm',
-                    data: quantities,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true
-            }
-        });
-    </script>
-        </div>
-
-        <div id="edit-warehouse" class="page" style="display:none;">
-        <h1>Quản lý sản phẩm</h1>
-    <p style="color: red;"><?php echo $message; ?></p>
-
-    <h2>Thêm sản phẩm mới</h2>
-    <form method="post" action="">
-        <label for="ProductName">Tên sản phẩm:</label>
-        <input type="text" name="ProductName" required><br><br>
-
-        <label for="Quantity">Số lượng:</label>
-        <input type="number" name="Quantity" required><br><br>
-
-        <label for="Location">Vị trí:</label>
-        <input type="text" name="Location" required><br><br>
-
-        <label for="Price">Giá:</label>
-        <input type="text" name="Price" required><br><br>
-
-        <input type="submit" name="add_product" value="Thêm sản phẩm">
-    </form>
-
-    <h2>Danh sách sản phẩm</h2>
-    <table border="1">
-        <tr>
-            <th>ProductID</th>
-            <th>Tên sản phẩm</th>
-            <th>Số lượng</th>
-            <th>Vị trí</th>
-            <th>Giá</th>
-            <th>Cập nhật lần cuối</th>
-            <th>Hành động</th>
-        </tr>
-
-        <?php
-        // Kết nối lại để lấy danh sách sản phẩm
-        $conn = sqlsrv_connect($serverName, $connectionOptions);
-        $stmt = sqlsrv_query($conn, $sql);
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            echo "<tr>";
-            echo "<td>" . $row['ProductID'] . "</td>";
-            echo "<td>" . $row['ProductName'] . "</td>";
-            echo "<td>" . $row['Quantity'] . "</td>";
-            echo "<td>" . $row['Location'] . "</td>";
-            echo "<td>" . $row['Price'] . "</td>";
-            echo "<td>" . $row['LastUpdated']->format('Y-m-d H:i:s') . "</td>";
-            echo "<td><a href='?delete=" . $row['ProductID'] . "'>Xoá</a></td>";
-            echo "</tr>";
-        }
-        sqlsrv_close($conn);
-        ?>
-    </table>
-        </div>
+            <div id="dashboard" class="page" style="display:none;">Dashboard will be here.</div>
+            <div id="edit-warehouse" class="page" style="display:none;">Edit Warehouse will be here.</div>
+            <div id="all" class="page" style="display:none;">All stations content will be here.</div>
+            <div id="station1" class="page" style="display:none;">Station 1 content will be here.</div>
+            <div id="station2" class="page" style="display:none;">Station 2 content will be here.</div>
+            <div id="station3" class="page" style="display:none;">Station 3 content will be here.</div>
+            <div id="station4" class="page" style="display:none;">Station 4 content will be here.</div>
+            <div id="station5" class="page" style="display:none;">Station 5 content will be here.</div>
+            <div id="station6" class="page" style="display:none;">Station 6 content will be here.</div>
+            <div id="station7" class="page" style="display:none;">Station 7 content will be here.</div>
     </div>
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
