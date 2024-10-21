@@ -542,7 +542,7 @@ sqlsrv_close($conn);
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
+<body onload="updateTime();">
     <div class="sidebar" id="sidebar">
         <button class="toggle-btn" onclick="toggleSidebar()">
             <i class="fas fa-bars"></i>
@@ -568,9 +568,9 @@ sqlsrv_close($conn);
             </li>
             <li><a href="#" onclick="showPage('edit-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> Edit</span></a></li>
         </ul>
-
-        <div id="datetime" class="datetime"></div>
     </div>
+
+    <div id="datetime" class="datetime"></div>
 
     <div class="content">
         <div id="home" class="page">
@@ -588,13 +588,12 @@ sqlsrv_close($conn);
                     <img class="slide-image" src="Picture3.png" alt="Slide 3">
                 </div>
             
-                <div class="dots">
+                <div class="dots" style="text-align:center">
                     <span class="dot" onclick="showSlide(1)"></span>
                     <span class="dot" onclick="showSlide(2)"></span>
                     <span class="dot" onclick="showSlide(3)"></span>
                 </div>
             </div>
-            
         </div>
 
         <div id="dashboard" class="page" style="display:none;">Dashboard will be here.</div>
