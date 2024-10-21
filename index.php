@@ -356,7 +356,6 @@ sqlsrv_close($conn);
         }
     </style>
     <script>
-        let slideIndex = 0;
         showSlides();
         function showSlides() {
             let slides = document.querySelectorAll('.slide');
@@ -401,70 +400,94 @@ sqlsrv_close($conn);
             }
         }
 
-        function showPage(pageId) {
-            let pages = document.querySelectorAll('.page');
-            let links = document.querySelectorAll('.sidebar ul li a');
+        let slideIndex = 1;
+showSlides(slideIndex); // Gọi ngay khi trang tải để đảm bảo slideshow hiển thị ảnh đầu tiên
 
-            pages.forEach(page => {
-                page.style.display = 'none';
-            });
+// Điều khiển chuyển slide
+function plusSlides(n) {
+    showSlides(slideIndex += n);
+}
 
-            links.forEach(link => {
-                link.classList.remove('active'); // Xóa lớp active
-            });
+// Điều khiển hiển thị slide
+function currentSlide(n) {
+    showSlides(slideIndex = n);
+}
 
-            document.getElementById(pageId).style.display = 'block';
+function showSlides(n) {
+    let i;
+    let slides = document.getElementsByClassName("mySlides");
+    let dots = document.getElementsByClassName("dot");
+    
+    if (n > slides.length) { slideIndex = 1 }
+    if (n < 1) { slideIndex = slides.length }
+    
+    // Ẩn tất cả các slide
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    
+    // Loại bỏ tất cả các class "active" từ các dot
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active", "");
+    }
+    
+    // Hiển thị slide hiện tại và kích hoạt dot tương ứng
+    slides[slideIndex-1].style.display = "block";
+    dots[slideIndex-1].className += " active";
+}
 
-            const activeLink = [...links].find(link => link.onclick.toString().includes(pageId));
-            if (activeLink) {
-                activeLink.classList.add('active'); // Thêm lớp active cho liên kết đã chọn
-            }
+// Đảm bảo rằng slideshow được hiển thị ngay khi trang home mở
+function showPage(pageId) {
+    let pages = document.querySelectorAll('.page');
+    let links = document.querySelectorAll('.sidebar ul li a');
 
-            // Đóng danh sách trạm nếu chọn Home hoặc Edit
-            if (pageId === 'home' || pageId === 'edit-warehouse') {
-                document.querySelector('.station-list').classList.remove('open'); // Đóng danh sách trạm
-            }
-        }
+    pages.forEach(page => {
+        page.style.display = 'none';
+    });
 
-        function updateTime() {
-            const now = new Date();
-            const optionsDate = { day: 'numeric', month: 'numeric', year: 'numeric' };
-            const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
-            
-            const dateString = now.toLocaleDateString('en-GB', optionsDate); // 19/10/2024
-            const timeString = now.toLocaleTimeString('en-US', optionsTime); // 1:52 PM
-            
-            const sidebar = document.getElementById('sidebar');
+    links.forEach(link => {
+        link.classList.remove('active');
+    });
 
-            // Khi thanh công cụ mở, hiển thị ngày trước giờ
-            if (sidebar.classList.contains('collapsed')) {
-                document.getElementById('datetime').innerHTML = `${dateString} ${timeString}`; // Ngày trước, giờ sau
-            } else {
-                document.getElementById('datetime').innerHTML = `${dateString}<br>${timeString}`; // Ngày trên, giờ dưới
-            }
-        }
+    document.getElementById(pageId).style.display = 'block';
 
-        function updateTime() {
-            const now = new Date();
-            const optionsDate = { day: 'numeric', month: 'numeric', year: 'numeric' };
-            const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
-            
-            const dateString = now.toLocaleDateString('en-GB', optionsDate); // 19/10/2024
-            const timeString = now.toLocaleTimeString('en-US', optionsTime); // 1:52 PM
-            
-            const sidebar = document.getElementById('sidebar');
-            
-            // Khi thanh công cụ mở, hiển thị giờ ở trên và ngày ở dưới
-            if (sidebar.classList.contains('collapsed')) {
-                document.getElementById('datetime').innerHTML = `${timeString}<br>${dateString}`; // Giờ trên, ngày dưới
-            } else {
-                document.getElementById('datetime').innerHTML = `${timeString} ${dateString}`; // Cả hai trong một dòng
-            }
-        }
+    const activeLink = [...links].find(link => link.onclick.toString().includes(pageId));
+    if (activeLink) {
+        activeLink.classList.add('active');
+    }
 
-            // Cập nhật thời gian mỗi giây
-            setInterval(updateTime, 1000);
-            updateTime(); // Gọi ngay lập tức để thiết lập giá trị ban đầu
+    if (pageId === 'home') {
+        showSlides(slideIndex); // Gọi lại slideshow ngay khi vào Home
+    }
+}
+
+
+        
+
+function updateTime() {
+    const now = new Date();
+    const optionsDate = { day: 'numeric', month: 'numeric', year: 'numeric' };
+    const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
+
+    const dateString = now.toLocaleDateString('en-GB', optionsDate);
+    const timeString = now.toLocaleTimeString('en-US', optionsTime);
+
+    const sidebar = document.getElementById('sidebar');
+    const datetimeElement = document.getElementById('datetime');
+
+    if (sidebar && !sidebar.classList.contains('collapsed')) {
+        // Hiển thị ngang khi sidebar mở
+        datetimeElement.innerHTML = `${dateString} ${timeString}`;
+    } else {
+        // Hiển thị dọc khi sidebar đóng
+        datetimeElement.innerHTML = `${timeString}<br>${dateString}`;
+    }
+}
+
+// Cập nhật mỗi giây
+setInterval(updateTime, 1000);
+updateTime(); // Gọi ngay lập tức để hiển thị ban đầu
+
 
         function toggleSidebar() {
             let sidebar = document.getElementById('sidebar');
@@ -501,42 +524,39 @@ sqlsrv_close($conn);
         let tooltipTimeout;
 
         document.querySelectorAll('.sidebar ul li a').forEach(item => {
-            item.addEventListener('mouseover', function(event) {
-                // Xóa timeout trước đó nếu có
-                clearTimeout(tooltipTimeout);
+    item.addEventListener('mouseover', function(event) {
+        showTooltip(event, this);
+    });
 
-                // Tạo tooltip sau 1 giây
-                tooltipTimeout = setTimeout(() => {
-                    showTooltip(event, this); // Hiển thị tooltip
-                }, 250); // 1 giây
-            });
+    item.addEventListener('mouseout', function() {
+        hideTooltip();
+    });
+});
 
-            item.addEventListener('mouseout', function() {
-                clearTimeout(tooltipTimeout); // Xóa timer
-                hideTooltip(); // Ẩn tooltip
-            });
-        });
+function showTooltip(event, element) {
+    let tooltip = document.querySelector('.tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        document.body.appendChild(tooltip);
+    }
 
-        function showTooltip(event, element) {
-            const tooltip = document.createElement('div');
-            tooltip.classList.add('tooltip');
-            tooltip.textContent = element.querySelector('.link-text')?.textContent || 'Tooltip';
-            
-            document.body.appendChild(tooltip);
+    tooltip.textContent = element.getAttribute('data-tooltip') || 'Tooltip';
 
-            const rect = element.getBoundingClientRect();
-            tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 10}px`; // Vị trí phía trên nút
-            tooltip.style.left = `${rect.left + (rect.width - tooltip.offsetWidth) / 2}px`; // Căn giữa với nút
+    const rect = element.getBoundingClientRect();
+    tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 10}px`;
+    tooltip.style.left = `${rect.left + (rect.width - tooltip.offsetWidth) / 2}px`;
 
-            tooltip.classList.add('show');
-        }
+    tooltip.classList.add('show');
+}
 
-        function hideTooltip() {
-            const tooltip = document.querySelector('.tooltip');
-            if (tooltip) {
-                tooltip.remove(); // Xóa tooltip khỏi DOM
-            }
-        }
+function hideTooltip() {
+    const tooltip = document.querySelector('.tooltip');
+    if (tooltip) {
+        tooltip.classList.remove('show');
+    }
+}
+
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
