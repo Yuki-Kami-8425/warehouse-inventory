@@ -95,9 +95,12 @@ foreach ($data as $item) {
     <!-- Bảng Left Rack -->
     <table>
         <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($i = 1; $i <= 98; $i++): ?>
+        <?php for ($i = 14; $i >= 1; $i--): ?>
             <tr>
-                <td class="<?= in_array('AL' . str_pad($i, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></td>
+                <?php for ($j = 0; $j < 7; $j++): ?>
+                    <?php $index = ($i - 1) * 7 + $j + 1; ?>
+                    <td class="<?= in_array('AL' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
+                <?php endfor; ?>
             </tr>
         <?php endfor; ?>
     </table>
@@ -105,9 +108,12 @@ foreach ($data as $item) {
     <!-- Bảng Right Rack -->
     <table>
         <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($i = 1; $i <= 98; $i++): ?>
+        <?php for ($i = 14; $i >= 1; $i--): ?>
             <tr>
-                <td class="<?= in_array('AR' . str_pad($i, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></td>
+                <?php for ($j = 0; $j < 7; $j++): ?>
+                    <?php $index = ($i - 1) * 7 + $j + 1; ?>
+                    <td class="<?= in_array('AR' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
+                <?php endfor; ?>
             </tr>
         <?php endfor; ?>
     </table>
@@ -129,19 +135,20 @@ foreach ($data as $item) {
 <script>
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
-    const customerCount = Object.keys(customers).length; // Số khách hàng
     const totalSlots = 196; // Tổng số ô (98x2)
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    const palletCounts = <?= json_encode(array_column($data, 'LUONG_PALLET')) ?>; // Lượng pallet
+    const customerNames = Object.values(customers); // Tên khách hàng
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
     const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: Object.values(customers), // Tên khách hàng
+            labels: customerNames, // Tên khách hàng
             datasets: [{
                 label: 'Số lượng pallet',
-                data: <?= json_encode(array_column($data, 'LUONG_PALLET')) ?>, // Lượng pallet
+                data: palletCounts, // Lượng pallet
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
