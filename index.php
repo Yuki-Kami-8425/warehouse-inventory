@@ -81,7 +81,7 @@ sqlsrv_close($conn);
         }
 
         /* Responsive: Biểu đồ sẽ thu nhỏ lại trên màn hình nhỏ */
-        @media (max-width: 768px) {
+        @media (max-width: 450px) {
             .chart-container {
                 width: 80vw; /* Chiều rộng lớn hơn cho màn hình nhỏ */
                 height: 80vw; /* Điều chỉnh chiều cao theo tỷ lệ */
