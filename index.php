@@ -44,7 +44,11 @@ sqlsrv_close($conn);
         body {
             background-color: #001F3F; /* Xanh đậm */
             color: white; /* Màu chữ trắng */
-            font-size: 8px; /* Kích thước chữ */
+            font-size: 8px; /* Kích thước chữ trong bảng */
+        }
+        h2 {
+            font-size: 20px; /* Cỡ chữ cho tiêu đề Warehouse */
+            text-align: center;
         }
         .container {
             display: flex; /* Sử dụng flexbox để bố trí các phần tử */
@@ -54,6 +58,7 @@ sqlsrv_close($conn);
         table {
             width: 30%; /* Mỗi bảng chiếm 1/5 màn hình */
             border-collapse: collapse;
+            font-size: 8px; /* Kích thước chữ trong bảng */
         }
         th, td {
             border: 2px solid white; /* Đường viền trắng */
@@ -76,7 +81,7 @@ sqlsrv_close($conn);
 </head>
 <body>
 
-<h2 style="text-align: center;">Warehouse Station A</h2>
+<h2>Warehouse Station A</h2>
 
 <div class="container">
     <!-- Bảng Left Rack -->
@@ -160,58 +165,39 @@ sqlsrv_close($conn);
     </table>
 </div>
 
-<!-- Biểu đồ -->
 <div class="charts">
-    <!-- Biểu đồ cột -->
     <div class="chart-container">
         <canvas id="barChart"></canvas>
     </div>
-
-    <!-- Biểu đồ tròn -->
     <div class="chart-container">
         <canvas id="pieChart"></canvas>
     </div>
 </div>
 
 <script>
-    // Dữ liệu biểu đồ
-    const customerCount = <?= count($customers) ?>; // Số khách hàng
-    const totalSlots = 196; // Tổng số ô (98x2)
-    const filledSlots = <?= count(array_filter($customers, fn($c) => str_starts_with($c, 'A'))) ?>; // Số ô đã sử dụng
+    // Dữ liệu cho biểu đồ
+    const data = {
+        labels: ['AL04', 'AR01', 'AR02'], // Tên các ô
+        datasets: [{
+            label: 'Số lượng',
+            data: [1, 2, 1], // Số lượng tương ứng
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            borderColor: 'white', // Màu viền
+            borderWidth: 1
+        }]
+    };
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
     const barChart = new Chart(ctxBar, {
         type: 'bar',
-        data: {
-            labels: ['Customers'],
-            datasets: [{
-                label: 'Number of Customers',
-                data: [customerCount],
-                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
-                borderColor: 'white', // Đường viền trắng
-                borderWidth: 2
-            }]
-        },
+        data: data,
         options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Màu chữ trắng cho legend
-                    }
-                }
-            },
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: {
-                        color: 'white' // Màu đường lưới trắng
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'white' // Màu đường lưới trắng
+                    ticks: {
+                        stepSize: 1, // Chia đơn vị là 1
                     }
                 }
             }
@@ -222,23 +208,9 @@ sqlsrv_close($conn);
     const ctxPie = document.getElementById('pieChart').getContext('2d');
     const pieChart = new Chart(ctxPie, {
         type: 'pie',
-        data: {
-            labels: ['Filled', 'Available'],
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
-                borderColor: 'white', // Đường viền trắng
-                borderWidth: 2
-            }]
-        },
+        data: data,
         options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Màu chữ trắng cho legend
-                    }
-                }
-            }
+            responsive: true
         }
     });
 </script>
