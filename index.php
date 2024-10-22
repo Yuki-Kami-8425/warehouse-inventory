@@ -94,7 +94,7 @@ sqlsrv_close($conn);
     <!-- Bảng Left Rack -->
     <table>
         <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($row = 1; $row <= 7; $row++): ?>
+        <?php for ($row = 7; $row >= 1; $row--): ?>
             <tr>
                 <?php for ($col = 1; $col <= 14; $col++): ?>
                     <?php $index = ($row - 1) * 14 + $col; ?>
@@ -107,7 +107,7 @@ sqlsrv_close($conn);
     <!-- Bảng Right Rack -->
     <table>
         <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($row = 1; $row <= 7; $row++): ?>
+        <?php for ($row = 7; $row >= 1; $row--): ?>
             <tr>
                 <?php for ($col = 1; $col <= 14; $col++): ?>
                     <?php $index = ($row - 1) * 14 + $col; ?>
@@ -117,8 +117,6 @@ sqlsrv_close($conn);
         <?php endfor; ?>
     </table>
 </div>
-
-
 
 <!-- Biểu đồ -->
 <div class="charts">
