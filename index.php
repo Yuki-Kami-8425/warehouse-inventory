@@ -15,8 +15,8 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy dữ liệu từ bảng cho trạm A
-$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%'";
+// Truy vấn dữ liệu: nhóm theo khách hàng và đếm số slot mà mỗi khách hàng chiếm
+$sql = "SELECT MAKH, TENKH, COUNT(RFID) AS SLOT_COUNT FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH, TENKH";
 $stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
@@ -25,21 +25,15 @@ if ($stmt === false) {
 }
 
 // Tạo mảng để lưu dữ liệu
-$data = [];
 $customers = [];
+$slotCounts = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $data[] = $row;
-    $customers[$row['MAKH']] = $row['TENKH'];
+    $customers[] = $row['TENKH'];
+    $slotCounts[] = $row['SLOT_COUNT']; // Đếm số slot mà khách hàng đã chiếm
 }
 
 // Đóng kết nối
 sqlsrv_close($conn);
-
-// Biến để xác định các ô đã được sử dụng
-$highlighted = [];
-foreach ($data as $item) {
-    $highlighted[] = trim($item['RFID']); // Dùng trim để loại bỏ khoảng trắng
-}
 ?>
 
 <!DOCTYPE html>
@@ -102,7 +96,7 @@ foreach ($data as $item) {
             <tr>
                 <?php for ($col = 1; $col <= 7; $col++): ?>
                     <?php $index = ($row - 1) * 7 + $col; ?>
-                    <td class="<?= in_array('AL' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
+                    <td>AL<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
                 <?php endfor; ?>
             </tr>
         <?php endfor; ?>
@@ -115,7 +109,7 @@ foreach ($data as $item) {
             <tr>
                 <?php for ($col = 1; $col <= 7; $col++): ?>
                     <?php $index = ($row - 1) * 7 + $col; ?>
-                    <td class="<?= in_array('AR' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
+                    <td>AR<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
                 <?php endfor; ?>
             </tr>
         <?php endfor; ?>
@@ -136,21 +130,19 @@ foreach ($data as $item) {
 </div>
 
 <script>
-    // Dữ liệu biểu đồ
+    // Dữ liệu biểu đồ cột
     const customers = <?= json_encode($customers) ?>;
-    const customerCount = Object.keys(customers).length; // Số khách hàng
-    const totalSlots = 196; // Tổng số ô (98x2)
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    const slotCounts = <?= json_encode($slotCounts) ?>;
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
     const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: Object.values(customers), // Tên khách hàng
+            labels: customers, // Tên khách hàng
             datasets: [{
-                label: 'Number of Pallets', // Đổi nhãn thành "Number of Pallets"
-                data: <?= json_encode(array_column($data, 'LUONG_PALLET')) ?>, // Lượng pallet
+                label: 'Used Slots', // Nhãn "Used Slots"
+                data: slotCounts, // Số lượng slot mà mỗi khách hàng đã chiếm
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
@@ -170,7 +162,7 @@ foreach ($data as $item) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Pallets', // Nhãn cho trục Y
+                        text: 'Number of Used Slots', // Nhãn trục Y
                         color: 'white' // Màu chữ trắng cho nhãn
                     },
                     grid: {
@@ -199,7 +191,7 @@ foreach ($data as $item) {
         data: {
             labels: ['Used', 'Remaining'], // Nhãn cho biểu đồ tròn
             datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
+                data: [<?= count($slotCounts) ?>, 196 - <?= count($slotCounts) ?>],
                 backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
