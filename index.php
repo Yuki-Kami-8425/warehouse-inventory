@@ -149,7 +149,7 @@ foreach ($data as $item) {
         data: {
             labels: Object.values(customers), // Tên khách hàng
             datasets: [{
-                label: 'Number of Pallets',
+                label: 'Number of Pallets', // Đổi nhãn thành "Number of Pallets"
                 data: <?= json_encode(array_column($data, 'LUONG_PALLET')) ?>, // Lượng pallet
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
@@ -168,12 +168,16 @@ foreach ($data as $item) {
             scales: {
                 y: {
                     beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Pallets', // Nhãn cho trục Y
+                        color: 'white' // Màu chữ trắng cho nhãn
+                    },
                     grid: {
                         color: 'white' // Màu đường lưới trắng
                     },
                     ticks: {
-                        stepSize: 1, // Đơn vị trong biểu đồ cột
-                        color: 'white' // Màu chữ số trục y
+                        color: 'white' // Màu chữ trắng cho tick marks
                     }
                 },
                 x: {
@@ -181,7 +185,7 @@ foreach ($data as $item) {
                         color: 'white' // Màu đường lưới trắng
                     },
                     ticks: {
-                        color: 'white' // Màu chữ tên khách hàng
+                        color: 'white' // Màu chữ trắng cho tick marks
                     }
                 }
             }
@@ -193,7 +197,7 @@ foreach ($data as $item) {
     const pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
-            labels: ['Used', 'Remaining'],
+            labels: ['Used', 'Remaining'], // Nhãn cho biểu đồ tròn
             datasets: [{
                 data: [filledSlots, totalSlots - filledSlots],
                 backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
