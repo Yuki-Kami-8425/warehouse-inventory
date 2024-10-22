@@ -52,7 +52,7 @@ sqlsrv_close($conn);
             margin: 20px; /* Giãn cách giữa các bảng và biểu đồ */
         }
         table {
-            width: 20%; /* Mỗi bảng chiếm 1/5 màn hình */
+            width: 30%; /* Mỗi bảng chiếm 1/5 màn hình */
             border-collapse: collapse;
         }
         th, td {
@@ -64,7 +64,7 @@ sqlsrv_close($conn);
             background-color: #32CD32; /* Màu xanh lục cho ô được highlight */
         }
         .chart-container {
-            width: 40%; /* Chiếm 2/5 màn hình cho biểu đồ */
+            width: 30%; /* Chiếm 2/5 màn hình cho biểu đồ */
             margin: 20px; /* Giãn cách giữa các biểu đồ */
         }
         .charts {
@@ -188,6 +188,7 @@ sqlsrv_close($conn);
             datasets: [{
                 label: 'Number of Customers',
                 data: [customerCount],
+                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
             }]
