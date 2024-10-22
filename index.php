@@ -56,7 +56,10 @@ foreach ($data as $item) {
         }
         h2 {
             text-align: center;
-            font-size: 20px; /* Cỡ chữ tiêu đề lớn */
+            font-size: 24px; /* Cỡ chữ tiêu đề lớn hơn */
+        }
+        caption {
+            font-size: 16px; /* Cỡ chữ cho caption lớn hơn */
         }
         .container {
             display: flex; /* Sử dụng flexbox để bố trí các phần tử */
@@ -95,14 +98,9 @@ foreach ($data as $item) {
     <!-- Bảng Left Rack -->
     <table>
         <caption style="caption-side: top;">Left Rack</caption>
-        <?php
-        for ($row = 14; $row >= 1; $row--): ?>
+        <?php for ($i = 1; $i <= 98; $i++): ?>
             <tr>
-                <?php for ($col = 1; $col <= 7; $col++): 
-                    $cellNumber = ($row - 1) * 7 + $col; // Tính số ô
-                    ?>
-                    <td class="<?= in_array('AL' . str_pad($cellNumber, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($cellNumber, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
+                <td class="<?= in_array('AL' . str_pad($i, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></td>
             </tr>
         <?php endfor; ?>
     </table>
@@ -110,14 +108,9 @@ foreach ($data as $item) {
     <!-- Bảng Right Rack -->
     <table>
         <caption style="caption-side: top;">Right Rack</caption>
-        <?php
-        for ($row = 14; $row >= 1; $row--): ?>
+        <?php for ($i = 1; $i <= 98; $i++): ?>
             <tr>
-                <?php for ($col = 1; $col <= 7; $col++): 
-                    $cellNumber = ($row - 1) * 7 + $col; // Tính số ô
-                    ?>
-                    <td class="<?= in_array('AR' . str_pad($cellNumber, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($cellNumber, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
+                <td class="<?= in_array('AR' . str_pad($i, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></td>
             </tr>
         <?php endfor; ?>
     </table>
@@ -173,12 +166,16 @@ foreach ($data as $item) {
                         color: 'white' // Màu đường lưới trắng
                     },
                     ticks: {
-                        stepSize: 1 // Đơn vị trong biểu đồ cột
+                        stepSize: 1, // Đơn vị trong biểu đồ cột
+                        color: 'white' // Màu chữ số trục y
                     }
                 },
                 x: {
                     grid: {
                         color: 'white' // Màu đường lưới trắng
+                    },
+                    ticks: {
+                        color: 'white' // Màu chữ tên khách hàng
                     }
                 }
             }
