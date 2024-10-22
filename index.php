@@ -16,7 +16,7 @@ if ($conn === false) {
 }
 
 // Lấy dữ liệu từ bảng cho trạm A (ví dụ A)
-$sql = "SELECT MAKH, TENKH, SUM(LUONG_PALLET) AS TOTAL_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH, TENKH, RFID";
+$sql = "SELECT MAKH, TENKH, COUNT(RFID) AS RFID_COUNT, RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH, TENKH, RFID";
 $stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
@@ -139,7 +139,7 @@ foreach ($data as $item) {
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
     const customerCount = Object.keys(customers).length; // Số khách hàng
-    const totalSlots = 98; // Tổng số ô (mỗi rack là 98)
+    const totalSlots = 196; // Tổng số vị trí trong Station A
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
     // Biểu đồ cột
@@ -149,8 +149,8 @@ foreach ($data as $item) {
         data: {
             labels: Object.values(customers), // Tên khách hàng
             datasets: [{
-                label: 'Total Pallets',
-                data: <?= json_encode(array_column($data, 'TOTAL_PALLET')) ?>, // Tổng số pallet mỗi khách hàng
+                label: 'RFID Count',
+                data: <?= json_encode(array_column($data, 'RFID_COUNT')) ?>, // Số lượng RFID mỗi khách hàng có
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
@@ -170,7 +170,7 @@ foreach ($data as $item) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Total Pallets', // Nhãn cho trục Y
+                        text: 'RFID Count', // Nhãn cho trục Y
                         color: 'white' // Màu chữ trắng cho nhãn
                     },
                     grid: {
@@ -200,7 +200,7 @@ foreach ($data as $item) {
         data: {
             labels: ['Used', 'Remaining'], // Nhãn cho biểu đồ tròn
             datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
+                data: [filledSlots, totalSlots - filledSlots], // Tổng số đã sử dụng và còn lại
                 backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
