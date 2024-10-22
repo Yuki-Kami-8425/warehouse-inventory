@@ -15,8 +15,8 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy dữ liệu từ bảng cho trạm A (ví dụ A)
-$sql = "SELECT MAKH, TENKH, COUNT(DISTINCT RFID) AS RFID_COUNT FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH, TENKH";
+// Lấy dữ liệu từ bảng cho trạm A
+$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%'";
 $stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
@@ -27,19 +27,15 @@ if ($stmt === false) {
 // Tạo mảng để lưu dữ liệu
 $data = [];
 $customers = [];
+$highlighted = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $data[] = $row;
-    $customers[$row['MAKH']] = $row['TENKH'];
+    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
+    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng, giữ danh sách RFID để highlight
 }
 
 // Đóng kết nối
 sqlsrv_close($conn);
-
-// Biến để xác định các ô đã được sử dụng
-$highlighted = [];
-foreach ($data as $item) {
-    $highlighted[] = trim($item['RFID']); // Dùng trim để loại bỏ khoảng trắng
-}
 ?>
 
 <!DOCTYPE html>
@@ -98,10 +94,10 @@ foreach ($data as $item) {
     <!-- Bảng Left Rack -->
     <table>
         <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
+        <?php for ($row = 14; $row >= 1; $row--): ?>
             <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
+                <?php for ($col = 1; $col <= 7; $col++): ?>
+                    <?php $index = ($row - 1) * 7 + $col; ?>
                     <td class="<?= in_array('AL' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
                 <?php endfor; ?>
             </tr>
@@ -111,10 +107,10 @@ foreach ($data as $item) {
     <!-- Bảng Right Rack -->
     <table>
         <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
+        <?php for ($row = 14; $row >= 1; $row--): ?>
             <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
+                <?php for ($col = 1; $col <= 7; $col++): ?>
+                    <?php $index = ($row - 1) * 7 + $col; ?>
                     <td class="<?= in_array('AR' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
                 <?php endfor; ?>
             </tr>
@@ -138,8 +134,9 @@ foreach ($data as $item) {
 <script>
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
-    const customerCount = Object.keys(customers).length; // Số khách hàng
-    const totalSlots = 196; // Tổng số vị trí trong Station A
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+    const totalSlots = 196; // Tổng số ô (98x2)
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
     // Biểu đồ cột
@@ -147,10 +144,10 @@ foreach ($data as $item) {
     const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: Object.values(customers), // Tên khách hàng
+            labels: customerLabels, // Mã khách hàng
             datasets: [{
-                label: 'RFID Count',
-                data: <?= json_encode(array_column($data, 'RFID_COUNT')) ?>, // Số lượng RFID mỗi khách hàng có
+                label: 'Used Slots', // Nhãn trục Y
+                data: customerData, // Số lượng RFID cho mỗi khách hàng
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
@@ -170,7 +167,7 @@ foreach ($data as $item) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'RFID Count', // Nhãn cho trục Y
+                        text: 'Number of Used Slots', // Nhãn cho trục Y
                         color: 'white' // Màu chữ trắng cho nhãn
                     },
                     grid: {
@@ -178,7 +175,7 @@ foreach ($data as $item) {
                     },
                     ticks: {
                         color: 'white', // Màu chữ trắng cho tick marks
-                        stepSize: 1 // Độ chia là 1
+                        stepSize: 1 // Đặt độ chia cho trục Y là 1
                     }
                 },
                 x: {
@@ -200,7 +197,7 @@ foreach ($data as $item) {
         data: {
             labels: ['Used', 'Remaining'], // Nhãn cho biểu đồ tròn
             datasets: [{
-                data: [filledSlots, totalSlots - filledSlots], // Tổng số đã sử dụng và còn lại
+                data: [filledSlots, totalSlots - filledSlots],
                 backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
