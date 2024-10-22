@@ -49,26 +49,43 @@ sqlsrv_close($conn);
     <title>Warehouse Statistics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* CSS để điều chỉnh màu sắc phù hợp với nền xanh dương đậm */
+        /* CSS để điều chỉnh màu sắc và bố cục biểu đồ */
         body {
             background-color: #003366; /* Màu xanh dương đậm */
             color: white; /* Chữ trắng */
             display: flex;
             flex-direction: column;
-            align-items: center; /* Canh lề ở trung tâm trang */
+            align-items: center;
         }
+
+        .chart-row {
+            display: flex;
+            justify-content: center; /* Căn lề ở giữa theo chiều ngang */
+            gap: 20px; /* Khoảng cách giữa hai biểu đồ */
+            margin-top: 30px;
+        }
+
         .chart-container {
-            width: 30vw; /* 30% chiều rộng của màn hình */
-            height: 30vw; /* Tỷ lệ tương ứng với chiều rộng */
-            margin: 20px;
+            width: 40vw; /* Đặt 40% chiều rộng màn hình cho mỗi biểu đồ */
+            height: 40vw; /* Đảm bảo tỉ lệ vuông */
             display: inline-block;
         }
+
         h2 {
             color: white; /* Màu chữ trắng cho tiêu đề */
         }
+
         /* Điều chỉnh cho biểu đồ */
         .chartjs-render-monitor {
             border: 2px solid white; /* Viền trắng xung quanh biểu đồ */
+        }
+
+        /* Responsive: Biểu đồ sẽ thu nhỏ lại trên màn hình nhỏ */
+        @media (max-width: 768px) {
+            .chart-container {
+                width: 80vw; /* Chiều rộng lớn hơn cho màn hình nhỏ */
+                height: 80vw; /* Điều chỉnh chiều cao theo tỷ lệ */
+            }
         }
     </style>
 </head>
@@ -76,14 +93,16 @@ sqlsrv_close($conn);
 
 <h2>Warehouse Statistics</h2>
 
-<!-- Biểu đồ tròn: Tổng số pallet -->
-<div class="chart-container">
-    <canvas id="pieChart"></canvas>
-</div>
+<div class="chart-row">
+    <!-- Biểu đồ tròn: Tổng số pallet -->
+    <div class="chart-container">
+        <canvas id="pieChart"></canvas>
+    </div>
 
-<!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
-<div class="chart-container">
-    <canvas id="barChart"></canvas>
+    <!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
+    <div class="chart-container">
+        <canvas id="barChart"></canvas>
+    </div>
 </div>
 
 <script>
