@@ -16,7 +16,7 @@ if ($conn === false) {
 }
 
 // Lấy dữ liệu từ bảng cho trạm A (ví dụ A)
-$sql = "SELECT MAKH, TENKH, COUNT(RFID) AS RFID_COUNT, RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH, TENKH, RFID";
+$sql = "SELECT MAKH, TENKH, COUNT(DISTINCT RFID) AS RFID_COUNT FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH, TENKH";
 $stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
