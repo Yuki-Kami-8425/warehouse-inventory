@@ -198,12 +198,13 @@ $palletCounts = array_count_values(array_column($data, 'MAKH'));
             labels: ['Used', 'Available'],
             datasets: [{
                 data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Red and blue
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 0.2)'], // Red and light blue
                 borderColor: 'white', // White border
                 borderWidth: 2
             }]
         },
         options: {
+            responsive: true,
             plugins: {
                 legend: {
                     labels: {
