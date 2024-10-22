@@ -16,7 +16,7 @@ if ($conn === false) {
 }
 
 // Lấy dữ liệu từ RFID
-$sql = "SELECT DISTINCT MAKH FROM dbo.stored_warehouse WHERE RFID LIKE 'A%'";
+$sql = "SELECT DISTINCT MAKH, COUNT(MAKH) as Count FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH";
 $stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
@@ -24,10 +24,10 @@ if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy tên khách hàng
+// Lấy tên khách hàng và số lượng
 $customers = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $customers[] = $row['MAKH'];
+    $customers[$row['MAKH']] = $row['Count'];
 }
 
 // Đóng kết nối
@@ -47,8 +47,8 @@ sqlsrv_close($conn);
             font-size: 8px; /* Kích thước chữ */
         }
         h2 {
-            text-align: center; 
-            font-size: 18px; /* Kích thước chữ tiêu đề */
+            font-size: 18px; /* Kích thước chữ cho tiêu đề */
+            text-align: center;
         }
         .container {
             display: flex; /* Sử dụng flexbox để bố trí các phần tử */
@@ -56,20 +56,20 @@ sqlsrv_close($conn);
             margin: 20px; /* Giãn cách giữa các bảng và biểu đồ */
         }
         table {
-            width: 45%; /* Mỗi bảng chiếm gần 1/2 màn hình */
+            width: 30%; /* Mỗi bảng chiếm 30% màn hình */
             border-collapse: collapse;
-            font-size: 8px; /* Kích thước chữ trong bảng */
         }
         th, td {
             border: 2px solid white; /* Đường viền trắng */
-            padding: 3px; /* Giảm padding để bảng nhỏ hơn */
+            padding: 5px; /* Giảm padding để bảng nhỏ hơn */
             text-align: center;
+            font-size: 8px; /* Kích thước chữ trong bảng */
         }
         td.highlight {
-            background-color: #32CD32; /* Màu xanh lục cho ô được highlight */
+            background-color: #FFD700; /* Màu vàng cho ô được highlight */
         }
         .chart-container {
-            width: 45%; /* Chiếm gần 1/2 màn hình cho biểu đồ */
+            width: 30%; /* Chiếm 30% màn hình cho biểu đồ */
             margin: 20px; /* Giãn cách giữa các biểu đồ */
         }
         .charts {
@@ -87,25 +87,37 @@ sqlsrv_close($conn);
     <!-- Bảng Left Rack -->
     <table>
         <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($i = 1; $i <= 14; $i++): ?>
-            <tr>
-                <?php for ($j = 0; $j < 7; $j++): ?>
-                    <td>AL<?= str_pad(($i - 1) * 7 + $j + 1, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
+        <tr>
+            <td class="<?= isset($customers['BIDC']) ? 'highlight' : '' ?>">AL01</td>
+            <td>AL02</td>
+            <td>AL03</td>
+            <td class="<?= isset($customers['BIDC']) ? 'highlight' : '' ?>">AL04</td>
+            <td>AL05</td>
+            <td>AL06</td>
+            <td>AL07</td>
+            <td>AL08</td>
+            <td>AL09</td>
+            <td>AL10</td>
+        </tr>
+        <!-- ... các hàng tiếp theo tương tự ... -->
     </table>
 
     <!-- Bảng Right Rack -->
     <table>
         <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($i = 1; $i <= 14; $i++): ?>
-            <tr>
-                <?php for ($j = 0; $j < 7; $j++): ?>
-                    <td>AR<?= str_pad(($i - 1) * 7 + $j + 1, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
+        <tr>
+            <td class="<?= isset($customers['BIDC']) ? 'highlight' : '' ?>">AR01</td>
+            <td>AR02</td>
+            <td>AR03</td>
+            <td>AR04</td>
+            <td>AR05</td>
+            <td>AR06</td>
+            <td>AR07</td>
+            <td>AR08</td>
+            <td>AR09</td>
+            <td>AR10</td>
+        </tr>
+        <!-- ... các hàng tiếp theo tương tự ... -->
     </table>
 </div>
 
@@ -124,33 +136,26 @@ sqlsrv_close($conn);
 
 <script>
     // Dữ liệu biểu đồ
-    const customerCount = <?= count($customers) ?>; // Số khách hàng
-    const totalSlots = 196; // Tổng số ô (98x2)
-    const filledSlots = <?= count(array_filter($customers, fn($c) => str_starts_with($c, 'A'))) ?>; // Số ô đã sử dụng
+    const customers = <?= json_encode($customers) ?>; // Khách hàng và số lượng
+    const totalSlots = 196; // Tổng số ô
+    const filledSlots = <?= count(array_filter(array_keys($customers), fn($c) => str_starts_with($c, 'A'))) ?>; // Số ô đã sử dụng
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
     const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: <?= json_encode(array_map(fn($customer) => $customer, $customers)) ?>,
+            labels: Object.keys(customers), // Tên khách hàng
             datasets: [{
                 label: 'Number of Customers',
-                data: <?= json_encode(array_fill(0, count($customers), 1)) ?>, // Đơn vị là 1 cho mỗi khách hàng
-                backgroundColor: 'rgba(0, 191, 255, 1)', // Màu lam tươi
+                data: Object.values(customers), // Số lượng khách hàng
+                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Màu chữ trắng cho legend
-                    }
-                }
-            },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -178,19 +183,10 @@ sqlsrv_close($conn);
             labels: ['Filled', 'Available'],
             datasets: [{
                 data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(0, 191, 255, 1)'], // Màu đỏ và xanh
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
             }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Màu chữ trắng cho legend
-                    }
-                }
-            }
         }
     });
 </script>
