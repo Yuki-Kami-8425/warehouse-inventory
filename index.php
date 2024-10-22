@@ -96,8 +96,8 @@ sqlsrv_close($conn);
         <caption style="caption-side: top;">Left Rack</caption>
         <?php for ($row = 14; $row >= 1; $row--): ?>
             <tr>
-                <?php for ($col = 1; $col <= 7; $col++): ?>
-                    <?php $index = ($row - 1) * 7 + $col; ?>
+                <?php for ($col = 1; $col <= 14; $col++): ?>
+                    <?php $index = ($row - 1) * 14 + $col; ?>
                     <td class="<?= in_array('AL' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
                 <?php endfor; ?>
             </tr>
@@ -109,14 +109,15 @@ sqlsrv_close($conn);
         <caption style="caption-side: top;">Right Rack</caption>
         <?php for ($row = 14; $row >= 1; $row--): ?>
             <tr>
-                <?php for ($col = 1; $col <= 7; $col++): ?>
-                    <?php $index = ($row - 1) * 7 + $col; ?>
+                <?php for ($col = 1; $col <= 14; $col++): ?>
+                    <?php $index = ($row - 1) * 14 + $col; ?>
                     <td class="<?= in_array('AR' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
                 <?php endfor; ?>
             </tr>
         <?php endfor; ?>
     </table>
 </div>
+
 
 <!-- Biểu đồ -->
 <div class="charts">
