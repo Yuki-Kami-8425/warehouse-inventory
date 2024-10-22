@@ -53,10 +53,13 @@ sqlsrv_close($conn);
         body {
             background-color: #003366; /* Màu xanh dương đậm */
             color: white; /* Chữ trắng */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Canh lề ở trung tâm trang */
         }
         .chart-container {
-            width: 25vw; /* 1/4 chiều rộng của màn hình */
-            height: 25vw; /* Tỷ lệ tương ứng với chiều rộng */
+            width: 30vw; /* 30% chiều rộng của màn hình */
+            height: 30vw; /* Tỷ lệ tương ứng với chiều rộng */
             margin: 20px;
             display: inline-block;
         }
@@ -133,11 +136,17 @@ var barChart = new Chart(ctx2, {
             x: {
                 ticks: {
                     color: 'white' /* Màu chữ trắng trên trục X */
+                },
+                grid: {
+                    display: false /* Ẩn các đường kẻ trên trục X */
                 }
             },
             y: {
                 ticks: {
                     color: 'white' /* Màu chữ trắng trên trục Y */
+                },
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.2)' /* Đường kẻ mờ nhạt hơn trên trục Y */
                 }
             }
         },
