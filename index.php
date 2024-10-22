@@ -40,6 +40,9 @@ $highlighted = [];
 foreach ($data as $item) {
     $highlighted[] = $item['RFID'];
 }
+
+// Tính toán số lượng pallet cho từng khách hàng
+$palletCounts = array_count_values(array_column($data, 'MAKH'));
 ?>
 
 <!DOCTYPE html>
@@ -74,7 +77,7 @@ foreach ($data as $item) {
             text-align: center;
         }
         td.highlight {
-            background-color: #32CD32; /* Màu xanh lục cho ô được highlight */
+            background-color: #ADD8E6; /* Màu lam nhạt cho ô được highlight */
         }
         .chart-container {
             width: 30%; /* Chiếm 30% màn hình cho biểu đồ */
@@ -137,8 +140,8 @@ foreach ($data as $item) {
     const customers = <?= json_encode($customers) ?>;
     const totalSlots = 196; // Tổng số ô (98x2)
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
-    const palletCounts = <?= json_encode(array_column($data, 'LUONG_PALLET')) ?>; // Lượng pallet
-    const customerNames = Object.values(customers); // Tên khách hàng
+    const palletCounts = <?= json_encode($palletCounts) ?>; // Lượng pallet cho từng khách hàng
+    const customerNames = Object.keys(customers); // Tên khách hàng
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
@@ -148,7 +151,7 @@ foreach ($data as $item) {
             labels: customerNames, // Tên khách hàng
             datasets: [{
                 label: 'Số lượng pallet',
-                data: palletCounts, // Lượng pallet
+                data: Object.values(palletCounts), // Lượng pallet
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
