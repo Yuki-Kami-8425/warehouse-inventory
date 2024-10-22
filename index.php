@@ -49,191 +49,152 @@ sqlsrv_close($conn);
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Station A Rack</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Rack Display</title>
     <style>
         body {
-            background-color: #003366; /* Nền xanh đậm */
+            background-color: #003366; /* Xanh đậm */
             color: white;
+            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
-
         .rack-container {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            margin: 20px 0;
+            margin-bottom: 20px;
         }
-
-        .rack {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr); /* 7 cột */
-            grid-template-rows: repeat(14, 1fr); /* 14 hàng */
-            gap: 5px;
-            width: 40%;
+        table {
+            border-collapse: collapse;
+            margin: 10px;
         }
-
-        .slot {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding: 10px;
-            background-color: #666666; /* Màu xám cho các ô */
+        th, td {
+            padding: 8px;
             border: 1px solid white;
-            font-size: 12px;
+            text-align: center;
+            width: 50px;
         }
-
         .highlight {
-            background-color: #FF6347; /* Màu đỏ cam để high-light */
+            background-color: yellow; /* Màu phát sáng cho ô tìm thấy */
+            color: black;
         }
-
-        /* Bố trí biểu đồ */
-        .chart-row {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .chart-container {
-            width: 40vw;
-            height: 40vw;
-        }
-
-        /* Responsive cho màn hình nhỏ hơn */
-        @media (max-width: 768px) {
-            .rack-container, .chart-row {
-                flex-direction: column;
-                align-items: center;
-            }
-            .chart-container {
-                width: 80vw;
-                height: 80vw;
-            }
+        canvas {
+            background-color: white;
+            margin: 10px;
+            width: 400px;
+            height: 300px;
         }
     </style>
 </head>
 <body>
 
-<h2>Station A Rack Layout</h2>
+<h1>Warehouse Station A - Rack Display</h1>
 
 <div class="rack-container">
     <!-- Left Rack -->
-    <div class="rack">
-        <?php
-        // Hiển thị 14 ô từ A01 đến A14 cho rack trái
-        for ($i = 1; $i <= 14; $i++) {
-            $rfid = sprintf("AL%02d", $i);
-            $highlight = in_array($rfid, $rfids) ? 'highlight' : '';
-            echo "<div class='slot $highlight'>$rfid</div>";
-        }
-        ?>
-    </div>
+    <table>
+        <caption>Left Rack</caption>
+        <tbody>
+            <?php
+            $leftRack = [];
+            for ($i = 98; $i >= 1; $i--) {
+                $leftRack[] = sprintf("AL%02d", $i);
+            }
+
+            for ($row = 0; $row < 7; $row++) {
+                echo "<tr>";
+                for ($col = 0; $col < 14; $col++) {
+                    $cell = $leftRack[$row * 14 + $col];
+                    $highlightClass = ($cell == "AL04") ? "highlight" : ""; // Example highlight for AL04
+                    echo "<td class='$highlightClass'>$cell</td>";
+                }
+                echo "</tr>";
+            }
+            ?>
+        </tbody>
+    </table>
 
     <!-- Right Rack -->
-    <div class="rack">
-        <?php
-        // Hiển thị 14 ô từ A98 đến A85 cho rack phải
-        for ($i = 98; $i >= 85; $i--) {
-            $rfid = sprintf("AR%02d", $i);
-            $highlight = in_array($rfid, $rfids) ? 'highlight' : '';
-            echo "<div class='slot $highlight'>$rfid</div>";
-        }
-        ?>
-    </div>
+    <table>
+        <caption>Right Rack</caption>
+        <tbody>
+            <?php
+            $rightRack = [];
+            for ($i = 98; $i >= 1; $i--) {
+                $rightRack[] = sprintf("AR%02d", $i);
+            }
+
+            for ($row = 0; $row < 7; $row++) {
+                echo "<tr>";
+                for ($col = 0; $col < 14; $col++) {
+                    $cell = $rightRack[$row * 14 + $col];
+                    $highlightClass = ($cell == "AR01") ? "highlight" : ""; // Example highlight for AR01
+                    echo "<td class='$highlightClass'>$cell</td>";
+                }
+                echo "</tr>";
+            }
+            ?>
+        </tbody>
+    </table>
 </div>
 
-<div class="chart-row">
-    <!-- Biểu đồ cột: Số lượng pallet theo khách hàng trong trạm A -->
-    <div class="chart-container">
-        <canvas id="barChart"></canvas>
-    </div>
+<!-- Chart display -->
+<canvas id="customerChart"></canvas>
+<canvas id="palletChart"></canvas>
 
-    <!-- Biểu đồ tròn: Tổng số pallet trong trạm A -->
-    <div class="chart-container">
-        <canvas id="pieChart"></canvas>
-    </div>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Dữ liệu cho biểu đồ tròn
-var pieData = {
-    datasets: [{
-        data: [<?php echo 98 - $total_pallets; ?>, <?php echo $total_pallets; ?>],
-        backgroundColor: ['#FF6384', '#36A2EB'],
-        borderColor: ['#FFFFFF', '#FFFFFF'],
-        borderWidth: 2
-    }],
-    labels: ['Empty Slots', 'Stored Pallets']
-};
-
-// Dữ liệu cho biểu đồ cột
-var barData = {
-    labels: <?php echo json_encode($customers); ?>,
-    datasets: [{
-        label: 'Pallets Stored',
-        backgroundColor: '#36A2EB',
-        borderColor: '#FFFFFF',
-        borderWidth: 2,
-        data: <?php echo json_encode($pallets); ?>
-    }]
-};
-
-// Vẽ biểu đồ tròn
-var ctx1 = document.getElementById('pieChart').getContext('2d');
-var pieChart = new Chart(ctx1, {
-    type: 'pie',
-    data: pieData,
-    options: {
-        plugins: {
-            legend: {
-                labels: {
-                    color: 'white'
-                }
-            }
-        }
-    }
-});
-
-// Vẽ biểu đồ cột
-var ctx2 = document.getElementById('barChart').getContext('2d');
-var barChart = new Chart(ctx2, {
-    type: 'bar',
-    data: barData,
-    options: {
-        scales: {
-            x: {
-                ticks: {
-                    color: 'white'
-                },
-                grid: {
-                    display: false
-                }
-            },
-            y: {
-                ticks: {
-                    color: 'white'
-                },
-                grid: {
-                    color: 'rgba(255, 255, 255, 0.2)'
-                }
-            }
+    // Biểu đồ cột
+    var customerChartCtx = document.getElementById('customerChart').getContext('2d');
+    var customerChart = new Chart(customerChartCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Becames IDC', 'EIU', 'SUS', 'SUA'],
+            datasets: [{
+                label: 'Customers',
+                data: [5, 3, 2, 4],
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                borderColor: 'rgba(255, 255, 255, 1)',
+                borderWidth: 1
+            }]
         },
-        plugins: {
-            legend: {
-                labels: {
-                    color: 'white'
-                }
+        options: {
+            scales: {
+                y: { beginAtZero: true },
+                x: { ticks: { color: 'white' } },
+                y: { ticks: { color: 'white' } }
             }
         }
-    }
-});
+    });
+
+    // Biểu đồ tròn
+    var palletChartCtx = document.getElementById('palletChart').getContext('2d');
+    var palletChart = new Chart(palletChartCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Used Pallets', 'Available Pallets'],
+            datasets: [{
+                label: 'Pallets',
+                data: [350, 1022], // Example data
+                backgroundColor: ['#FFCC00', '#003366'],
+                borderColor: '#FFFFFF',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { labels: { color: 'white' } }
+            }
+        }
+    });
 </script>
 
 </body>
 </html>
+
