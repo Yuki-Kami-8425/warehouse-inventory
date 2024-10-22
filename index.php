@@ -188,7 +188,6 @@ sqlsrv_close($conn);
             datasets: [{
                 label: 'Number of Customers',
                 data: [customerCount],
-                backgroundColor: 'rgba(0, 123, 255, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
             }]
