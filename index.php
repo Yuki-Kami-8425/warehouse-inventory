@@ -149,7 +149,7 @@ foreach ($data as $item) {
         data: {
             labels: Object.values(customers), // Tên khách hàng
             datasets: [{
-                label: 'Số lượng pallet',
+                label: 'Number of Pallets',
                 data: <?= json_encode(array_column($data, 'LUONG_PALLET')) ?>, // Lượng pallet
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
@@ -193,7 +193,7 @@ foreach ($data as $item) {
     const pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
-            labels: ['Đã sử dụng', 'Còn lại'],
+            labels: ['Used', 'Remaining'],
             datasets: [{
                 data: [filledSlots, totalSlots - filledSlots],
                 backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
