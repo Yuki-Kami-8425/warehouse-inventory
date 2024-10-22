@@ -38,7 +38,7 @@ sqlsrv_close($conn);
 // Biến để xác định các ô đã được sử dụng
 $highlighted = [];
 foreach ($data as $item) {
-    $highlighted[] = trim($item['RFID']); // Dùng trim để loại bỏ khoảng trắng
+    $highlighted[] = $item['RFID'];
 }
 ?>
 
@@ -95,11 +95,23 @@ foreach ($data as $item) {
     <!-- Bảng Left Rack -->
     <table>
         <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($i = 1; $i <= 98; $i++): ?>
+        <?php 
+        $leftRack = [
+            ['AL85', 'AL86', 'AL87', 'AL88', 'AL89', 'AL90', 'AL91', 'AL92', 'AL93', 'AL94', 'AL95', 'AL96', 'AL97', 'AL98'],
+            ['AL71', 'AL72', 'AL73', 'AL74', 'AL75', 'AL76', 'AL77', 'AL78', 'AL79', 'AL80', 'AL81', 'AL82', 'AL83', 'AL84'],
+            ['AL57', 'AL58', 'AL59', 'AL60', 'AL61', 'AL62', 'AL63', 'AL64', 'AL65', 'AL66', 'AL67', 'AL68', 'AL69', 'AL70'],
+            ['AL43', 'AL44', 'AL45', 'AL46', 'AL47', 'AL48', 'AL49', 'AL50', 'AL51', 'AL52', 'AL53', 'AL54', 'AL55', 'AL56'],
+            ['AL29', 'AL30', 'AL31', 'AL32', 'AL33', 'AL34', 'AL35', 'AL36', 'AL37', 'AL38', 'AL39', 'AL40', 'AL41', 'AL42'],
+            ['AL15', 'AL16', 'AL17', 'AL18', 'AL19', 'AL20', 'AL21', 'AL22', 'AL23', 'AL24', 'AL25', 'AL26', 'AL27', 'AL28'],
+            ['AL01', 'AL02', 'AL03', 'AL04', 'AL05', 'AL06', 'AL07', 'AL08', 'AL09', 'AL10', 'AL11', 'AL12', 'AL13', 'AL14'],
+        ];
+        foreach ($leftRack as $row): ?>
             <tr>
-                <td class="<?= in_array('AL' . str_pad($i, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></td>
+                <?php foreach ($row as $cell): ?>
+                    <td class="<?= in_array($cell, $highlighted) ? 'highlight' : '' ?>"><?= $cell ?></td>
+                <?php endforeach; ?>
             </tr>
-        <?php endfor; ?>
+        <?php endforeach; ?>
     </table>
 
     <!-- Bảng Right Rack -->
@@ -140,7 +152,7 @@ foreach ($data as $item) {
         data: {
             labels: Object.values(customers), // Tên khách hàng
             datasets: [{
-                label: 'Số lượng pallet',
+                label: 'Number of Pallets',
                 data: <?= json_encode(array_column($data, 'LUONG_PALLET')) ?>, // Lượng pallet
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
@@ -180,7 +192,7 @@ foreach ($data as $item) {
     const pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
-            labels: ['Đã sử dụng', 'Còn lại'],
+            labels: ['Used', 'Remaining'],
             datasets: [{
                 data: [filledSlots, totalSlots - filledSlots],
                 backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
