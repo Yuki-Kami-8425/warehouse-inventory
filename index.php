@@ -41,6 +41,11 @@ foreach ($data as $item) {
     $highlighted[] = $item['RFID'];
 }
 
+// Debug: Print highlighted RFID values
+echo "<pre>";
+print_r($highlighted);
+echo "</pre>";
+
 // Calculate pallet counts for each customer
 $palletCounts = array_count_values(array_column($data, 'MAKH'));
 ?>
