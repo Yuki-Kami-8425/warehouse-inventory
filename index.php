@@ -15,8 +15,8 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy dữ liệu từ bảng cho trạm A
-$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%'";
+// Lấy dữ liệu từ bảng cho trạm A (ví dụ A)
+$sql = "SELECT MAKH, TENKH, SUM(LUONG_PALLET) AS TOTAL_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH, TENKH, RFID";
 $stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
@@ -98,7 +98,7 @@ foreach ($data as $item) {
     <!-- Bảng Left Rack -->
     <table>
         <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($row = 14; $row >= 1; $row--): ?>
+        <?php for ($row = 7; $row >= 1; $row--): ?>
             <tr>
                 <?php for ($col = 1; $col <= 14; $col++): ?>
                     <?php $index = ($row - 1) * 14 + $col; ?>
@@ -111,7 +111,7 @@ foreach ($data as $item) {
     <!-- Bảng Right Rack -->
     <table>
         <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($row = 14; $row >= 1; $row--): ?>
+        <?php for ($row = 7; $row >= 1; $row--): ?>
             <tr>
                 <?php for ($col = 1; $col <= 14; $col++): ?>
                     <?php $index = ($row - 1) * 14 + $col; ?>
@@ -139,7 +139,7 @@ foreach ($data as $item) {
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
     const customerCount = Object.keys(customers).length; // Số khách hàng
-    const totalSlots = 196; // Tổng số ô (98x2)
+    const totalSlots = 98; // Tổng số ô (mỗi rack là 98)
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
     // Biểu đồ cột
@@ -149,8 +149,8 @@ foreach ($data as $item) {
         data: {
             labels: Object.values(customers), // Tên khách hàng
             datasets: [{
-                label: 'Number of Pallets', // Đổi nhãn thành "Number of Pallets"
-                data: <?= json_encode(array_column($data, 'LUONG_PALLET')) ?>, // Lượng pallet
+                label: 'Total Pallets',
+                data: <?= json_encode(array_column($data, 'TOTAL_PALLET')) ?>, // Tổng số pallet mỗi khách hàng
                 backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
                 borderColor: 'white', // Đường viền trắng
                 borderWidth: 2
@@ -170,7 +170,7 @@ foreach ($data as $item) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Pallets', // Nhãn cho trục Y
+                        text: 'Total Pallets', // Nhãn cho trục Y
                         color: 'white' // Màu chữ trắng cho nhãn
                     },
                     grid: {
