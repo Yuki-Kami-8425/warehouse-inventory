@@ -76,7 +76,7 @@ sqlsrv_close($conn);
             background-color: #00FF00; /* Màu high-light cho ô có RFID (màu lục tươi) */
         }
         canvas {
-            width: 40%; /* Thay đổi kích thước biểu đồ */
+            width: 40%; /* Kích thước chiều rộng của biểu đồ */
             height: 200px; /* Chiều cao biểu đồ */
         }
     </style>
@@ -90,20 +90,26 @@ sqlsrv_close($conn);
         <h3>Left Rack</h3>
         <table>
             <?php
-            for ($i = 1; $i <= 14; $i++) { // Duyệt từ 1 đến 14
+            // Cập nhật bảng Left Rack theo mẫu bạn cung cấp
+            $leftRack = [
+                ['AL85', 'AL86', 'AL87', 'AL88', 'AL89', 'AL90', 'AL91', 'AL92', 'AL93', 'AL94', 'AL95', 'AL96', 'AL97', 'AL98'],
+                ['AL71', 'AL72', 'AL73', 'AL74', 'AL75', 'AL76', 'AL77', 'AL78', 'AL79', 'AL80', 'AL81', 'AL82', 'AL83', 'AL84'],
+                ['AL57', 'AL58', 'AL59', 'AL60', 'AL61', 'AL62', 'AL63', 'AL64', 'AL65', 'AL66', 'AL67', 'AL68', 'AL69', 'AL70'],
+                ['AL43', 'AL44', 'AL45', 'AL46', 'AL47', 'AL48', 'AL49', 'AL50', 'AL51', 'AL52', 'AL53', 'AL54', 'AL55', 'AL56'],
+                ['AL29', 'AL30', 'AL31', 'AL32', 'AL33', 'AL34', 'AL35', 'AL36', 'AL37', 'AL38', 'AL39', 'AL40', 'AL41', 'AL42'],
+                ['AL15', 'AL16', 'AL17', 'AL18', 'AL19', 'AL20', 'AL21', 'AL22', 'AL23', 'AL24', 'AL25', 'AL26', 'AL27', 'AL28'],
+                ['AL01', 'AL02', 'AL03', 'AL04', 'AL05', 'AL06', 'AL07', 'AL08', 'AL09', 'AL10', 'AL11', 'AL12', 'AL13', 'AL14']
+            ];
+
+            foreach ($leftRack as $row) {
                 echo "<tr>";
-                for ($j = 1; $j <= 7; $j++) {
-                    $slotNumber = sprintf("AL%02d", ($i - 1) * 7 + $j); // Tạo số ô từ AL01 đến AL98
+                foreach ($row as $slotNumber) {
                     $highlightClass = in_array($slotNumber, ['AL01', 'AL02']) ? 'highlight' : ''; // Thay 'AL01', 'AL02' bằng các ô cần phát sáng
                     echo "<td class='$highlightClass'>$slotNumber</td>";
                 }
                 echo "</tr>";
             }
             ?>
-            <tr>
-                <td colspan="7" style="border: none;"></td>
-                <td>AL98</td>
-            </tr>
         </table>
     </div>
     <div>
@@ -143,7 +149,7 @@ sqlsrv_close($conn);
             datasets: [{
                 label: 'Customer Count',
                 data: Array(<?php echo $customerCount; ?>).fill(1), // Chỉ hiển thị số lượng 1 cho mỗi khách hàng
-                backgroundColor: 'rgba(0, 255, 0, 0.5)', // Màu xanh tươi
+                backgroundColor: 'rgba(0, 191, 255, 0.5)', // Màu lam tươi
                 borderColor: 'white', // Viền trắng
                 borderWidth: 1
             }]
