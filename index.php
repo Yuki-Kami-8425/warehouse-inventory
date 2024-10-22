@@ -65,7 +65,7 @@ sqlsrv_close($conn);
             width: 45%;
             margin: 10px;
             border-collapse: collapse;
-            font-size: 8px; /* Thay đổi kích thước chữ trong bảng */
+            font-size: 8px; /* Kích thước chữ trong bảng */
         }
         th, td {
             padding: 5px;
@@ -73,7 +73,7 @@ sqlsrv_close($conn);
             border: 1px solid white; /* Viền trắng */
         }
         .highlight {
-            background-color: #ffcc00; /* Màu high-light cho ô có RFID */
+            background-color: #00FF00; /* Màu high-light cho ô có RFID (màu lục tươi) */
         }
         canvas {
             width: 40%; /* Thay đổi kích thước biểu đồ */
@@ -90,7 +90,7 @@ sqlsrv_close($conn);
         <h3>Left Rack</h3>
         <table>
             <?php
-            for ($i = 14; $i >= 1; $i--) { // Duyệt từ 14 xuống 1
+            for ($i = 1; $i <= 14; $i++) { // Duyệt từ 1 đến 14
                 echo "<tr>";
                 for ($j = 1; $j <= 7; $j++) {
                     $slotNumber = sprintf("AL%02d", ($i - 1) * 7 + $j); // Tạo số ô từ AL01 đến AL98
@@ -100,13 +100,17 @@ sqlsrv_close($conn);
                 echo "</tr>";
             }
             ?>
+            <tr>
+                <td colspan="7" style="border: none;"></td>
+                <td>AL98</td>
+            </tr>
         </table>
     </div>
     <div>
         <h3>Right Rack</h3>
         <table>
             <?php
-            for ($i = 14; $i >= 1; $i--) { // Duyệt từ 14 xuống 1
+            for ($i = 1; $i <= 14; $i++) { // Duyệt từ 1 đến 14
                 echo "<tr>";
                 for ($j = 1; $j <= 7; $j++) {
                     $slotNumber = sprintf("AR%02d", ($i - 1) * 7 + $j); // Tạo số ô từ AR01 đến AR98
@@ -116,6 +120,10 @@ sqlsrv_close($conn);
                 echo "</tr>";
             }
             ?>
+            <tr>
+                <td colspan="7" style="border: none;"></td>
+                <td>AR98</td>
+            </tr>
         </table>
     </div>
 </div>
@@ -133,10 +141,10 @@ sqlsrv_close($conn);
         data: {
             labels: <?php echo json_encode($customerNames); ?>,
             datasets: [{
-                label: 'Số lượng khách hàng',
+                label: 'Customer Count',
                 data: Array(<?php echo $customerCount; ?>).fill(1), // Chỉ hiển thị số lượng 1 cho mỗi khách hàng
-                backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                borderColor: 'white',
+                backgroundColor: 'rgba(0, 255, 0, 0.5)', // Màu xanh tươi
+                borderColor: 'white', // Viền trắng
                 borderWidth: 1
             }]
         },
@@ -147,7 +155,7 @@ sqlsrv_close($conn);
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Số lượng'
+                        text: 'Quantity'
                     }
                 }
             }
@@ -159,12 +167,12 @@ sqlsrv_close($conn);
     var pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
-            labels: ['Đã sử dụng', 'Còn lại'],
+            labels: ['Used', 'Available'],
             datasets: [{
-                label: 'Số lượng kho hàng',
+                label: 'Warehouse Capacity',
                 data: [<?php echo $occupiedSlots; ?>, <?php echo $totalSlots - $occupiedSlots; ?>],
                 backgroundColor: ['#FF6384', '#36A2EB'], // Màu sắc biểu đồ
-                borderColor: 'white',
+                borderColor: 'white', // Viền trắng
                 borderWidth: 1
             }]
         },
