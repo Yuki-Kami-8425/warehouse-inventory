@@ -15,181 +15,149 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy dữ liệu từ RFID
-$sql = "SELECT DISTINCT MAKH, COUNT(MAKH) as Count FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY MAKH";
-$stmt = sqlsrv_query($conn, $sql);
+// Truy vấn để lấy dữ liệu cho trạm A
+$query = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM YourTableName WHERE RFID LIKE 'A%'";
+$result = sqlsrv_query($conn, $query);
 
-// Kiểm tra lỗi khi truy vấn
-if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
+// Lưu dữ liệu vào mảng
+$data = [];
+while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
+    $data[] = $row;
 }
 
-// Lấy tên khách hàng và số lượng
-$customers = [];
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $customers[$row['MAKH']] = $row['Count'];
+// Tính số lượng pallet theo khách hàng
+$customerData = [];
+foreach ($data as $row) {
+    $makh = $row['MAKH'];
+    $tenkh = $row['TENKH'];
+    $luong_pallet = $row['LUONG_PALLET'];
+
+    if (!isset($customerData[$makh])) {
+        $customerData[$makh] = [
+            'tenkh' => $tenkh,
+            'total' => 0,
+        ];
+    }
+    $customerData[$makh]['total'] += $luong_pallet;
 }
 
-// Đóng kết nối
-sqlsrv_close($conn);
+// Biểu đồ cột
+$labels = [];
+$values = [];
+foreach ($customerData as $customer) {
+    $labels[] = $customer['tenkh'];
+    $values[] = $customer['total'];
+}
+
+// Biểu đồ tròn tổng số kho
+$totalStorage = 196; // Tổng số kho cho trạm A
+
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - Station A</title>
+    <title>Quản lý trạm A</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            background-color: #001F3F; /* Xanh đậm */
+            background-color: #003366; /* Màu nền xanh đậm */
             color: white; /* Màu chữ trắng */
-            font-size: 8px; /* Kích thước chữ */
-        }
-        h2 {
-            font-size: 18px; /* Kích thước chữ cho tiêu đề */
-            text-align: center;
-        }
-        .container {
-            display: flex; /* Sử dụng flexbox để bố trí các phần tử */
-            justify-content: space-around; /* Căn giữa các bảng */
-            margin: 20px; /* Giãn cách giữa các bảng và biểu đồ */
         }
         table {
-            width: 30%; /* Mỗi bảng chiếm 30% màn hình */
+            width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
         th, td {
-            border: 2px solid white; /* Đường viền trắng */
-            padding: 5px; /* Giảm padding để bảng nhỏ hơn */
+            border: 1px solid white;
+            padding: 10px;
             text-align: center;
-            font-size: 8px; /* Kích thước chữ trong bảng */
         }
-        td.highlight {
-            background-color: #FFD700; /* Màu vàng cho ô được highlight */
-        }
-        .chart-container {
-            width: 30%; /* Chiếm 30% màn hình cho biểu đồ */
-            margin: 20px; /* Giãn cách giữa các biểu đồ */
-        }
-        .charts {
-            display: flex; /* Bố trí 2 biểu đồ nằm ngang */
-            justify-content: space-around; /* Căn giữa các biểu đồ */
+        .highlight {
+            background-color: #FFD700; /* Màu sáng cho ô phát sáng */
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <h1 style="font-size: 24px;">Warehouse Management - Station A</h1>
 
-<h2>Warehouse Station A</h2>
-
-<div class="container">
-    <!-- Bảng Left Rack -->
     <table>
-        <caption style="caption-side: top;">Left Rack</caption>
-        <tr>
-            <td class="<?= isset($customers['BIDC']) ? 'highlight' : '' ?>">AL01</td>
-            <td>AL02</td>
-            <td>AL03</td>
-            <td class="<?= isset($customers['BIDC']) ? 'highlight' : '' ?>">AL04</td>
-            <td>AL05</td>
-            <td>AL06</td>
-            <td>AL07</td>
-            <td>AL08</td>
-            <td>AL09</td>
-            <td>AL10</td>
-        </tr>
-        <!-- ... các hàng tiếp theo tương tự ... -->
+        <thead>
+            <tr>
+                <th>RFID</th>
+                <th>Tên Khách Hàng</th>
+                <th>Số Lượng Pallet</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($data as $row): ?>
+                <tr class="<?= in_array($row['RFID'], array_column($data, 'RFID')) ? 'highlight' : ''; ?>">
+                    <td><?= $row['RFID']; ?></td>
+                    <td><?= $row['TENKH']; ?></td>
+                    <td><?= $row['LUONG_PALLET']; ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
     </table>
 
-    <!-- Bảng Right Rack -->
-    <table>
-        <caption style="caption-side: top;">Right Rack</caption>
-        <tr>
-            <td class="<?= isset($customers['BIDC']) ? 'highlight' : '' ?>">AR01</td>
-            <td>AR02</td>
-            <td>AR03</td>
-            <td>AR04</td>
-            <td>AR05</td>
-            <td>AR06</td>
-            <td>AR07</td>
-            <td>AR08</td>
-            <td>AR09</td>
-            <td>AR10</td>
-        </tr>
-        <!-- ... các hàng tiếp theo tương tự ... -->
-    </table>
-</div>
+    <canvas id="barChart" width="400" height="200"></canvas>
+    <canvas id="pieChart" width="400" height="200"></canvas>
 
-<!-- Biểu đồ -->
-<div class="charts">
-    <!-- Biểu đồ cột -->
-    <div class="chart-container">
-        <canvas id="barChart"></canvas>
-    </div>
-
-    <!-- Biểu đồ tròn -->
-    <div class="chart-container">
-        <canvas id="pieChart"></canvas>
-    </div>
-</div>
-
-<script>
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>; // Khách hàng và số lượng
-    const totalSlots = 196; // Tổng số ô
-    const filledSlots = <?= count(array_filter(array_keys($customers), fn($c) => str_starts_with($c, 'A'))) ?>; // Số ô đã sử dụng
-
-    // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(customers), // Tên khách hàng
-            datasets: [{
-                label: 'Number of Customers',
-                data: Object.values(customers), // Số lượng khách hàng
-                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
-                borderColor: 'white', // Đường viền trắng
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1 // Chia đơn vị là 1
-                    },
-                    grid: {
-                        color: 'white' // Màu đường lưới trắng
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'white' // Màu đường lưới trắng
+    <script>
+        // Biểu đồ cột
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($labels); ?>,
+                datasets: [{
+                    label: 'Số Lượng Pallet',
+                    data: <?= json_encode($values); ?>,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1 // Chia đơn vị là 1
+                        }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Filled', 'Available'],
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
-                borderColor: 'white', // Đường viền trắng
-                borderWidth: 2
-            }]
-        }
-    });
-</script>
-
+        // Biểu đồ tròn
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Sử dụng kho', 'Còn trống'],
+                datasets: [{
+                    label: 'Tổng Số Kho',
+                    data: [<?= array_sum($values); ?>, <?= $totalStorage - array_sum($values); ?>],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
 </body>
 </html>
+
+<?php
+// Đóng kết nối
+sqlsrv_close($conn);
+?>
