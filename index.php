@@ -15,11 +15,8 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Truy vấn tổng số pallet (1372 ô)
-$total_slots = 1372;
-
-// Truy vấn số khách hàng và số pallet của họ
-$sql = "SELECT TENKH, COUNT(*) as pallet_count FROM dbo.stored_warehouse GROUP BY TENKH";
+// Truy vấn để lấy danh sách RFID cho trạm A
+$sql = "SELECT RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%'";
 $stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
@@ -27,16 +24,24 @@ if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Tạo mảng cho dữ liệu biểu đồ
+// Tạo mảng để lưu các RFID của trạm A
+$rfids = [];
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $rfids[] = $row['RFID'];
+}
+
+// Truy vấn số lượng pallet theo khách hàng cho trạm A
+$sql_customer = "SELECT TENKH, COUNT(*) as pallet_count FROM dbo.stored_warehouse WHERE RFID LIKE 'A%' GROUP BY TENKH";
+$stmt_customer = sqlsrv_query($conn, $sql_customer);
+
 $customers = [];
 $pallets = [];
-
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+while ($row = sqlsrv_fetch_array($stmt_customer, SQLSRV_FETCH_ASSOC)) {
     $customers[] = $row['TENKH'];
     $pallets[] = $row['pallet_count'];
 }
 
-// Tính tổng số pallet đã lưu trữ
+// Tính tổng số pallet trong trạm A
 $total_pallets = array_sum($pallets);
 
 // Đóng kết nối
@@ -46,84 +51,134 @@ sqlsrv_close($conn);
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Warehouse Statistics</title>
+    <title>Station A Rack</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* CSS để điều chỉnh màu sắc và bố cục biểu đồ */
         body {
-            background-color: #003366; /* Màu xanh dương đậm */
-            color: white; /* Chữ trắng */
+            background-color: #003366; /* Nền xanh đậm */
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
+        .rack-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .rack {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7 cột */
+            grid-template-rows: repeat(14, 1fr); /* 14 hàng */
+            gap: 5px;
+            width: 40%;
+        }
+
+        .slot {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 10px;
+            background-color: #666666; /* Màu xám cho các ô */
+            border: 1px solid white;
+            font-size: 12px;
+        }
+
+        .highlight {
+            background-color: #FF6347; /* Màu đỏ cam để high-light */
+        }
+
+        /* Bố trí biểu đồ */
         .chart-row {
             display: flex;
-            justify-content: center; /* Căn lề ở giữa theo chiều ngang */
-            gap: 20px; /* Khoảng cách giữa hai biểu đồ */
-            margin-top: 30px;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 20px;
         }
 
         .chart-container {
-            width: 40vw; /* Đặt 40% chiều rộng màn hình cho mỗi biểu đồ */
-            height: 40vw; /* Đảm bảo tỉ lệ vuông */
-            display: inline-block;
+            width: 40vw;
+            height: 40vw;
         }
 
-        h2 {
-            color: white; /* Màu chữ trắng cho tiêu đề */
-        }
-
-        /* Điều chỉnh cho biểu đồ */
-        .chartjs-render-monitor {
-            border: 2px solid white; /* Viền trắng xung quanh biểu đồ */
-        }
-
-        /* Responsive: Biểu đồ sẽ thu nhỏ lại trên màn hình nhỏ */
-        @media (max-width: 450px) {
+        /* Responsive cho màn hình nhỏ hơn */
+        @media (max-width: 768px) {
+            .rack-container, .chart-row {
+                flex-direction: column;
+                align-items: center;
+            }
             .chart-container {
-                width: 80vw; /* Chiều rộng lớn hơn cho màn hình nhỏ */
-                height: 80vw; /* Điều chỉnh chiều cao theo tỷ lệ */
+                width: 80vw;
+                height: 80vw;
             }
         }
     </style>
 </head>
 <body>
 
-<h2>Warehouse Statistics</h2>
+<h2>Station A Rack Layout</h2>
 
-<div class="chart-row">
-    <!-- Biểu đồ tròn: Tổng số pallet -->
-    <div class="chart-container">
-        <canvas id="pieChart"></canvas>
+<div class="rack-container">
+    <!-- Left Rack -->
+    <div class="rack">
+        <?php
+        // Hiển thị 14 ô từ A01 đến A14 cho rack trái
+        for ($i = 1; $i <= 14; $i++) {
+            $rfid = sprintf("AL%02d", $i);
+            $highlight = in_array($rfid, $rfids) ? 'highlight' : '';
+            echo "<div class='slot $highlight'>$rfid</div>";
+        }
+        ?>
     </div>
 
-    <!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
+    <!-- Right Rack -->
+    <div class="rack">
+        <?php
+        // Hiển thị 14 ô từ A98 đến A85 cho rack phải
+        for ($i = 98; $i >= 85; $i--) {
+            $rfid = sprintf("AR%02d", $i);
+            $highlight = in_array($rfid, $rfids) ? 'highlight' : '';
+            echo "<div class='slot $highlight'>$rfid</div>";
+        }
+        ?>
+    </div>
+</div>
+
+<div class="chart-row">
+    <!-- Biểu đồ cột: Số lượng pallet theo khách hàng trong trạm A -->
     <div class="chart-container">
         <canvas id="barChart"></canvas>
+    </div>
+
+    <!-- Biểu đồ tròn: Tổng số pallet trong trạm A -->
+    <div class="chart-container">
+        <canvas id="pieChart"></canvas>
     </div>
 </div>
 
 <script>
 // Dữ liệu cho biểu đồ tròn
-var totalPalletData = {
+var pieData = {
     datasets: [{
-        data: [<?php echo $total_slots - $total_pallets; ?>, <?php echo $total_pallets; ?>],
-        backgroundColor: ['#FF6384', '#36A2EB'], /* Màu sắc cho biểu đồ */
-        borderColor: ['#FFFFFF', '#FFFFFF'], /* Viền trắng */
+        data: [<?php echo 98 - $total_pallets; ?>, <?php echo $total_pallets; ?>],
+        backgroundColor: ['#FF6384', '#36A2EB'],
+        borderColor: ['#FFFFFF', '#FFFFFF'],
         borderWidth: 2
     }],
     labels: ['Empty Slots', 'Stored Pallets']
 };
 
 // Dữ liệu cho biểu đồ cột
-var barChartData = {
+var barData = {
     labels: <?php echo json_encode($customers); ?>,
     datasets: [{
         label: 'Pallets Stored',
         backgroundColor: '#36A2EB',
-        borderColor: '#FFFFFF', /* Viền trắng */
+        borderColor: '#FFFFFF',
         borderWidth: 2,
         data: <?php echo json_encode($pallets); ?>
     }]
@@ -133,12 +188,12 @@ var barChartData = {
 var ctx1 = document.getElementById('pieChart').getContext('2d');
 var pieChart = new Chart(ctx1, {
     type: 'pie',
-    data: totalPalletData,
+    data: pieData,
     options: {
         plugins: {
             legend: {
                 labels: {
-                    color: 'white' /* Màu chữ trắng trong chú giải */
+                    color: 'white'
                 }
             }
         }
@@ -149,30 +204,30 @@ var pieChart = new Chart(ctx1, {
 var ctx2 = document.getElementById('barChart').getContext('2d');
 var barChart = new Chart(ctx2, {
     type: 'bar',
-    data: barChartData,
+    data: barData,
     options: {
         scales: {
             x: {
                 ticks: {
-                    color: 'white' /* Màu chữ trắng trên trục X */
+                    color: 'white'
                 },
                 grid: {
-                    display: false /* Ẩn các đường kẻ trên trục X */
+                    display: false
                 }
             },
             y: {
                 ticks: {
-                    color: 'white' /* Màu chữ trắng trên trục Y */
+                    color: 'white'
                 },
                 grid: {
-                    color: 'rgba(255, 255, 255, 0.2)' /* Đường kẻ mờ nhạt hơn trên trục Y */
+                    color: 'rgba(255, 255, 255, 0.2)'
                 }
             }
         },
         plugins: {
             legend: {
                 labels: {
-                    color: 'white' /* Màu chữ trắng trong chú giải */
+                    color: 'white'
                 }
             }
         }
