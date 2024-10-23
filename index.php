@@ -125,6 +125,20 @@ sqlsrv_close($conn);
                         align-items: center;
                     }
 
+                    .title {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100px; /* Chiều cao phần tiêu đề */
+                        text-align: center;
+                    }
+
+                    .title h1 {
+                        font-size: 2.5rem; /* Điều chỉnh kích thước chữ tùy ý */
+                        color: white; /* Màu chữ, tùy chỉnh */
+                    }
+
+
                     .chart-row {
                         display: flex;
                         justify-content: center; /* Căn lề ở giữa theo chiều ngang */
