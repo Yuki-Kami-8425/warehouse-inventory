@@ -1,47 +1,45 @@
-<?php 
-// Thông tin kết nối cơ sở dữ liệu Azure SQL
+<?php
+// Database connection information
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
     "Database" => "eiu_warehouse_24",
     "Uid" => "eiuadmin",
-    "PWD" => "Khoa123456789"
+    "PWD" => "Khoa123456789" // Consider using environment variables for security
 );
 
-// Kết nối đến cơ sở dữ liệu
+// Connect to the database
 $conn = sqlsrv_connect($serverName, $connectionOptions);
 
-// Kiểm tra kết nối
+// Check connection
 if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy trạm từ yêu cầu
-$station = isset($_GET['station']) ? $_GET['station'] : 'A';
+// Query total pallet (1372 slots)
+$total_slots = 1372;
 
-// Lấy dữ liệu từ bảng cho trạm tương ứng
-$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '$station%'";
+// Query customer count and pallets
+$sql = "SELECT TENKH, COUNT(*) as pallet_count FROM dbo.stored_warehouse GROUP BY TENKH";
 $stmt = sqlsrv_query($conn, $sql);
 
-// Kiểm tra lỗi khi truy vấn
+// Check query errors
 if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Tạo mảng để lưu dữ liệu
-$data = [];
+// Prepare data for the chart
 $customers = [];
-$highlighted = [];
+$pallets = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $data[] = $row;
-    $customers[$row['MAKH']][] = $row['RFID'];
-    $highlighted[] = trim($row['RFID']);
+    $customers[] = $row['TENKH'];
+    $pallets[] = $row['pallet_count'];
 }
 
-// Đóng kết nối
-sqlsrv_close($conn);
+// Calculate total pallets stored
+$total_pallets = array_sum($pallets);
 
-// Trả về dữ liệu dưới dạng JSON
-echo json_encode(['data' => $data, 'customers' => $customers, 'highlighted' => $highlighted]);
+// Close the database connection
+sqlsrv_close($conn);
 ?>
 
 <!DOCTYPE html>
@@ -49,178 +47,135 @@ echo json_encode(['data' => $data, 'customers' => $customers, 'highlighted' => $
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - Station A</title>
-    <style>
-        body {
-            background-color: #001F3F; /* Xanh đậm */
-            color: white; /* Màu chữ trắng */
-            font-size: 8px; /* Kích thước chữ */
-        }
-        h2 {
-            text-align: center;
-            font-size: 24px; /* Cỡ chữ tiêu đề lớn hơn */
-        }
-        caption {
-            font-size: 16px; /* Cỡ chữ cho caption lớn hơn */
-        }
-        .container {
-            display: flex; /* Sử dụng flexbox để bố trí các phần tử */
-            justify-content: space-around; /* Căn giữa các bảng */
-            margin: 20px; /* Giãn cách giữa các bảng và biểu đồ */
-        }
-        table {
-            width: 30%; /* Mỗi bảng chiếm 30% màn hình */
-            border-collapse: collapse;
-            font-size: 8px; /* Kích thước chữ trong bảng */
-        }
-        th, td {
-            border: 2px solid white; /* Đường viền trắng */
-            padding: 5px; /* Padding cho ô */
-            text-align: center;
-        }
-        td.highlight {
-            background-color: #32CD32; /* Màu xanh lục cho ô được highlight */
-        }
-        .chart-container {
-            width: 30%; /* Chiếm 30% màn hình cho biểu đồ */
-            margin: 20px; /* Giãn cách giữa các biểu đồ */
-        }
-        .charts {
-            display: flex; /* Bố trí 2 biểu đồ nằm ngang */
-            justify-content: space-around; /* Căn giữa các biểu đồ */
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Warehouse Dashboard</title>
+    <style>
+        /* Add your CSS here or link to an external stylesheet */
+    </style>
 </head>
 <body>
-
-<h2>Warehouse Station A</h2>
-
-<div class="container">
-    <!-- Bảng Left Rack -->
-    <table>
-        <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array('AL' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
-
-    <!-- Bảng Right Rack -->
-    <table>
-        <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array('AR' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
-</div>
-
-<!-- Biểu đồ -->
-<div class="charts">
-    <!-- Biểu đồ cột -->
-    <div class="chart-container">
-        <canvas id="barChart"></canvas>
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul>
+            <li><a href="#" onclick="showPage('home');" class="main-link"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
+            <li>
+                <a href="#" onclick="toggleStations(); showPage('dashboard');" class="main-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="link-text"> Dashboard</span>
+                </a>
+                <ul class="station-list">
+                    <?php for ($i = 1; $i <= 7; $i++): ?>
+                        <li><a href="#" onclick="showPage('station<?= $i; ?>');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station <?= $i; ?></span></a></li>
+                    <?php endfor; ?>
+                </ul>
+            </li>
+            <li><a href="#" onclick="showPage('list-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> List</span></a></li>
+        </ul>
+        <div id="datetime" class="datetime"></div>
     </div>
 
-    <!-- Biểu đồ tròn -->
-    <div class="chart-container">
-        <canvas id="pieChart"></canvas>
+    <div class="content">
+        <div id="home" class="page">
+            <div class="slideshow-container">
+                <!-- Slideshow content -->
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                    <img class="slide-image" src="Picture1.png" alt="Slide 1">
+                </div>
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                    <img class="slide-image" src="Picture2.png" alt="Slide 2">
+                </div>
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                    <img class="slide-image" src="Picture3.png" alt="Slide 3">
+                </div>
+                <div class="dots">
+                    <span class="dot" onclick="showSlide(1)"></span>
+                    <span class="dot" onclick="showSlide(2)"></span>
+                    <span class="dot" onclick="showSlide(3)"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard" class="page" style="display:none;">
+            <!-- Dashboard content -->
+        </div>
+
+        <div id="list-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
+
+        <div id="all" class="page" style="display:none;">
+            <h2>Warehouse Statistics</h2>
+            <div class="chart-row">
+                <div class="chart-container"><canvas id="pieChart_all"></canvas></div>
+                <div class="chart-container"><canvas id="barChart_all"></canvas></div>
+            </div>
+            <script>
+                const totalPalletData = {
+                    datasets: [{
+                        data: [<?php echo $total_slots - $total_pallets; ?>, <?php echo $total_pallets; ?>],
+                        backgroundColor: ['#FF6384', '#36A2EB'],
+                        borderColor: ['#FFFFFF', '#FFFFFF'],
+                        borderWidth: 2
+                    }],
+                    labels: ['Empty Slots', 'Stored Pallets']
+                };
+
+                const barChartData = {
+                    labels: <?php echo json_encode($customers); ?>,
+                    datasets: [{
+                        label: 'Pallets Stored',
+                        backgroundColor: '#36A2EB',
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2,
+                        data: <?php echo json_encode($pallets); ?>
+                    }]
+                };
+
+                function renderCharts() {
+                    const ctx1 = document.getElementById('pieChart_all').getContext('2d');
+                    new Chart(ctx1, {
+                        type: 'pie',
+                        data: totalPalletData,
+                        options: {
+                            plugins: {
+                                legend: { labels: { color: 'white' } }
+                            }
+                        }
+                    });
+
+                    const ctx2 = document.getElementById('barChart_all').getContext('2d');
+                    new Chart(ctx2, {
+                        type: 'bar',
+                        data: barChartData,
+                        options: {
+                            scales: {
+                                x: { ticks: { color: 'white' }, grid: { display: false } },
+                                y: { ticks: { color: 'white' }, grid: { color: 'rgba(255, 255, 255, 0.2)' } }
+                            },
+                            plugins: {
+                                legend: { labels: { color: 'white' } }
+                            }
+                        }
+                    });
+                }
+
+                // Call renderCharts() when the page is shown
+                window.onload = renderCharts;
+            </script>
+        </div>
+
+        <?php for ($i = 1; $i <= 7; $i++): ?>
+            <div id="station<?= $i; ?>" class="page" style="display:none;">
+                Station <?= $i; ?> content will be here.
+            </div>
+        <?php endfor; ?>
     </div>
-</div>
 
-<script>
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
-    const totalSlots = 196; // Tổng số ô (98x2)
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
-
-    // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: customerLabels, // Mã khách hàng
-            datasets: [{
-                label: 'Used Slots', // Nhãn trục Y
-                data: customerData, // Số lượng RFID cho mỗi khách hàng
-                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
-                borderColor: 'white', // Đường viền trắng
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Màu chữ trắng cho legend
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Used Slots', // Nhãn cho trục Y
-                        color: 'white' // Màu chữ trắng cho nhãn
-                    },
-                    grid: {
-                        color: 'white' // Màu đường lưới trắng
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trắng cho tick marks
-                        stepSize: 1 // Đặt độ chia cho trục Y là 1
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'white' // Màu đường lưới trắng
-                    },
-                    ticks: {
-                        color: 'white' // Màu chữ trắng cho tick marks
-                    }
-                }
-            }
-        }
-    });
-
-    // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Used', 'Remaining'], // Nhãn cho biểu đồ tròn
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
-                borderColor: 'white', // Đường viền trắng
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Màu chữ trắng cho legend
-                    }
-                }
-            }
-        }
-    });
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
-
