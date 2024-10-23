@@ -112,7 +112,7 @@ sqlsrv_close($conn);
         <div id="edit-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
         <div id="all" class="page" style="display:none;">
             <head>
-                <title1>Warehouse Statistics</title1>
+                <title>Warehouse Statistics</title>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <style>
                     /* CSS để điều chỉnh màu sắc và bố cục biểu đồ */
@@ -124,7 +124,7 @@ sqlsrv_close($conn);
                         align-items: center;
                     }
 
-                    .title1 {
+                    .title {
                         display: flex;
                         justify-content: center;
                         align-items: center;
@@ -132,7 +132,7 @@ sqlsrv_close($conn);
                         text-align: center;
                     }
 
-                    .title1 h1 {
+                    .title h1 {
                         font-size: 2.5rem; /* Điều chỉnh kích thước chữ tùy ý */
                         color: white; /* Màu chữ, tùy chỉnh */
                     }
@@ -169,92 +169,90 @@ sqlsrv_close($conn);
                     }
                 </style>
             </head>
+
             <body>
+                <div class="chart-row">
+                    <!-- Biểu đồ tròn: Tổng số pallet -->
+                    <div class="chart-container"> <canvas id="pieChart_all"></canvas> </div>
 
-            <h2>Warehouse Statistics</h2>
+                    <!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
+                    <div class="chart-container"> <canvas id="barChart_all"></canvas> </div>
+                </div>
 
-            <div class="chart-row">
-                <!-- Biểu đồ tròn: Tổng số pallet -->
-                <div class="chart-container"> <canvas id="pieChart_all"></canvas> </div>
+                <script>
+                    // Dữ liệu cho biểu đồ tròn
+                    var totalPalletData = {
+                        datasets: [{
+                            data: [<?php echo $total_slots - $total_pallets; ?>, <?php echo $total_pallets; ?>],
+                            backgroundColor: ['#FF6384', '#36A2EB'], /* Màu sắc cho biểu đồ */
+                            borderColor: ['#FFFFFF', '#FFFFFF'], /* Viền trắng */
+                            borderWidth: 2
+                        }],
+                        labels: ['Empty Slots', 'Stored Pallets']
+                    };
 
-                <!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
-                <div class="chart-container"> <canvas id="barChart_all"></canvas> </div>
-            </div>
+                    // Dữ liệu cho biểu đồ cột
+                    var barChartData = {
+                        labels: <?php echo json_encode($customers); ?>,
+                        datasets: [{
+                            label: 'Pallets Stored',
+                            backgroundColor: '#36A2EB',
+                            borderColor: '#FFFFFF', /* Viền trắng */
+                            borderWidth: 2,
+                            data: <?php echo json_encode($pallets); ?>
+                        }]
+                    };
 
-            <script>
-            // Dữ liệu cho biểu đồ tròn
-            var totalPalletData = {
-                datasets: [{
-                    data: [<?php echo $total_slots - $total_pallets; ?>, <?php echo $total_pallets; ?>],
-                    backgroundColor: ['#FF6384', '#36A2EB'], /* Màu sắc cho biểu đồ */
-                    borderColor: ['#FFFFFF', '#FFFFFF'], /* Viền trắng */
-                    borderWidth: 2
-                }],
-                labels: ['Empty Slots', 'Stored Pallets']
-            };
-
-            // Dữ liệu cho biểu đồ cột
-            var barChartData = {
-                labels: <?php echo json_encode($customers); ?>,
-                datasets: [{
-                    label: 'Pallets Stored',
-                    backgroundColor: '#36A2EB',
-                    borderColor: '#FFFFFF', /* Viền trắng */
-                    borderWidth: 2,
-                    data: <?php echo json_encode($pallets); ?>
-                }]
-            };
-
-            // Vẽ biểu đồ tròn
-            var ctx1 = document.getElementById('pieChart_all').getContext('2d');
-            var pieChart = new Chart(ctx1, {
-                type: 'pie',
-                data: totalPalletData,
-                options: {
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: 'white' /* Màu chữ trắng trong chú giải */
+                    // Vẽ biểu đồ tròn
+                    var ctx1 = document.getElementById('pieChart_all').getContext('2d');
+                    var pieChart = new Chart(ctx1, {
+                        type: 'pie',
+                        data: totalPalletData,
+                        options: {
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'white' /* Màu chữ trắng trong chú giải */
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-            });
+                    });
 
-            // Vẽ biểu đồ cột
-            var ctx2 = document.getElementById('barChart_all').getContext('2d');
-            var barChart = new Chart(ctx2, {
-                type: 'bar',
-                data: barChartData,
-                options: {
-                    scales: {
-                        x: {
-                            ticks: {
-                                color: 'white' /* Màu chữ trắng trên trục X */
+                    // Vẽ biểu đồ cột
+                    var ctx2 = document.getElementById('barChart_all').getContext('2d');
+                    var barChart = new Chart(ctx2, {
+                        type: 'bar',
+                        data: barChartData,
+                        options: {
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        color: 'white' /* Màu chữ trắng trên trục X */
+                                    },
+                                    grid: {
+                                        display: false /* Ẩn các đường kẻ trên trục X */
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        color: 'white' /* Màu chữ trắng trên trục Y */
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.2)' /* Đường kẻ mờ nhạt hơn trên trục Y */
+                                    }
+                                }
                             },
-                            grid: {
-                                display: false /* Ẩn các đường kẻ trên trục X */
-                            }
-                        },
-                        y: {
-                            ticks: {
-                                color: 'white' /* Màu chữ trắng trên trục Y */
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.2)' /* Đường kẻ mờ nhạt hơn trên trục Y */
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'white' /* Màu chữ trắng trong chú giải */
+                                    }
+                                }
                             }
                         }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: 'white' /* Màu chữ trắng trong chú giải */
-                            }
-                        }
-                    }
-                }
-            });
-            </script>
+                    });
+                </script>
             </body>
         </div>
         <div id="station1" class="page" style="display:none;">Station 1 content will be here.</div>
