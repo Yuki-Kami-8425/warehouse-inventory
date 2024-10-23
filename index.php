@@ -19,11 +19,11 @@ if ($conn === false) {
 $total_slots = 1372;
 
 // Truy vấn số khách hàng và số pallet của họ
-$sql = "SELECT TENKH, COUNT(*) as pallet_count FROM dbo.stored_warehouse GROUP BY TENKH";
-$stmt = sqlsrv_query($conn, $sql);
+$sql1 = "SELECT TENKH, COUNT(*) as pallet_count FROM dbo.stored_warehouse GROUP BY TENKH";
+$stmt1 = sqlsrv_query($conn, $sql1);
 
 // Kiểm tra lỗi khi truy vấn
-if ($stmt === false) {
+if ($stmt1 === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
@@ -31,7 +31,7 @@ if ($stmt === false) {
 $customers = [];
 $pallets = [];
 
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+while ($row = sqlsrv_fetch_array($stmt1, SQLSRV_FETCH_ASSOC)) {
     $customers[] = $row['TENKH'];
     $pallets[] = $row['pallet_count'];
 }
@@ -39,17 +39,20 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
 // Tính tổng số pallet đã lưu trữ
 $total_pallets = array_sum($pallets);
 
-// Lấy dữ liệu từ bảng cho tất cả các trạm từ A đến G
-$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '[A-G]%'";
-$stmt = sqlsrv_query($conn, $sql);
+// Truy vấn dữ liệu từ bảng cho tất cả các trạm từ A đến G
+$sql2 = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '[A-G]%'";
+$stmt2 = sqlsrv_query($conn, $sql2);
+
+// Kiểm tra lỗi khi truy vấn
+if ($stmt2 === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
 
 // Tạo mảng để lưu dữ liệu
 $data = [];
-$customers = [];
 $highlighted = [];
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+while ($row = sqlsrv_fetch_array($stmt2, SQLSRV_FETCH_ASSOC)) {
     $data[] = $row;
-    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng, giữ danh sách RFID để highlight
 }
 
