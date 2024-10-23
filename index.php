@@ -112,74 +112,71 @@ sqlsrv_close($conn);
         <div id="edit-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
         <div id="all" class="page" style="display:none;">
             <head>
-                <title>Warehouse Statistics</title>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                <style>
-                    /* CSS để điều chỉnh màu sắc và bố cục biểu đồ */
-                    body {
-                        background-color: #003366; /* Màu xanh dương đậm */
-                        color: white; /* Chữ trắng */
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                    }
-
-                    .title {
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        height: 100px; /* Chiều cao phần tiêu đề */
-                        text-align: center;
-                    }
-
-                    .title h1 {
-                        font-size: 2.5rem; /* Điều chỉnh kích thước chữ tùy ý */
-                        color: white; /* Màu chữ, tùy chỉnh */
-                    }
-
-
-                    .chart-row {
-                        display: flex;
-                        justify-content: center; /* Căn lề ở giữa theo chiều ngang */
-                        gap: 20px; /* Khoảng cách giữa hai biểu đồ */
-                        margin-top: 30px;
-                    }
-
-                    .chart-container {
-                        width: 35vw; /* Đặt 40% chiều rộng màn hình cho mỗi biểu đồ */
-                        height: 35vw; /* Đảm bảo tỉ lệ vuông */
-                        display: inline-block;
-                    }
-
-                    h2 {
-                        color: white; /* Màu chữ trắng cho tiêu đề */
-                    }
-
-                    /* Điều chỉnh cho biểu đồ */
-                    .chartjs-render-monitor {
-                        border: 2px solid white; /* Viền trắng xung quanh biểu đồ */
-                    }
-
-                    /* Responsive: Biểu đồ sẽ thu nhỏ lại trên màn hình nhỏ */
-                    @media (max-width: 350px) {
-                        .chart-container {
-                            width: 80vw; /* Chiều rộng lớn hơn cho màn hình nhỏ */
-                            height: 80vw; /* Điều chỉnh chiều cao theo tỷ lệ */
+                    <style>
+                        /* CSS để điều chỉnh màu sắc và bố cục biểu đồ */
+                        body {
+                            background-color: #003366; /* Màu xanh dương đậm */
+                            color: white; /* Chữ trắng */
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
                         }
-                    }
-                </style>
-            </head>
 
-            <body>
-                <div class="chart-row">
-                    <!-- Biểu đồ tròn: Tổng số pallet -->
-                    <div class="chart-container"> <canvas id="pieChart_all"></canvas> </div>
+                        .title h2 {
+                            font-size: 2.5rem; /* Điều chỉnh kích thước chữ tùy ý */
+                            color: white; /* Màu chữ, tùy chỉnh */
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            height: 100px; /* Chiều cao phần tiêu đề */
+                            text-align: center;
+                        }
 
-                    <!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
-                    <div class="chart-container"> <canvas id="barChart_all"></canvas> </div>
-                </div>
 
-                <script>
+                        .chart-row {
+                            display: flex;
+                            justify-content: center; /* Căn lề ở giữa theo chiều ngang */
+                            gap: 20px; /* Khoảng cách giữa hai biểu đồ */
+                            margin-top: 30px;
+                        }
+
+                        .chart-container {
+                            width: 35vw; /* Đặt 40% chiều rộng màn hình cho mỗi biểu đồ */
+                            height: 35vw; /* Đảm bảo tỉ lệ vuông */
+                            display: inline-block;
+                        }
+
+                        h2 {
+                            color: white; /* Màu chữ trắng cho tiêu đề */
+                        }
+
+                        /* Điều chỉnh cho biểu đồ */
+                        .chartjs-render-monitor {
+                            border: 2px solid white; /* Viền trắng xung quanh biểu đồ */
+                        }
+
+                        /* Responsive: Biểu đồ sẽ thu nhỏ lại trên màn hình nhỏ */
+                        @media (max-width: 350px) {
+                            .chart-container {
+                                width: 80vw; /* Chiều rộng lớn hơn cho màn hình nhỏ */
+                                height: 80vw; /* Điều chỉnh chiều cao theo tỷ lệ */
+                            }
+                        }
+                    </style>
+                </head>
+
+                <body>
+                    <h2>Warehouse Statistics</h2>
+                    <div class="chart-row">
+                        <!-- Biểu đồ tròn: Tổng số pallet -->
+                        <div class="chart-container"> <canvas id="pieChart_all"></canvas> </div>
+
+                        <!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
+                        <div class="chart-container"> <canvas id="barChart_all"></canvas> </div>
+                    </div>
+
+                    <script>
                     // Dữ liệu cho biểu đồ tròn
                     var totalPalletData = {
                         datasets: [{
@@ -252,8 +249,8 @@ sqlsrv_close($conn);
                             }
                         }
                     });
-                </script>
-            </body>
+                    </script>
+                </body>
         </div>
         <div id="station1" class="page" style="display:none;">Station 1 content will be here.</div>
         <div id="station2" class="page" style="display:none;">Station 2 content will be here.</div>
