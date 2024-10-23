@@ -1,222 +1,287 @@
-<?php 
-// Thông tin kết nối cơ sở dữ liệu Azure SQL
-$serverName = "eiusmartwarehouse.database.windows.net";
-$connectionOptions = array(
-    "Database" => "eiu_warehouse_24",
-    "Uid" => "eiuadmin",
-    "PWD" => "Khoa123456789"
-);
+    <?php
+    // Thông tin kết nối cơ sở dữ liệu Azure SQL
+    $serverName = "eiusmartwarehouse.database.windows.net";
+    $connectionOptions = array(
+        "Database" => "eiu_warehouse_24",
+        "Uid" => "eiuadmin",
+        "PWD" => "Khoa123456789"
+    );
 
-// Kết nối đến cơ sở dữ liệu
-$conn = sqlsrv_connect($serverName, $connectionOptions);
+    // Kết nối đến cơ sở dữ liệu
+    $conn = sqlsrv_connect($serverName, $connectionOptions);
 
-// Kiểm tra kết nối
-if ($conn === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
-// Đặt tên trạm
-$stations = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-$station = isset($_GET['station']) ? $_GET['station'] : 'A'; // Lấy trạm từ tham số URL
-
-// Lấy dữ liệu từ bảng cho trạm
-$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '$station%'";
-$stmt = sqlsrv_query($conn, $sql);
-
-// Kiểm tra lỗi khi truy vấn
-if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
-// Tạo mảng để lưu dữ liệu
-$highlighted = [];
-$chartData = [];
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $highlighted[] = trim($row['RFID']);
-    $chartData[] = [
-        'TENKH' => $row['TENKH'],
-        'LUONG_PALLET' => $row['LUONG_PALLET']
-    ];
-}
-
-// Đóng kết nối
-sqlsrv_close($conn);
-
-// Tạo dữ liệu cho biểu đồ
-$labels = [];
-$values = [];
-
-foreach ($chartData as $data) {
-    $labels[] = $data['TENKH'];
-    $values[] = $data['LUONG_PALLET'];
-}
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - Station <?= $station ?></title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            background-color: #001F3F;
-            color: white;
-            font-size: 8px;
-        }
-        h2 {
-            text-align: center;
-            font-size: 24px;
-        }
-        caption {
-            font-size: 16px;
-        }
-        .container {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px;
-        }
-        table {
-            width: 30%;
-            border-collapse: collapse;
-            font-size: 8px;
-        }
-        th, td {
-            border: 2px solid white;
-            padding: 5px;
-            text-align: center;
-        }
-        td.highlight {
-            background-color: #32CD32;
-        }
-        .chart-container {
-            width: 30%;
-            margin: 20px;
-        }
-        .charts {
-            display: flex;
-            justify-content: space-around;
-        }
-        .nav-buttons {
-            text-align: center;
-            margin: 20px;
-        }
-        .nav-buttons a {
-            margin: 5px;
-            padding: 10px 15px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .nav-buttons a:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-
-<h2>Warehouse Station <?= $station ?></h2>
-
-<!-- Phần điều hướng cho các trạm -->
-<div class="nav-buttons">
-    <?php foreach ($stations as $st): ?>
-        <a href="?station=<?= $st ?>">Station <?= $st ?></a>
-    <?php endforeach; ?>
-</div>
-
-<div class="container">
-    <!-- Bảng Left Rack -->
-    <table>
-        <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>L<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
-
-    <!-- Bảng Right Rack -->
-    <table>
-        <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>R<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
-</div>
-
-<div class="charts">
-    <!-- Biểu đồ cột -->
-    <div class="chart-container">
-        <canvas id="barChart"></canvas>
-    </div>
-
-    <!-- Biểu đồ tròn -->
-    <div class="chart-container">
-        <canvas id="pieChart"></canvas>
-    </div>
-</div>
-
-<script>
-// Dữ liệu cho biểu đồ cột
-const barLabels = <?= json_encode($labels) ?>;
-const barData = <?= json_encode($values) ?>;
-
-// Biểu đồ cột
-const barCtx = document.getElementById('barChart').getContext('2d');
-const barChart = new Chart(barCtx, {
-    type: 'bar',
-    data: {
-        labels: barLabels,
-        datasets: [{
-            label: 'Pallets',
-            data: barData,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
+    // Kiểm tra kết nối
+    if ($conn === false) {
+        die(print_r(sqlsrv_errors(), true));
     }
-});
 
-// Biểu đồ tròn
-const pieCtx = document.getElementById('pieChart').getContext('2d');
-const pieChart = new Chart(pieCtx, {
-    type: 'pie',
-    data: {
-        labels: ['Occupied', 'Available'],
-        datasets: [{
-            data: [barData.reduce((a, b) => a + b, 0), 196 - barData.reduce((a, b) => a + b, 0)],
-            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
-            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            }
-        }
+    // Đặt tên trạm
+    $stations = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    $station = isset($_GET['station']) ? $_GET['station'] : 'A'; // Lấy trạm từ tham số URL
+
+    // Lấy dữ liệu từ bảng cho trạm
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '$station%'";
+    $stmt = sqlsrv_query($conn, $sql);
+
+    // Truy vấn tổng số pallet (1372 ô)
+    $total_slots = 1372;
+
+    // Truy vấn số khách hàng và số pallet của họ
+    $sql = "SELECT TENKH, COUNT(*) as pallet_count FROM dbo.stored_warehouse GROUP BY TENKH";
+    $stmt = sqlsrv_query($conn, $sql);
+
+    // Kiểm tra lỗi khi truy vấn
+    if ($stmt === false) {
+        die(print_r(sqlsrv_errors(), true));
     }
-});
-</script>
 
-</body>
-</html>
+    // Tạo mảng cho dữ liệu biểu đồ
+    $customers = [];
+    $pallets = [];
+
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        $customers[] = $row['TENKH'];
+        $pallets[] = $row['pallet_count'];
+    }
+
+    // Tính tổng số pallet đã lưu trữ
+    $total_pallets = array_sum($pallets);
+
+    // Tạo mảng để lưu dữ liệu
+    $highlighted = [];
+    $chartData = [];
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        $highlighted[] = trim($row['RFID']);
+        $chartData[] = [
+            'TENKH' => $row['TENKH'],
+            'LUONG_PALLET' => $row['LUONG_PALLET']
+        ];
+    }
+
+    // Đóng kết nối
+    sqlsrv_close($conn);
+
+    // Tạo dữ liệu cho biểu đồ
+    $labels = [];
+    $values = [];
+
+    foreach ($chartData as $data) {
+        $labels[] = $data['TENKH'];
+        $values[] = $data['LUONG_PALLET'];
+    }
+
+    // Đóng kết nối
+    sqlsrv_close($conn);
+    ?>
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    </head>
+    <body>
+        <div class="sidebar" id="sidebar">
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <ul>
+                <li><a href="#" onclick="showPage('home');" class="main-link"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
+                <li>
+                    <a href="#" onclick="toggleStations(); showPage('dashboard');" class="main-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="link-text"> Dashboard</span>
+                    </a>
+                    <ul class="station-list">
+                        <li><a href="#" onclick="showPage('all');" class="station-link"><i class="fas fa-th-list"></i> <span class="link-text">All</span></a></li>
+                        li><a href="#" onclick="loadStation('all');" class="station-link"><i class="fas fa-th-list"></i> <span class="link-text">All</span></a></li>
+                        <?php foreach (range(1, 7) as $station): ?>
+                            <li><a href="#" onclick="loadStation('station<?= $station ?>');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station <?= $station ?></span></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </li>
+                <li><a href="#" onclick="showPage('list-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> List</span></a></li>
+            </ul>
+
+            <div id="datetime" class="datetime"></div>
+        </div>
+
+        <div class="content">
+            <div id="home" class="page">
+                <div class="slideshow-container">
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                        <img class="slide-image" src="Picture1.png" alt="Slide 1">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                        <img class="slide-image" src="Picture2.png" alt="Slide 2">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                        <img class="slide-image" src="Picture3.png" alt="Slide 3">
+                    </div>
+                
+                    <div class="dots">
+                        <span class="dot" onclick="showSlide(1)"></span>
+                        <span class="dot" onclick="showSlide(2)"></span>
+                        <span class="dot" onclick="showSlide(3)"></span>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div id="dashboard" class="page" style="display:none;">
+                
+            </div>
+            <div id="edit-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
+            <div id="all" class="page" style="display:none;">
+                <head>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <style>
+                            /* CSS để điều chỉnh màu sắc và bố cục biểu đồ */
+                            body {
+                                background-color: #003366; /* Màu xanh dương đậm */
+                                color: white; /* Chữ trắng */
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                            }
+
+                            h2 {
+                                color: white; /* Màu chữ trắng */
+                                font-size: 2.5rem; /* Kích thước chữ */
+                                text-align: center; /* Căn giữa chữ theo chiều ngang */
+                                margin: 0 auto; /* Đảm bảo căn giữa theo chiều ngang */
+                                line-height: 100px; /* Đảm bảo căn giữa theo chiều dọc */
+                                height: 100px; /* Đặt chiều cao của tiêu đề */
+                                width: 100%; /* Đảm bảo tiêu đề chiếm toàn bộ chiều rộng */
+                            }
+
+
+                            .chart-row {
+                                display: flex;
+                                justify-content: center; /* Căn lề ở giữa theo chiều ngang */
+                                gap: 20px; /* Khoảng cách giữa hai biểu đồ */
+                                margin-top: 30px;
+                            }
+
+                            .chart-container {
+                                width: 35vw; /* Đặt 40% chiều rộng màn hình cho mỗi biểu đồ */
+                                height: 35vw; /* Đảm bảo tỉ lệ vuông */
+                                display: inline-block;
+                            }
+
+                            h2 {
+                                color: white; /* Màu chữ trắng cho tiêu đề */
+                            }
+
+                            /* Điều chỉnh cho biểu đồ */
+                            .chartjs-render-monitor {
+                                border: 2px solid white; /* Viền trắng xung quanh biểu đồ */
+                            }
+
+                            /* Responsive: Biểu đồ sẽ thu nhỏ lại trên màn hình nhỏ */
+                            @media (max-width: 350px) {
+                                .chart-container {
+                                    width: 80vw; /* Chiều rộng lớn hơn cho màn hình nhỏ */
+                                    height: 80vw; /* Điều chỉnh chiều cao theo tỷ lệ */
+                                }
+                            }
+                        </style>
+                    </head>
+
+                    <body>
+                        <h2>Warehouse Statistics</h2>
+                        <div class="chart-row">
+                            <!-- Biểu đồ tròn: Tổng số pallet -->
+                            <div class="chart-container"> <canvas id="pieChart_all"></canvas> </div>
+
+                            <!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
+                            <div class="chart-container"> <canvas id="barChart_all"></canvas> </div>
+                        </div>
+
+                        <script>
+                        // Dữ liệu cho biểu đồ tròn
+                        var totalPalletData = {
+                            datasets: [{
+                                data: [<?php echo $total_slots - $total_pallets; ?>, <?php echo $total_pallets; ?>],
+                                backgroundColor: ['#FF6384', '#36A2EB'], /* Màu sắc cho biểu đồ */
+                                borderColor: ['#FFFFFF', '#FFFFFF'], /* Viền trắng */
+                                borderWidth: 2
+                            }],
+                            labels: ['Empty Slots', 'Stored Pallets']
+                        };
+
+                        // Dữ liệu cho biểu đồ cột
+                        var barChartData = {
+                            labels: <?php echo json_encode($customers); ?>,
+                            datasets: [{
+                                label: 'Pallets Stored',
+                                backgroundColor: '#36A2EB',
+                                borderColor: '#FFFFFF', /* Viền trắng */
+                                borderWidth: 2,
+                                data: <?php echo json_encode($pallets); ?>
+                            }]
+                        };
+
+                        // Vẽ biểu đồ tròn
+                        var ctx1 = document.getElementById('pieChart_all').getContext('2d');
+                        var pieChart = new Chart(ctx1, {
+                            type: 'pie',
+                            data: totalPalletData,
+                            options: {
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            color: 'white' /* Màu chữ trắng trong chú giải */
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        // Vẽ biểu đồ cột
+                        var ctx2 = document.getElementById('barChart_all').getContext('2d');
+                        var barChart = new Chart(ctx2, {
+                            type: 'bar',
+                            data: barChartData,
+                            options: {
+                                scales: {
+                                    x: {
+                                        ticks: {
+                                            color: 'white' /* Màu chữ trắng trên trục X */
+                                        },
+                                        grid: {
+                                            display: false /* Ẩn các đường kẻ trên trục X */
+                                        }
+                                    },
+                                    y: {
+                                        ticks: {
+                                            color: 'white' /* Màu chữ trắng trên trục Y */
+                                        },
+                                        grid: {
+                                            color: 'rgba(255, 255, 255, 0.2)' /* Đường kẻ mờ nhạt hơn trên trục Y */
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            color: 'white' /* Màu chữ trắng trong chú giải */
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        </script>
+                    </body>
+            </div>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+    </html>
