@@ -126,13 +126,11 @@ sqlsrv_close($conn);
                         .title h2 {
                             font-size: 2.5rem; /* Điều chỉnh kích thước chữ tùy ý */
                             color: white; /* Màu chữ, tùy chỉnh */
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
                             height: 100px; /* Chiều cao phần tiêu đề */
-                            text-align: center;
+                            text-align: center; /* Căn giữa chữ */
+                            margin: 0 auto; /* Căn giữa theo chiều ngang */
+                            line-height: 100px; /* Đảm bảo căn giữa theo chiều dọc nếu cần */
                         }
-
 
                         .chart-row {
                             display: flex;
