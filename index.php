@@ -1,3 +1,57 @@
+<?php 
+// Thông tin kết nối cơ sở dữ liệu Azure SQL
+$serverName = "eiusmartwarehouse.database.windows.net";
+$connectionOptions = array(
+    "Database" => "eiu_warehouse_24",
+    "Uid" => "eiuadmin",
+    "PWD" => "Khoa123456789"
+);
+
+// Kết nối đến cơ sở dữ liệu
+$conn = sqlsrv_connect($serverName, $connectionOptions);
+
+// Kiểm tra kết nối
+if ($conn === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
+
+// Đặt tên trạm
+$stations = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+$station = isset($_GET['station']) ? $_GET['station'] : 'A'; // Lấy trạm từ tham số URL
+
+// Lấy dữ liệu từ bảng cho trạm
+$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '$station%'";
+$stmt = sqlsrv_query($conn, $sql);
+
+// Kiểm tra lỗi khi truy vấn
+if ($stmt === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
+
+// Tạo mảng để lưu dữ liệu
+$highlighted = [];
+$chartData = [];
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $highlighted[] = trim($row['RFID']);
+    $chartData[] = [
+        'TENKH' => $row['TENKH'],
+        'LUONG_PALLET' => $row['LUONG_PALLET']
+    ];
+}
+
+// Đóng kết nối
+sqlsrv_close($conn);
+
+// Tạo dữ liệu cho biểu đồ
+$labels = [];
+$values = [];
+
+foreach ($chartData as $data) {
+    $labels[] = $data['TENKH'];
+    $values[] = $data['LUONG_PALLET'];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
