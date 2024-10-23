@@ -1,4 +1,4 @@
-<?php 
+<?php
 // Thông tin kết nối cơ sở dữ liệu Azure SQL
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
@@ -15,8 +15,12 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Hàm lấy dữ liệu cho một trạm cụ thể
-function getStationData($conn, $station) {
+// Tạo mảng để lưu dữ liệu cho các trạm
+$stations = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+$stationData = [];
+
+// Lấy dữ liệu cho từng trạm
+foreach ($stations as $station) {
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '$station%'";
     $stmt = sqlsrv_query($conn, $sql);
 
@@ -27,16 +31,19 @@ function getStationData($conn, $station) {
     $data = [];
     $customers = [];
     $highlighted = [];
+    
     while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
         $data[] = $row;
-        $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
-        $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng, giữ danh sách RFID để highlight
+        $customers[$row['MAKH']][] = $row['RFID'];
+        $highlighted[] = trim($row['RFID']);
     }
-    return [$data, $customers, $highlighted];
-}
 
-// Lấy dữ liệu cho trạm A
-list($data, $customers, $highlighted) = getStationData($conn, 'A');
+    $stationData[$station] = [
+        'data' => $data,
+        'customers' => $customers,
+        'highlighted' => $highlighted,
+    ];
+}
 
 // Đóng kết nối
 sqlsrv_close($conn);
@@ -47,7 +54,7 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - Station A</title>
+    <title>Warehouse Management</title>
     <style>
         body {
             background-color: #001F3F; /* Xanh đậm */
@@ -58,8 +65,19 @@ sqlsrv_close($conn);
             text-align: center;
             font-size: 24px; /* Cỡ chữ tiêu đề lớn hơn */
         }
-        caption {
-            font-size: 16px; /* Cỡ chữ cho caption lớn hơn */
+        .button-container {
+            text-align: center;
+            margin: 20px;
+        }
+        .station-button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
         .container {
             display: flex; /* Sử dụng flexbox để bố trí các phần tử */
@@ -92,131 +110,146 @@ sqlsrv_close($conn);
 </head>
 <body>
 
-<h2>Warehouse Station A</h2>
+<h2>Warehouse Management</h2>
 
-<div class="container">
-    <!-- Bảng Left Rack -->
-    <table>
-        <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array('AL' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
-
-    <!-- Bảng Right Rack -->
-    <table>
-        <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array('AR' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
+<div class="button-container">
+    <?php foreach ($stations as $station): ?>
+        <button class="station-button" onclick="showStation('<?= $station ?>')">Station <?= $station ?></button>
+    <?php endforeach; ?>
 </div>
 
-<!-- Biểu đồ -->
-<div class="charts">
-    <!-- Biểu đồ cột -->
-    <div class="chart-container">
-        <canvas id="barChart"></canvas>
-    </div>
-
-    <!-- Biểu đồ tròn -->
-    <div class="chart-container">
-        <canvas id="pieChart"></canvas>
-    </div>
-</div>
+<div id="stationContent"></div>
 
 <script>
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
-    const totalSlots = 196; // Tổng số ô (98x2)
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    const stationData = <?= json_encode($stationData) ?>;
 
-    // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: customerLabels, // Mã khách hàng
-            datasets: [{
-                label: 'Used Slots', // Nhãn trục Y
-                data: customerData, // Số lượng RFID cho mỗi khách hàng
-                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
-                borderColor: 'white', // Đường viền trắng
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Màu chữ trắng cho legend
-                    }
-                }
+    function showStation(station) {
+        const content = document.getElementById('stationContent');
+        const data = stationData[station];
+
+        content.innerHTML = `
+            <h2>Warehouse Station ${station}</h2>
+            <div class="container">
+                <table>
+                    <caption style="caption-side: top;">Left Rack</caption>
+                    ${generateTable(data.highlighted, station, 'L')}
+                </table>
+                <table>
+                    <caption style="caption-side: top;">Right Rack</caption>
+                    ${generateTable(data.highlighted, station, 'R')}
+                </table>
+            </div>
+            <div class="charts">
+                <div class="chart-container">
+                    <canvas id="barChart${station}"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pieChart${station}"></canvas>
+                </div>
+            </div>
+        `;
+
+        // Gọi hàm để vẽ biểu đồ
+        drawCharts(data.customers, station);
+    }
+
+    function generateTable(highlighted, station, side) {
+        let html = '';
+        const rows = 7;
+        const cols = 14;
+        for (let row = rows; row >= 1; row--) {
+            html += '<tr>';
+            for (let col = 1; col <= cols; col++) {
+                const index = (row - 1) * cols + col;
+                const cellId = side === 'L' ? `AL${String(index).padStart(2, '0')}` : `AR${String(index).padStart(2, '0')}`;
+                html += `<td class="${highlighted.includes(cellId) ? 'highlight' : ''}">${cellId}</td>`;
+            }
+            html += '</tr>';
+        }
+        return html;
+    }
+
+    function drawCharts(customers, station) {
+        const customerLabels = Object.keys(customers);
+        const customerData = customerLabels.map(key => customers[key].length);
+        const filledSlots = customerLabels.reduce((total, key) => total + customers[key].length, 0);
+        const totalSlots = 196;
+
+        // Biểu đồ cột
+        const ctxBar = document.getElementById(`barChart${station}`).getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: customerLabels,
+                datasets: [{
+                    label: 'Used Slots',
+                    data: customerData,
+                    backgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Used Slots', // Nhãn cho trục Y
-                        color: 'white' // Màu chữ trắng cho nhãn
-                    },
-                    grid: {
-                        color: 'white' // Màu đường lưới trắng
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trắng cho tick marks
-                        stepSize: 1 // Đặt độ chia cho trục Y là 1
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
                     }
                 },
-                x: {
-                    grid: {
-                        color: 'white' // Màu đường lưới trắng
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Used Slots',
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'white'
+                        },
+                        ticks: {
+                            color: 'white',
+                            stepSize: 1
+                        }
                     },
-                    ticks: {
-                        color: 'white' // Màu chữ trắng cho tick marks
+                    x: {
+                        grid: {
+                            color: 'white'
+                        },
+                        ticks: {
+                            color: 'white'
+                        }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Used', 'Remaining'], // Nhãn cho biểu đồ tròn
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
-                borderColor: 'white', // Đường viền trắng
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Màu chữ trắng cho legend
+        // Biểu đồ tròn
+        const ctxPie = document.getElementById(`pieChart${station}`).getContext('2d');
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Used', 'Remaining'],
+                datasets: [{
+                    data: [filledSlots, totalSlots - filledSlots],
+                    backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 </script>
 
 </body>
