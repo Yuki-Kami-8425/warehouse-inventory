@@ -69,7 +69,7 @@ sqlsrv_close($conn);
             text-align: center;
             margin: 20px;
         }
-        .station-button {
+        .station-button, .all-button {
             margin: 5px;
             padding: 10px;
             font-size: 16px;
@@ -113,6 +113,7 @@ sqlsrv_close($conn);
 <h2>Warehouse Management</h2>
 
 <div class="button-container">
+    <button class="all-button" onclick="showAll()">All</button>
     <?php foreach ($stations as $station): ?>
         <button class="station-button" onclick="showStation('<?= $station ?>')">Station <?= $station ?></button>
     <?php endforeach; ?>
@@ -122,6 +123,33 @@ sqlsrv_close($conn);
 
 <script>
     const stationData = <?= json_encode($stationData) ?>;
+
+    function showAll() {
+        const content = document.getElementById('stationContent');
+        content.innerHTML = `
+            <h2>All Stations</h2>
+            <div class="container">
+                <table>
+                    <caption style="caption-side: top;">Left Rack</caption>
+                    ${generateTableForAll('L')}
+                </table>
+                <table>
+                    <caption style="caption-side: top;">Right Rack</caption>
+                    ${generateTableForAll('R')}
+                </table>
+            </div>
+            <div class="charts">
+                <div class="chart-container">
+                    <canvas id="barChartAll"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pieChartAll"></canvas>
+                </div>
+            </div>
+        `;
+
+        drawAllCharts();
+    }
 
     function showStation(station) {
         const content = document.getElementById('stationContent');
@@ -153,6 +181,28 @@ sqlsrv_close($conn);
         drawCharts(data.customers, station);
     }
 
+    function generateTableForAll(side) {
+        let html = '';
+        const rows = 7;
+        const cols = 14;
+        let highlightedAll = new Set();
+
+        for (const station of Object.keys(stationData)) {
+            highlightedAll = new Set([...highlightedAll, ...stationData[station].highlighted]);
+        }
+
+        for (let row = rows; row >= 1; row--) {
+            html += '<tr>';
+            for (let col = 1; col <= cols; col++) {
+                const index = (row - 1) * cols + col;
+                const cellId = side === 'L' ? `AL${String(index).padStart(2, '0')}` : `AR${String(index).padStart(2, '0')}`;
+                html += `<td class="${highlightedAll.has(cellId) ? 'highlight' : ''}">${cellId}</td>`;
+            }
+            html += '</tr>';
+        }
+        return html;
+    }
+
     function generateTable(highlighted, station, side) {
         let html = '';
         const rows = 7;
@@ -169,11 +219,75 @@ sqlsrv_close($conn);
         return html;
     }
 
+    function drawAllCharts() {
+        const totalCustomers = {};
+        const filledSlots = {};
+        const totalSlots = 196;
+
+        // Tính toán dữ liệu cho biểu đồ tổng
+        for (const station of Object.keys(stationData)) {
+            const data = stationData[station].customers;
+            for (const customer in data) {
+                totalCustomers[customer] = (totalCustomers[customer] || 0) + data[customer].length;
+            }
+            filledSlots[station] = Object.keys(data).length;
+        }
+
+        const customerLabels = Object.keys(totalCustomers);
+        const customerData = customerLabels.map(key => totalCustomers[key]);
+        const totalFilledSlots = Object.values(filledSlots).reduce((total, num) => total + num, 0);
+
+        // Biểu đồ cột
+        const ctxBar = document.getElementById('barChartAll').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: customerLabels,
+                datasets: [{
+                    label: 'Used Slots',
+                    data: customerData,
+                    backgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true },
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Biểu đồ tròn
+        const ctxPie = document.getElementById('pieChartAll').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(filledSlots),
+                datasets: [{
+                    label: 'Filled Slots',
+                    data: Object.values(filledSlots),
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 255, 255, 0.2)'],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                }
+            }
+        });
+    }
+
     function drawCharts(customers, station) {
         const customerLabels = Object.keys(customers);
         const customerData = customerLabels.map(key => customers[key].length);
-        const filledSlots = customerLabels.reduce((total, key) => total + customers[key].length, 0);
-        const totalSlots = 196;
 
         // Biểu đồ cột
         const ctxBar = document.getElementById(`barChart${station}`).getContext('2d');
@@ -192,36 +306,10 @@ sqlsrv_close($conn);
             options: {
                 responsive: true,
                 plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    }
+                    legend: { display: true },
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Used Slots',
-                            color: 'white'
-                        },
-                        grid: {
-                            color: 'white'
-                        },
-                        ticks: {
-                            color: 'white',
-                            stepSize: 1
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'white'
-                        },
-                        ticks: {
-                            color: 'white'
-                        }
-                    }
+                    y: { beginAtZero: true }
                 }
             }
         });
@@ -231,21 +319,19 @@ sqlsrv_close($conn);
         new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: ['Used', 'Remaining'],
+                labels: Object.keys(customers),
                 datasets: [{
-                    data: [filledSlots, totalSlots - filledSlots],
-                    backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                    label: 'Filled Slots',
+                    data: customerData,
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)'],
                     borderColor: 'white',
                     borderWidth: 2
                 }]
             },
             options: {
+                responsive: true,
                 plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    }
+                    legend: { display: true }
                 }
             }
         });
