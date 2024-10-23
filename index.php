@@ -31,7 +31,7 @@
                     <li><a href="#" onclick="showPage('station7');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 7</span></a></li>
                 </ul>
             </li>
-            <li><a href="#" onclick="showPage('edit-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> Edit</span></a></li>
+            <li><a href="#" onclick="showPage('list-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> List</span></a></li>
         </ul>
 
         <div id="datetime" class="datetime"></div>
@@ -62,9 +62,13 @@
             
         </div>
 
-        <div id="dashboard" class="page" style="display:none;">Dashboard will be here.</div>
-        <div id="edit-warehouse" class="page" style="display:none;">Edit Warehouse will be here.</div>
-        <div id="all" class="page" style="display:none;">All stations content will be here.</div>
+        <div id="dashboard" class="page" style="display:none;">
+            <a href="all.php" style="color: white; background-color: #003366; padding: 10px; text-decoration: none;">View All Statistics</a>
+        </div>
+        <div id="edit-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
+        <div id="all" class="page" style="display:none;">
+            <a href="all.php" style="color: white; background-color: #003366; padding: 10px; text-decoration: none;">View All Statistics</a>
+        </div>
         <div id="station1" class="page" style="display:none;">Station 1 content will be here.</div>
         <div id="station2" class="page" style="display:none;">Station 2 content will be here.</div>
         <div id="station3" class="page" style="display:none;">Station 3 content will be here.</div>
