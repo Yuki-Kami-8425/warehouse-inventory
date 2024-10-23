@@ -1,223 +1,130 @@
-<?php 
-// Thông tin kết nối cơ sở dữ liệu Azure SQL
-$serverName = "eiusmartwarehouse.database.windows.net";
-$connectionOptions = array(
-    "Database" => "eiu_warehouse_24",
-    "Uid" => "eiuadmin",
-    "PWD" => "Khoa123456789"
-);
-
-// Kết nối đến cơ sở dữ liệu
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-
-// Kiểm tra kết nối
-if ($conn === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
-// Đặt tên trạm
-$stations = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-$station = isset($_GET['station']) ? $_GET['station'] : 'A'; // Lấy trạm từ tham số URL
-
-// Lấy dữ liệu từ bảng cho trạm
-$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '$station%'";
-$stmt = sqlsrv_query($conn, $sql);
-
-// Kiểm tra lỗi khi truy vấn
-if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
-// Tạo mảng để lưu dữ liệu
-$highlighted = [];
-$chartData = [];
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $highlighted[] = trim($row['RFID']);
-    $chartData[] = [
-        'TENKH' => $row['TENKH'],
-        'LUONG_PALLET' => $row['LUONG_PALLET']
-    ];
-}
-
-// Đóng kết nối
-sqlsrv_close($conn);
-
-// Tạo dữ liệu cho biểu đồ
-$labels = [];
-$values = [];
-
-foreach ($chartData as $data) {
-    $labels[] = $data['TENKH'];
-    $values[] = $data['LUONG_PALLET'];
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - Station <?= $station ?></title>
+    <title>Warehouse Management</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            background-color: #001F3F;
-            color: white;
-            font-size: 8px;
-        }
-        h2 {
-            text-align: center;
-            font-size: 24px;
-        }
-        caption {
-            font-size: 16px;
-        }
-        .container {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px;
-        }
-        table {
-            width: 30%;
-            border-collapse: collapse;
-            font-size: 8px;
-        }
-        th, td {
-            border: 2px solid white;
-            padding: 5px;
-            text-align: center;
-        }
-        td.highlight {
-            background-color: #32CD32;
-        }
-        .chart-container {
-            width: 30%;
-            margin: 20px;
-        }
-        .charts {
-            display: flex;
-            justify-content: space-around;
-        }
-        /* Thêm kiểu cho nút */
-        .nav-buttons {
-            text-align: center;
-            margin: 20px;
-        }
-        .nav-buttons a {
-            margin: 5px;
-            padding: 10px 15px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .nav-buttons a:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <script src="scripts.js"></script>
 </head>
 <body>
-
-<h2>Warehouse Station <?= $station ?></h2>
-
-<!-- Phần điều hướng cho các trạm -->
-<div class="nav-buttons">
-    <?php foreach ($stations as $st): ?>
-        <a href="?station=<?= $st ?>">Station <?= $st ?></a>
-    <?php endforeach; ?>
-</div>
-
-<div class="container">
-    <!-- Bảng Left Rack -->
-    <table>
-        <caption style="caption-side: top;">Left Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>L<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
-
-    <!-- Bảng Right Rack -->
-    <table>
-        <caption style="caption-side: top;">Right Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>R<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
-</div>
-
-<div class="charts">
-    <!-- Biểu đồ cột -->
-    <div class="chart-container">
-        <canvas id="barChart"></canvas>
+    <div class="sidebar">
+        <!-- Thanh điều hướng bên với các nút -->
+        <button onclick="showStation('all')">All</button>
+        <button onclick="showStation('A')">Trạm A</button>
+        <button onclick="showStation('B')">Trạm B</button>
+        <button onclick="showStation('C')">Trạm C</button>
+        <button onclick="showStation('D')">Trạm D</button>
+        <button onclick="showStation('E')">Trạm E</button>
+        <button onclick="showStation('F')">Trạm F</button>
+        <button onclick="showStation('G')">Trạm G</button>
     </div>
 
-    <!-- Biểu đồ tròn -->
-    <div class="chart-container">
-        <canvas id="pieChart"></canvas>
+    <div class="content">
+        <h1>Warehouse Overview</h1>
+        <?php
+        // Kết nối cơ sở dữ liệu
+        $serverName = "eiusmartwarehouse.database.windows.net";
+        $connectionOptions = array(
+            "Database" => "eiu_warehouse_24",
+            "Uid" => "eiuadmin",
+            "PWD" => "Khoa123456789"
+        );
+
+        // Thiết lập kết nối
+        $conn = sqlsrv_connect($serverName, $connectionOptions);
+        if ($conn === false) {
+            die(print_r(sqlsrv_errors(), true));
+        }
+
+        // Xử lý nội dung dựa trên trạm được chọn
+        $station = isset($_GET['station']) ? $_GET['station'] : 'A'; // Mặc định là trạm A
+
+        if ($station == 'all') {
+            // Hiển thị tất cả các trạm
+            echo "<h2>All Stations</h2>";
+            $tsql = "SELECT * FROM stored_warehouse";
+            $getResults = sqlsrv_query($conn, $tsql);
+            if ($getResults === false) {
+                die(print_r(sqlsrv_errors(), true));
+            }
+
+            echo "<table border='1'>";
+            echo "<tr><th>Position</th><th>Customer</th><th>Quantity</th></tr>";
+            while ($row = sqlsrv_fetch_array($getResults, SQLSRV_FETCH_ASSOC)) {
+                echo "<tr><td>" . $row['rack_position'] . "</td><td>" . $row['TENKH'] . "</td><td>" . $row['LUONG_PALLET'] . "</td></tr>";
+            }
+            echo "</table>";
+        } else {
+            // Hiển thị dữ liệu của từng trạm
+            echo "<h2>Station " . htmlspecialchars($station) . "</h2>";
+            
+            // Truy vấn thông tin cho từng trạm A-G
+            $tsql = "SELECT * FROM stored_warehouse WHERE rack_position LIKE '" . $station . "%'";
+            $getResults = sqlsrv_query($conn, $tsql);
+            if ($getResults === false) {
+                die(print_r(sqlsrv_errors(), true));
+            }
+
+            echo "<table border='1'>";
+            echo "<tr><th>Position</th><th>Customer</th><th>Quantity</th></tr>";
+            while ($row = sqlsrv_fetch_array($getResults, SQLSRV_FETCH_ASSOC)) {
+                echo "<tr><td>" . $row['rack_position'] . "</td><td>" . $row['TENKH'] . "</td><td>" . $row['LUONG_PALLET'] . "</td></tr>";
+            }
+            echo "</table>";
+
+            // Biểu đồ cột cho số lượng khách hàng
+            echo "<canvas id='barChart_" . $station . "'></canvas>";
+            echo "<script>
+                var ctx = document.getElementById('barChart_" . $station . "').getContext('2d');
+                var barChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Customer 1', 'Customer 2', 'Customer 3'], // Thay bằng dữ liệu thực tế
+                        datasets: [{
+                            label: 'Quantity',
+                            data: [10, 20, 30], // Thay bằng dữ liệu thực tế
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            </script>";
+
+            // Biểu đồ tròn cho tổng số kho
+            echo "<canvas id='pieChart_" . $station . "'></canvas>";
+            echo "<script>
+                var ctx = document.getElementById('pieChart_" . $station . "').getContext('2d');
+                var pieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Occupied', 'Available'],
+                        datasets: [{
+                            data: [50, 146], // Thay bằng dữ liệu thực tế (50 là số lượng đã chiếm)
+                            backgroundColor: ['#FF6384', '#36A2EB']
+                        }]
+                    },
+                    options: {
+                        responsive: true
+                    }
+                });
+            </script>";
+        }
+        ?>
     </div>
-</div>
 
-<script>
-// Dữ liệu cho biểu đồ cột
-const barLabels = <?= json_encode($labels) ?>;
-const barData = <?= json_encode($values) ?>;
-
-// Biểu đồ cột
-const barCtx = document.getElementById('barChart').getContext('2d');
-const barChart = new Chart(barCtx, {
-    type: 'bar',
-    data: {
-        labels: barLabels,
-        datasets: [{
-            label: 'Pallets',
-            data: barData,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
+    <script>
+        // Hàm JavaScript chuyển hướng đến trạm tương ứng khi nhấn nút
+        function showStation(station) {
+            window.location.href = 'index.php?station=' + station;
         }
-    }
-});
-
-// Biểu đồ tròn
-const pieCtx = document.getElementById('pieChart').getContext('2d');
-const pieChart = new Chart(pieCtx, {
-    type: 'pie',
-    data: {
-        labels: ['Occupied', 'Available'],
-        datasets: [{
-            data: [barData.reduce((a, b) => a + b, 0), 196 - barData.reduce((a, b) => a + b, 0)],
-            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
-            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            }
-        }
-    }
-});
-</script>
-
+    </script>
 </body>
 </html>
