@@ -48,7 +48,6 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Warehouse</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -113,7 +112,7 @@ sqlsrv_close($conn);
         <div id="edit-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
         <div id="all" class="page" style="display:none;">
             <head>
-                <title>Warehouse Statistics</title>
+                <title1>Warehouse Statistics</title1>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <style>
                     /* CSS để điều chỉnh màu sắc và bố cục biểu đồ */
@@ -125,7 +124,7 @@ sqlsrv_close($conn);
                         align-items: center;
                     }
 
-                    .title {
+                    .title1 {
                         display: flex;
                         justify-content: center;
                         align-items: center;
@@ -133,7 +132,7 @@ sqlsrv_close($conn);
                         text-align: center;
                     }
 
-                    .title h1 {
+                    .title1 h1 {
                         font-size: 2.5rem; /* Điều chỉnh kích thước chữ tùy ý */
                         color: white; /* Màu chữ, tùy chỉnh */
                     }
