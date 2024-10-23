@@ -57,9 +57,67 @@ foreach ($chartData as $data) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Warehouse Management - Station <?= $station ?></title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #001F3F;
+            color: white;
+            font-size: 8px;
+        }
+        h2 {
+            text-align: center;
+            font-size: 24px;
+        }
+        caption {
+            font-size: 16px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px;
+        }
+        table {
+            width: 30%;
+            border-collapse: collapse;
+            font-size: 8px;
+        }
+        th, td {
+            border: 2px solid white;
+            padding: 5px;
+            text-align: center;
+        }
+        td.highlight {
+            background-color: #32CD32;
+        }
+        .chart-container {
+            width: 30%;
+            margin: 20px;
+        }
+        .charts {
+            display: flex;
+            justify-content: space-around;
+        }
+        /* Thêm kiểu cho nút */
+        .nav-buttons {
+            text-align: center;
+            margin: 20px;
+        }
+        .nav-buttons a {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .nav-buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
+<body>
+
 <h2>Warehouse Station <?= $station ?></h2>
 
 <!-- Phần điều hướng cho các trạm -->
@@ -160,77 +218,6 @@ const pieChart = new Chart(pieCtx, {
     }
 });
 </script>
-    <body>
-        <div class="sidebar" id="sidebar">
-            <button class="toggle-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <ul>
-                <li><a href="#" onclick="showPage('home');" class="main-link"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
-                <li>
-                    <a href="#" onclick="toggleStations(); showPage('dashboard');" class="main-link">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span class="link-text"> Dashboard</span>
-                    </a>
-                    <ul class="station-list">
-                        <li><a href="#" onclick="showPage('all');" class="station-link"><i class="fas fa-th-list"></i> <span class="link-text">All</span></a></li>
-                        <li><a href="#" onclick="showPage('station1');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 1</span></a></li>
-                        <li><a href="#" onclick="showPage('station2');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 2</span></a></li>
-                        <li><a href="#" onclick="showPage('station3');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 3</span></a></li>
-                        <li><a href="#" onclick="showPage('station4');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 4</span></a></li>
-                        <li><a href="#" onclick="showPage('station5');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 5</span></a></li>
-                        <li><a href="#" onclick="showPage('station6');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 6</span></a></li>
-                        <li><a href="#" onclick="showPage('station7');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 7</span></a></li>
-                    </ul>
-                </li>
-                <li><a href="#" onclick="showPage('list-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> List</span></a></li>
-            </ul>
 
-            <div id="datetime" class="datetime"></div>
-        </div>
-
-        <div class="content">
-            <div id="home" class="page">
-                <div class="slideshow-container">
-                    <div class="slide">
-                        <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
-                        <img class="slide-image" src="Picture1.png" alt="Slide 1">
-                    </div>
-                    <div class="slide">
-                        <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
-                        <img class="slide-image" src="Picture2.png" alt="Slide 2">
-                    </div>
-                    <div class="slide">
-                        <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
-                        <img class="slide-image" src="Picture3.png" alt="Slide 3">
-                    </div>
-                
-                    <div class="dots">
-                        <span class="dot" onclick="showSlide(1)"></span>
-                        <span class="dot" onclick="showSlide(2)"></span>
-                        <span class="dot" onclick="showSlide(3)"></span>
-                    </div>
-                </div>
-                
-            </div>
-
-            <div id="dashboard" class="page" style="display:none;">
-                
-            </div>
-            <div id="edit-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
-            <div id="all" class="page" style="display:none;"> </div>
-            <div id="station1" class="page" style="display:none;">
-                
-            </div>
-            <div id="station2" class="page" style="display:none;">Station 2 content will be here.</div>
-            <div id="station3" class="page" style="display:none;">Station 3 content will be here.</div>
-            <div id="station4" class="page" style="display:none;">Station 4 content will be here.</div>
-            <div id="station5" class="page" style="display:none;">Station 5 content will be here.</div>
-            <div id="station6" class="page" style="display:none;">Station 6 content will be here.</div>
-            <div id="station7" class="page" style="display:none;">Station 7 content will be here.</div>
-        </div>
-
-        <script src="script.js"></script>
-    </body>
-    </html>
+</body>
+</html>
