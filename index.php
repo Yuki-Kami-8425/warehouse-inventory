@@ -133,8 +133,8 @@ sqlsrv_close($conn);
                     }
 
                     .chart-container {
-                        width: 40vw; /* Đặt 40% chiều rộng màn hình cho mỗi biểu đồ */
-                        height: 40vw; /* Đảm bảo tỉ lệ vuông */
+                        width: 35vw; /* Đặt 40% chiều rộng màn hình cho mỗi biểu đồ */
+                        height: 35vw; /* Đảm bảo tỉ lệ vuông */
                         display: inline-block;
                     }
 
@@ -148,7 +148,7 @@ sqlsrv_close($conn);
                     }
 
                     /* Responsive: Biểu đồ sẽ thu nhỏ lại trên màn hình nhỏ */
-                    @media (max-width: 450px) {
+                    @media (max-width: 350px) {
                         .chart-container {
                             width: 80vw; /* Chiều rộng lớn hơn cho màn hình nhỏ */
                             height: 80vw; /* Điều chỉnh chiều cao theo tỷ lệ */

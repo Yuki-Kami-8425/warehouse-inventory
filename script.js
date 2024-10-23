@@ -43,6 +43,7 @@ function toggleStations() {
     } else {
         stationList.classList.add('open'); // Mở danh sách trạm
     }
+    showPage('all');
 }
 
 function showPage(pageId) {
