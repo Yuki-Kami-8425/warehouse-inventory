@@ -106,12 +106,9 @@
                 
             </div>
 
-            <div id="dashboard" class="page" style="display:none;">
-                
-            </div>
-            <div id="edit-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
+            <div id="dashboard" class="page" style="display:none;"></div>
+            <div id="edit-warehouse" class="page">List Warehouse will be here.</div>
             <div id="all" class="page" style="display:none;">
-                <head>
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                         <style>
                             /* CSS để điều chỉnh màu sắc và bố cục biểu đồ */
@@ -164,9 +161,6 @@
                                 }
                             }
                         </style>
-                    </head>
-
-                    <body>
                         <h2>Warehouse Statistics</h2>
                         <div class="chart-row">
                             <!-- Biểu đồ tròn: Tổng số pallet -->
@@ -250,27 +244,8 @@
                             }
                         });
                         </script>
-                    </body>
             </div>
             <div id="station1" class="page" style="display:none;">
-            <div id="stationAContent" style="display: none;"></div>
-                <script>
-                    function loadStationA() {
-                        // Ẩn các nội dung khác nếu cần
-                        document.getElementById('stationAContent').style.display = 'block';
-                        
-                        // Gọi mã PHP để tải dữ liệu từ trạm A
-                        fetch('station A.php') // Thay đổi đường dẫn đến file PHP cho station A
-                            .then(response => response.text())
-                            .then(data => {
-                                document.getElementById('stationAContent').innerHTML = data;
-                                // Gọi hàm để vẽ biểu đồ sau khi dữ liệu đã được tải
-                                drawBarChart(); // Hàm vẽ biểu đồ cột
-                                drawPieChart(); // Hàm vẽ biểu đồ tròn
-                            })
-                            .catch(error => console.error('Error:', error));
-                    }
-                </script>
             </div>
             <div id="station2" class="page" style="display:none;">Station 2 content will be here.</div>
             <div id="station3" class="page" style="display:none;">Station 3 content will be here.</div>
