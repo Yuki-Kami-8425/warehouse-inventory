@@ -1,4 +1,4 @@
-<?php
+<?php 
 // Thông tin kết nối cơ sở dữ liệu Azure SQL
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
@@ -15,17 +15,27 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Xác định trạm đang hiển thị hoặc dashboard
-$station = isset($_GET['station']) ? strtoupper($_GET['station']) : 'ALL';
-$total_slots = 1372; // Tổng số pallet trong kho
+// Truy vấn tổng số pallet (1372 ô)
+$total_slots = 1372;
 
-// Truy vấn dữ liệu cho tất cả trạm hoặc trạm cụ thể
-if ($station === 'ALL') {
-    $sql = "SELECT TENKH, COUNT(*) as pallet_count FROM dbo.stored_warehouse GROUP BY TENKH";
-} else {
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '$station%'";
+// Truy vấn số khách hàng và số pallet của họ
+$sql = "SELECT TENKH, COUNT(*) as pallet_count FROM dbo.stored_warehouse GROUP BY TENKH";
+$stmt = sqlsrv_query($conn, $sql);
+
+// Tạo mảng cho dữ liệu biểu đồ
+$customers = [];
+$pallets = [];
+
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $customers[] = $row['TENKH'];
+    $pallets[] = $row['pallet_count'];
 }
 
+// Tính tổng số pallet đã lưu trữ
+$total_pallets = array_sum($pallets);
+
+// Lấy dữ liệu từ bảng cho tất cả các trạm từ A đến G
+$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '[A-G]%'";
 $stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
@@ -33,24 +43,18 @@ if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Chuẩn bị dữ liệu cho các trạm
+// Tạo mảng để lưu dữ liệu
 $data = [];
 $customers = [];
 $highlighted = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    if ($station === 'ALL') {
-        $customers[] = $row['TENKH'];
-        $pallets[] = $row['pallet_count'];
-    } else {
-        $data[] = $row;
-        $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
-        $highlighted[] = trim($row['RFID']); // Danh sách RFID để highlight
-    }
+    $data[] = $row;
+    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
+    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng, giữ danh sách RFID để highlight
 }
 
 // Đóng kết nối
 sqlsrv_close($conn);
-
 ?>
 
 <!DOCTYPE html>
@@ -58,122 +62,343 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management</title>
+    <title>Smart Warehouse</title>
     <style>
-        body {
-            background-color: #001F3F; /* Màu nền xanh đậm */
-            color: white;
-            font-size: 8px;
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #004080; /* Màu nền xanh đậm */
         }
-        h2 {
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 200px;
+            background-color: #2c3e50; /* Màu nền thanh bên */
+            padding-top: 60px;
+            transition: width 0.3s;
+        }
+
+        .slide:hover {
+            transform: scale(1.02); /* Phóng to một chút */
+            transition: transform 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+        }
+
+
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            margin: auto;
+            padding: 20px 0;
             text-align: center;
+        }
+
+        .slide-title {
+            font-size: 24px; /* Kích thước chữ cho tiêu đề */
+            color: white; /* Màu chữ */
+            margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
+        }
+
+        .slide {
+            display: none; /* Ẩn tất cả các slide mặc định */
+            position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
+        }
+
+        .slide img {
+            width: 650px; /* Chiều rộng cố định */
+            height: 350px; /* Chiều cao cố định */
+            object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
+        }
+
+        .dots {
+            position: relative; /* Để căn giữa dấu chấm */
+            text-align: center; /* Căn giữa dấu chấm */
+            margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
+        }
+
+        .dot {
+            height: 10px; /* Kích thước dấu chấm */
+            width: 10px; /* Kích thước dấu chấm */
+            margin: 0 5px; /* Khoảng cách giữa các dấu chấm */
+            background-color: white; /* Màu trắng */
+            border-radius: 50%; /* Đường viền tròn */
+            display: inline-block; /* Hiển thị thành dòng ngang */
+            cursor: pointer; /* Con trỏ khi hover vào */
+            transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
+        }
+
+        .dot.active {
+            height: 15px; /* Kích thước lớn hơn khi được chọn */
+            width: 15px; /* Kích thước lớn hơn khi được chọn */
+            background-color: #00BFFF; /* Màu xanh lam khi được chọn */
+        }
+
+        .dot:hover {
+            background-color: #00BFFF; /* Màu nền khi hover */
+            transform: scale(1.2); /* Phóng to một chút */
+            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+        }
+
+        .sidebar ul li a.active {
+            color: #00BFFF; /* Màu xanh lam khi được chọn */
+            background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi được chọn (tùy chọn) */
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s; /* Thêm hiệu ứng chuyển màu */
+        }
+
+        .sidebar ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.2); /* Màu nền khi hover */
+            color: #32CD32; /* Màu lục tươi khi đưa chuột vào */
+            transform: scale(1.05); /* Phóng to một chút */
+            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+        }
+
+        .sidebar ul li a.selected {
+            color: #00BFFF; /* Màu xanh lam khi được chọn */
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+            transition: color 0.3s; /* Thêm hiệu ứng chuyển màu */
+        }
+
+        /* Áp dụng màu xanh lam cho icon khi được chọn */
+        .sidebar ul li a.selected i {
+            color: #00BFFF;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        .page {
+            margin-top: 20px;
+            font-size: 24px;
+            color: white;
+        }
+
+        /* Hidden sidebar */
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .content.collapsed {
+            margin-left: 70px;
+        }
+
+        .sidebar.collapsed ul li a {
+            justify-content: center;
+        }
+
+        .sidebar.collapsed ul li a span {
+            display: none;
+        }
+
+        .sidebar ul li a i {
             font-size: 24px;
         }
-        .container, .charts {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px;
+
+        .toggle-btn {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
+            color: white; /* Màu của biểu tượng */
+            background: none;
+            border: none;
+            cursor: pointer;
         }
-        table {
-            width: 30%;
-            border-collapse: collapse;
-            font-size: 8px;
+
+        .toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
+            border-radius: 5px; /* Bo góc một chút */
+            transform: scale(1.1); /* Phóng to một chút */
+            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
-        th, td {
-            border: 2px solid white;
-            padding: 5px;
-            text-align: center;
+
+
+        /* Thêm transition cho danh sách trạm */
+        .station-list {
+            overflow: hidden; /* Giữ nội dung bên trong không tràn ra khi thu nhỏ */
+            max-height: 0; /* Đặt chiều cao mặc định là 0 để ẩn */
+            transition: max-height 0.5s ease; /* Thêm hiệu ứng chuyển đổi chiều cao */
         }
-        td.highlight {
-            background-color: #32CD32; /* Màu xanh lục cho highlight */
+
+        /* Khi mở danh sách trạm */
+        .station-list.open {
+            max-height: 500px; /* Thiết lập chiều cao tối đa cho danh sách trạm khi mở */
         }
-        .chart-container {
-            width: 30%;
-            margin: 20px;
+
+        /* Đặt kích thước chữ và biểu tượng cho các mục All và các trạm */
+        .sidebar ul li a.station-link {
+            font-size: 16px; /* Kích thước chữ nhỏ hơn */
         }
-        .menu {
-            text-align: center;
-            margin-bottom: 20px;
+
+        .sidebar ul li a.station-link i {
+            font-size: 20px; /* Kích thước biểu tượng nhỏ hơn */
         }
-        .menu a {
-            margin: 0 10px;
+
+        /* Đặt kích thước chữ và biểu tượng cho các mục Home, Dashboard và Edit */
+        .sidebar ul li a.main-link {
+            font-size: 18px; /* Kích thước chữ lớn hơn */
+        }
+
+        .sidebar ul li a.main-link i {
+            font-size: 24px; /* Kích thước biểu tượng lớn hơn */
+        }
+
+
+        .home-container {
+            display: flex; /* Sử dụng flexbox để căn chỉnh */
+            flex-direction: column; /* Đặt chiều dọc */
+            align-items: center; /* Căn giữa */
+        }
+
+        .datetime {
+            position: fixed; /* Đặt thành fixed để luôn ở dưới cùng */
+            bottom: 10px; /* Cách từ đáy cửa sổ */
+            left: 50%; /* Căn giữa theo chiều ngang */
+            transform: translateX(-50%); /* Đẩy về phía bên trái để căn giữa chính xác */
+            color: white; /* Màu chữ */
+            font-size: 12px; /* Kích thước chữ */
+            z-index: 1000; /* Đặt trên cùng để luôn nhìn thấy */
+            white-space: nowrap; /* Không cho phép xuống dòng */
+            overflow: hidden; /* Ẩn nội dung tràn */
+            text-overflow: ellipsis; /* Hiệu ứng ba chấm nếu nội dung quá dài */
+            max-width: 200px; /* Chiều rộng tối đa */
+            text-align: center; /* Căn giữa nội dung */
+            margin-top: 5px; /* Khoảng cách giữa nút Home và phần ngày giờ */
+            transition: left 0.3s ease, transform 0.3s ease; /* Thêm hiệu ứng chuyển tiếp */
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.75); /* Nền đen trong suốt */
+            color: #fff;
             padding: 5px 10px;
-            color: white;
-            background-color: #007BFF;
-            text-decoration: none;
             border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0; /* Ẩn ban đầu */
+            visibility: hidden; /* Ẩn ban đầu */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1000; /* Đặt tooltip luôn ở trên */
         }
-        .menu a:hover {
-            background-color: #0056b3;
+
+        .tooltip.show {
+            opacity: 1; /* Hiển thị tooltip */
+            visibility: visible;
         }
+
+        .sidebar ul li a {
+            position: relative; /* Để xác định vị trí cho tooltip */
+        }
+
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
+
 <body>
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul>
+            <li><a href="#" onclick="showPage('home');" class="main-link"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
+            <li>
+                <a href="#" onclick="toggleStations(); showPage('dashboard');" class="main-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="link-text"> Dashboard</span>
+                </a>
+                <ul class="station-list">
+                    <li><a href="#" onclick="showPage('all');" class="station-link"><i class="fas fa-th-list"></i> <span class="link-text">All</span></a></li>
+                    <li><a href="#" onclick="showPage('station1');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 1</span></a></li>
+                    <li><a href="#" onclick="showPage('station2');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 2</span></a></li>
+                    <li><a href="#" onclick="showPage('station3');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 3</span></a></li>
+                    <li><a href="#" onclick="showPage('station4');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 4</span></a></li>
+                    <li><a href="#" onclick="showPage('station5');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 5</span></a></li>
+                    <li><a href="#" onclick="showPage('station6');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 6</span></a></li>
+                    <li><a href="#" onclick="showPage('station7');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 7</span></a></li>
+                </ul>
+            </li>
+            <li><a href="#" onclick="showPage('edit-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> Edit</span></a></li>
+        </ul>
 
-<h2>Warehouse Management</h2>
+        <div id="datetime" class="datetime"></div>
+    </div>
 
-<div class="menu">
-    <a href="?station=all">Dashboard</a>
-    <a href="?station=A">Station A</a>
-    <a href="?station=B">Station B</a>
-    <a href="?station=C">Station C</a>
-    <a href="?station=D">Station D</a>
-    <a href="?station=E">Station E</a>
-    <a href="?station=F">Station F</a>
-    <a href="?station=G">Station G</a>
-</div>
+    <div class="content">
+        <div id="home" class="page">
+            <div class="slideshow-container">
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                    <img class="slide-image" src="Picture1.png" alt="Slide 1">
+                </div>
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                    <img class="slide-image" src="Picture2.png" alt="Slide 2">
+                </div>
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                    <img class="slide-image" src="Picture3.png" alt="Slide 3">
+                </div>
+            
+                <div class="dots">
+                    <span class="dot" onclick="showSlide(1)"></span>
+                    <span class="dot" onclick="showSlide(2)"></span>
+                    <span class="dot" onclick="showSlide(3)"></span>
+                </div>
+            </div>
+            
+        </div>
 
-<?php if ($station === 'ALL'): ?>
-    <div class="charts">
+        <div id="dashboard" class="page" style="display:none;">Dashboard will be here.</div>
+        <div id="edit-warehouse" class="page" style="display:none;">Edit Warehouse will be here.</div>
+        <div id="all" class="page" style="display:none;">
+    <h2>Warehouse Statistics</h2>
+
+    <div class="chart-row">
         <!-- Biểu đồ tròn: Tổng số pallet -->
         <div class="chart-container">
-            <canvas id="pieChart"></canvas>
+            <canvas id="pieChartAll"></canvas>
         </div>
 
         <!-- Biểu đồ cột: Số lượng pallet theo khách hàng -->
         <div class="chart-container">
-            <canvas id="barChart"></canvas>
+            <canvas id="barChartAll"></canvas>
         </div>
     </div>
-<?php else: ?>
-    <div class="container">
-        <!-- Bảng Left Rack -->
-        <table>
-            <caption>Left Rack</caption>
-            <?php for ($row = 7; $row >= 1; $row--): ?>
-                <tr>
-                    <?php for ($col = 1; $col <= 14; $col++): ?>
-                        <?php $index = ($row - 1) * 14 + $col; ?>
-                        <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>L<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                    <?php endfor; ?>
-                </tr>
-            <?php endfor; ?>
-        </table>
 
-        <!-- Bảng Right Rack -->
-        <table>
-            <caption>Right Rack</caption>
-            <?php for ($row = 7; $row >= 1; $row--): ?>
-                <tr>
-                    <?php for ($col = 1; $col <= 14; $col++): ?>
-                        <?php $index = ($row - 1) * 14 + $col; ?>
-                        <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>R<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
-                    <?php endfor; ?>
-                </tr>
-            <?php endfor; ?>
-        </table>
-    </div>
-<?php endif; ?>
-
-<script>
-<?php if ($station === 'ALL'): ?>
+    <script>
     // Dữ liệu cho biểu đồ tròn
     var totalPalletData = {
         datasets: [{
-            data: [<?= $total_slots - $total_pallets ?>, <?= $total_pallets ?>],
-            backgroundColor: ['#FF6384', '#36A2EB'],
-            borderColor: ['#FFFFFF', '#FFFFFF'],
+            data: [<?php echo $total_slots - $total_pallets; ?>, <?php echo $total_pallets; ?>],
+            backgroundColor: ['#FF6384', '#36A2EB'], /* Màu sắc cho biểu đồ */
+            borderColor: ['#FFFFFF', '#FFFFFF'], /* Viền trắng */
             borderWidth: 2
         }],
         labels: ['Empty Slots', 'Stored Pallets']
@@ -181,18 +406,18 @@ sqlsrv_close($conn);
 
     // Dữ liệu cho biểu đồ cột
     var barChartData = {
-        labels: <?= json_encode($customers) ?>,
+        labels: <?php echo json_encode($customers); ?>,
         datasets: [{
             label: 'Pallets Stored',
             backgroundColor: '#36A2EB',
-            borderColor: '#FFFFFF',
+            borderColor: '#FFFFFF', /* Viền trắng */
             borderWidth: 2,
-            data: <?= json_encode($pallets) ?>
+            data: <?php echo json_encode($pallets); ?>
         }]
     };
 
     // Vẽ biểu đồ tròn
-    var ctx1 = document.getElementById('pieChart').getContext('2d');
+    var ctx1 = document.getElementById('pieChartAll').getContext('2d');
     var pieChart = new Chart(ctx1, {
         type: 'pie',
         data: totalPalletData,
@@ -200,7 +425,7 @@ sqlsrv_close($conn);
             plugins: {
                 legend: {
                     labels: {
-                        color: 'white'
+                        color: 'white' /* Màu chữ trắng trong chú giải */
                     }
                 }
             }
@@ -208,7 +433,7 @@ sqlsrv_close($conn);
     });
 
     // Vẽ biểu đồ cột
-    var ctx2 = document.getElementById('barChart').getContext('2d');
+    var ctx2 = document.getElementById('barChartAll').getContext('2d');
     var barChart = new Chart(ctx2, {
         type: 'bar',
         data: barChartData,
@@ -216,32 +441,228 @@ sqlsrv_close($conn);
             scales: {
                 x: {
                     ticks: {
-                        color: 'white'
+                        color: 'white' /* Màu chữ trắng trên trục X */
                     },
                     grid: {
-                        display: false
+                        display: false /* Ẩn các đường kẻ trên trục X */
                     }
                 },
                 y: {
                     ticks: {
-                        color: 'white'
+                        color: 'white' /* Màu chữ trắng trên trục Y */
                     },
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.2)'
+                        color: 'rgba(255, 255, 255, 0.2)' /* Đường kẻ mờ nhạt hơn trên trục Y */
                     }
                 }
             },
             plugins: {
                 legend: {
                     labels: {
-                        color: 'white'
+                        color: 'white' /* Màu chữ trắng trong chú giải */
                     }
                 }
             }
         }
     });
-<?php endif; ?>
-</script>
+    </script>
+</div>
 
+        <div id="station1" class="page" style="display:none;">Station 1 content will be here.</div>
+        <div id="station2" class="page" style="display:none;">Station 2 content will be here.</div>
+        <div id="station3" class="page" style="display:none;">Station 3 content will be here.</div>
+        <div id="station4" class="page" style="display:none;">Station 4 content will be here.</div>
+        <div id="station5" class="page" style="display:none;">Station 5 content will be here.</div>
+        <div id="station6" class="page" style="display:none;">Station 6 content will be here.</div>
+        <div id="station7" class="page" style="display:none;">Station 7 content will be here.</div>
+    </div>
+
+    <script>
+        let slideIndex = 0;
+showSlides();
+
+function showSlides() {
+    let slides = document.querySelectorAll('.slide');
+    let dots = document.querySelectorAll('.dot');
+
+    slides.forEach((slide, index) => {
+        slide.style.display = 'none'; // Ẩn tất cả các slide
+        dots[index].classList.remove("active"); // Xóa lớp active khỏi tất cả các dấu chấm
+    });
+
+    slideIndex++;
+    if (slideIndex > slides.length) {
+        slideIndex = 1; // Reset lại chỉ số nếu vượt quá số slide
+    }
+
+    slides[slideIndex - 1].style.display = 'block'; // Hiện slide hiện tại
+    dots[slideIndex - 1].classList.add("active"); // Đánh dấu dấu chấm hiện tại
+
+    setTimeout(showSlides, 5000); // Thay đổi slide mỗi 5 giây
+}
+
+function showSlide(index) {
+    slideIndex = index; // Đặt chỉ số slide hiện tại
+    let slides = document.querySelectorAll('.slide');
+    let dots = document.querySelectorAll('.dot');
+
+    slides.forEach(slide => slide.style.display = 'none'); // Ẩn tất cả các slide
+    dots.forEach(dot => dot.classList.remove("active")); // Xóa lớp active khỏi tất cả các dấu chấm
+
+    slides[slideIndex - 1].style.display = 'block'; // Hiện slide tương ứng
+    dots[slideIndex - 1].classList.add("active"); // Đánh dấu dấu chấm tương ứng
+}
+
+
+function toggleStations() {
+    let stationList = document.querySelector('.station-list');
+    
+    // Nếu danh sách trạm đang mở thì đóng lại, ngược lại thì mở
+    if (stationList.classList.contains('open')) {
+        stationList.classList.remove('open'); // Đóng danh sách trạm
+    } else {
+        stationList.classList.add('open'); // Mở danh sách trạm
+    }
+}
+
+function showPage(pageId) {
+    let pages = document.querySelectorAll('.page');
+    let links = document.querySelectorAll('.sidebar ul li a');
+
+    pages.forEach(page => {
+        page.style.display = 'none';
+    });
+
+    links.forEach(link => {
+        link.classList.remove('active'); // Xóa lớp active
+    });
+
+    document.getElementById(pageId).style.display = 'block';
+
+    const activeLink = [...links].find(link => link.onclick.toString().includes(pageId));
+    if (activeLink) {
+        activeLink.classList.add('active'); // Thêm lớp active cho liên kết đã chọn
+    }
+
+    // Đóng danh sách trạm nếu chọn Home hoặc Edit
+    if (pageId === 'home' || pageId === 'edit-warehouse') {
+        document.querySelector('.station-list').classList.remove('open'); // Đóng danh sách trạm
+    }
+}
+
+function updateTime() {
+    const now = new Date();
+    const optionsDate = { day: 'numeric', month: 'numeric', year: 'numeric' };
+    const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
+    
+    const dateString = now.toLocaleDateString('en-GB', optionsDate); // 19/10/2024
+    const timeString = now.toLocaleTimeString('en-US', optionsTime); // 1:52 PM
+    
+    const sidebar = document.getElementById('sidebar');
+
+    // Khi thanh công cụ mở, hiển thị ngày trước giờ
+    if (sidebar.classList.contains('collapsed')) {
+        document.getElementById('datetime').innerHTML = `${dateString} ${timeString}`; // Ngày trước, giờ sau
+    } else {
+        document.getElementById('datetime').innerHTML = `${dateString}<br>${timeString}`; // Ngày trên, giờ dưới
+    }
+}
+
+function updateTime() {
+    const now = new Date();
+    const optionsDate = { day: 'numeric', month: 'numeric', year: 'numeric' };
+    const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
+    
+    const dateString = now.toLocaleDateString('en-GB', optionsDate); // 19/10/2024
+    const timeString = now.toLocaleTimeString('en-US', optionsTime); // 1:52 PM
+    
+    const sidebar = document.getElementById('sidebar');
+    
+    // Khi thanh công cụ mở, hiển thị giờ ở trên và ngày ở dưới
+    if (sidebar.classList.contains('collapsed')) {
+        document.getElementById('datetime').innerHTML = `${timeString}<br>${dateString}`; // Giờ trên, ngày dưới
+    } else {
+        document.getElementById('datetime').innerHTML = `${timeString} ${dateString}`; // Cả hai trong một dòng
+    }
+}
+
+// Cập nhật thời gian mỗi giây
+setInterval(updateTime, 1000);
+updateTime(); // Gọi ngay lập tức để thiết lập giá trị ban đầu
+
+function toggleSidebar() {
+    let sidebar = document.getElementById('sidebar');
+    let content = document.querySelector('.content');
+
+    if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        content.classList.remove('collapsed');
+    } else {
+        sidebar.classList.add('collapsed');
+        content.classList.add('collapsed');
+    }
+
+    updateFooterPosition(); // Cập nhật vị trí của footer sau khi thay đổi thanh công cụ
+}
+
+function updateFooterPosition() {
+    const sidebar = document.getElementById('sidebar');
+    const footer = document.getElementById('datetime');
+
+    // Tính toán chiều rộng thanh công cụ
+    const sidebarWidth = sidebar.offsetWidth;
+
+    // Đặt lề trái của footer để căn giữa
+    footer.style.left = `calc(${sidebarWidth}px / 2)`; // Căn giữa
+    footer.style.transform = 'translateX(-50%)'; // Đẩy về phía bên trái để căn giữa chính xác
+}
+
+
+// Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
+updateFooterPosition();
+setInterval(updateFooterPosition, 250); // Cập nhật mỗi giây nếu cần thiết
+
+let tooltipTimeout;
+
+document.querySelectorAll('.sidebar ul li a').forEach(item => {
+    item.addEventListener('mouseover', function(event) {
+        // Xóa timeout trước đó nếu có
+        clearTimeout(tooltipTimeout);
+
+        // Tạo tooltip sau 1 giây
+        tooltipTimeout = setTimeout(() => {
+            showTooltip(event, this); // Hiển thị tooltip
+        }, 250); // 1 giây
+    });
+
+    item.addEventListener('mouseout', function() {
+        clearTimeout(tooltipTimeout); // Xóa timer
+        hideTooltip(); // Ẩn tooltip
+    });
+});
+
+function showTooltip(event, element) {
+    const tooltip = document.createElement('div');
+    tooltip.classList.add('tooltip');
+    tooltip.textContent = element.querySelector('.link-text')?.textContent || 'Tooltip';
+    
+    document.body.appendChild(tooltip);
+
+    const rect = element.getBoundingClientRect();
+    tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 10}px`; // Vị trí phía trên nút
+    tooltip.style.left = `${rect.left + (rect.width - tooltip.offsetWidth) / 2}px`; // Căn giữa với nút
+
+    tooltip.classList.add('show');
+}
+
+function hideTooltip() {
+    const tooltip = document.querySelector('.tooltip');
+    if (tooltip) {
+        tooltip.remove(); // Xóa tooltip khỏi DOM
+    }
+}
+
+
+    </script>
 </body>
 </html>
