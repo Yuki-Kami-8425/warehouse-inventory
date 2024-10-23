@@ -123,14 +123,16 @@ sqlsrv_close($conn);
                             align-items: center;
                         }
 
-                        .title h2 {
-                            font-size: 2.5rem; /* Điều chỉnh kích thước chữ tùy ý */
-                            color: white; /* Màu chữ, tùy chỉnh */
-                            height: 100px; /* Chiều cao phần tiêu đề */
-                            text-align: center; /* Căn giữa chữ */
-                            margin: 0 auto; /* Căn giữa theo chiều ngang */
-                            line-height: 100px; /* Đảm bảo căn giữa theo chiều dọc nếu cần */
+                        h2 {
+                            color: white; /* Màu chữ trắng */
+                            font-size: 2.5rem; /* Kích thước chữ */
+                            text-align: center; /* Căn giữa chữ theo chiều ngang */
+                            margin: 0 auto; /* Đảm bảo căn giữa theo chiều ngang */
+                            line-height: 100px; /* Đảm bảo căn giữa theo chiều dọc */
+                            height: 100px; /* Đặt chiều cao của tiêu đề */
+                            width: 100%; /* Đảm bảo tiêu đề chiếm toàn bộ chiều rộng */
                         }
+
 
                         .chart-row {
                             display: flex;
