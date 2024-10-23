@@ -1,5 +1,5 @@
 <?php 
-// Thông tin kết nối cơ sở dữ liệu Azure SQL (không thay đổi)
+// Thông tin kết nối cơ sở dữ liệu Azure SQL
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
     "Database" => "eiu_warehouse_24",
@@ -163,8 +163,8 @@ sqlsrv_close($conn);
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers);
     const customerData = customerLabels.map(key => customers[key].length);
-    const totalSlots = 196;
-    const filledSlots = <?= count($highlighted) ?>;
+    const totalSlots = 196; // Tổng số ô
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
