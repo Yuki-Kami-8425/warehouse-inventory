@@ -57,128 +57,180 @@ foreach ($chartData as $data) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="scripts.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
-<body>
-    <div class="sidebar">
-        <!-- Thanh điều hướng bên với các nút -->
-        <button onclick="showStation('all')">All</button>
-        <button onclick="showStation('A')">Trạm A</button>
-        <button onclick="showStation('B')">Trạm B</button>
-        <button onclick="showStation('C')">Trạm C</button>
-        <button onclick="showStation('D')">Trạm D</button>
-        <button onclick="showStation('E')">Trạm E</button>
-        <button onclick="showStation('F')">Trạm F</button>
-        <button onclick="showStation('G')">Trạm G</button>
+<h2>Warehouse Station <?= $station ?></h2>
+
+<!-- Phần điều hướng cho các trạm -->
+<div class="nav-buttons">
+    <?php foreach ($stations as $st): ?>
+        <a href="?station=<?= $st ?>">Station <?= $st ?></a>
+    <?php endforeach; ?>
+</div>
+
+<div class="container">
+    <!-- Bảng Left Rack -->
+    <table>
+        <caption style="caption-side: top;">Left Rack</caption>
+        <?php for ($row = 7; $row >= 1; $row--): ?>
+            <tr>
+                <?php for ($col = 1; $col <= 14; $col++): ?>
+                    <?php $index = ($row - 1) * 14 + $col; ?>
+                    <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>L<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
+                <?php endfor; ?>
+            </tr>
+        <?php endfor; ?>
+    </table>
+
+    <!-- Bảng Right Rack -->
+    <table>
+        <caption style="caption-side: top;">Right Rack</caption>
+        <?php for ($row = 7; $row >= 1; $row--): ?>
+            <tr>
+                <?php for ($col = 1; $col <= 14; $col++): ?>
+                    <?php $index = ($row - 1) * 14 + $col; ?>
+                    <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>R<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
+                <?php endfor; ?>
+            </tr>
+        <?php endfor; ?>
+    </table>
+</div>
+
+<div class="charts">
+    <!-- Biểu đồ cột -->
+    <div class="chart-container">
+        <canvas id="barChart"></canvas>
     </div>
 
-    <div class="content">
-        <h1>Warehouse Overview</h1>
-        <?php
-        // Kết nối cơ sở dữ liệu
-        $serverName = "eiusmartwarehouse.database.windows.net";
-        $connectionOptions = array(
-            "Database" => "eiu_warehouse_24",
-            "Uid" => "eiuadmin",
-            "PWD" => "Khoa123456789"
-        );
+    <!-- Biểu đồ tròn -->
+    <div class="chart-container">
+        <canvas id="pieChart"></canvas>
+    </div>
+</div>
 
-        // Thiết lập kết nối
-        $conn = sqlsrv_connect($serverName, $connectionOptions);
-        if ($conn === false) {
-            die(print_r(sqlsrv_errors(), true));
+<script>
+// Dữ liệu cho biểu đồ cột
+const barLabels = <?= json_encode($labels) ?>;
+const barData = <?= json_encode($values) ?>;
+
+// Biểu đồ cột
+const barCtx = document.getElementById('barChart').getContext('2d');
+const barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+        labels: barLabels,
+        datasets: [{
+            label: 'Pallets',
+            data: barData,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
         }
+    }
+});
 
-        // Xử lý nội dung dựa trên trạm được chọn
-        $station = isset($_GET['station']) ? $_GET['station'] : 'A'; // Mặc định là trạm A
-
-        if ($station == 'all') {
-            // Hiển thị tất cả các trạm
-            echo "<h2>All Stations</h2>";
-            $tsql = "SELECT * FROM stored_warehouse";
-            $getResults = sqlsrv_query($conn, $tsql);
-            if ($getResults === false) {
-                die(print_r(sqlsrv_errors(), true));
+// Biểu đồ tròn
+const pieCtx = document.getElementById('pieChart').getContext('2d');
+const pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Occupied', 'Available'],
+        datasets: [{
+            data: [barData.reduce((a, b) => a + b, 0), 196 - barData.reduce((a, b) => a + b, 0)],
+            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
             }
-
-            echo "<table border='1'>";
-            echo "<tr><th>Position</th><th>Customer</th><th>Quantity</th></tr>";
-            while ($row = sqlsrv_fetch_array($getResults, SQLSRV_FETCH_ASSOC)) {
-                echo "<tr><td>" . $row['rack_position'] . "</td><td>" . $row['TENKH'] . "</td><td>" . $row['LUONG_PALLET'] . "</td></tr>";
-            }
-            echo "</table>";
-        } else {
-            // Hiển thị dữ liệu của từng trạm
-            echo "<h2>Station " . htmlspecialchars($station) . "</h2>";
+        }
+    }
+});
+</script>
+    <body>
+        <div class="sidebar" id="sidebar">
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
             
-            // Truy vấn thông tin cho từng trạm A-G
-            $tsql = "SELECT * FROM stored_warehouse WHERE rack_position LIKE '" . $station . "%'";
-            $getResults = sqlsrv_query($conn, $tsql);
-            if ($getResults === false) {
-                die(print_r(sqlsrv_errors(), true));
-            }
+            <ul>
+                <li><a href="#" onclick="showPage('home');" class="main-link"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
+                <li>
+                    <a href="#" onclick="toggleStations(); showPage('dashboard');" class="main-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="link-text"> Dashboard</span>
+                    </a>
+                    <ul class="station-list">
+                        <li><a href="#" onclick="showPage('all');" class="station-link"><i class="fas fa-th-list"></i> <span class="link-text">All</span></a></li>
+                        <li><a href="#" onclick="showPage('station1');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 1</span></a></li>
+                        <li><a href="#" onclick="showPage('station2');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 2</span></a></li>
+                        <li><a href="#" onclick="showPage('station3');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 3</span></a></li>
+                        <li><a href="#" onclick="showPage('station4');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 4</span></a></li>
+                        <li><a href="#" onclick="showPage('station5');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 5</span></a></li>
+                        <li><a href="#" onclick="showPage('station6');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 6</span></a></li>
+                        <li><a href="#" onclick="showPage('station7');" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station 7</span></a></li>
+                    </ul>
+                </li>
+                <li><a href="#" onclick="showPage('list-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> List</span></a></li>
+            </ul>
 
-            echo "<table border='1'>";
-            echo "<tr><th>Position</th><th>Customer</th><th>Quantity</th></tr>";
-            while ($row = sqlsrv_fetch_array($getResults, SQLSRV_FETCH_ASSOC)) {
-                echo "<tr><td>" . $row['rack_position'] . "</td><td>" . $row['TENKH'] . "</td><td>" . $row['LUONG_PALLET'] . "</td></tr>";
-            }
-            echo "</table>";
+            <div id="datetime" class="datetime"></div>
+        </div>
 
-            // Biểu đồ cột cho số lượng khách hàng
-            echo "<canvas id='barChart_" . $station . "'></canvas>";
-            echo "<script>
-                var ctx = document.getElementById('barChart_" . $station . "').getContext('2d');
-                var barChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Customer 1', 'Customer 2', 'Customer 3'], // Thay bằng dữ liệu thực tế
-                        datasets: [{
-                            label: 'Quantity',
-                            data: [10, 20, 30], // Thay bằng dữ liệu thực tế
-                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            </script>";
+        <div class="content">
+            <div id="home" class="page">
+                <div class="slideshow-container">
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                        <img class="slide-image" src="Picture1.png" alt="Slide 1">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                        <img class="slide-image" src="Picture2.png" alt="Slide 2">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                        <img class="slide-image" src="Picture3.png" alt="Slide 3">
+                    </div>
+                
+                    <div class="dots">
+                        <span class="dot" onclick="showSlide(1)"></span>
+                        <span class="dot" onclick="showSlide(2)"></span>
+                        <span class="dot" onclick="showSlide(3)"></span>
+                    </div>
+                </div>
+                
+            </div>
 
-            // Biểu đồ tròn cho tổng số kho
-            echo "<canvas id='pieChart_" . $station . "'></canvas>";
-            echo "<script>
-                var ctx = document.getElementById('pieChart_" . $station . "').getContext('2d');
-                var pieChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Occupied', 'Available'],
-                        datasets: [{
-                            data: [50, 146], // Thay bằng dữ liệu thực tế (50 là số lượng đã chiếm)
-                            backgroundColor: ['#FF6384', '#36A2EB']
-                        }]
-                    },
-                    options: {
-                        responsive: true
-                    }
-                });
-            </script>";
-        }
-        ?>
-    </div>
+            <div id="dashboard" class="page" style="display:none;">
+                
+            </div>
+            <div id="edit-warehouse" class="page" style="display:none;">List Warehouse will be here.</div>
+            <div id="all" class="page" style="display:none;"> </div>
+            <div id="station1" class="page" style="display:none;">
+                
+            </div>
+            <div id="station2" class="page" style="display:none;">Station 2 content will be here.</div>
+            <div id="station3" class="page" style="display:none;">Station 3 content will be here.</div>
+            <div id="station4" class="page" style="display:none;">Station 4 content will be here.</div>
+            <div id="station5" class="page" style="display:none;">Station 5 content will be here.</div>
+            <div id="station6" class="page" style="display:none;">Station 6 content will be here.</div>
+            <div id="station7" class="page" style="display:none;">Station 7 content will be here.</div>
+        </div>
 
-    <script>
-        // Hàm JavaScript chuyển hướng đến trạm tương ứng khi nhấn nút
-        function showStation(station) {
-            window.location.href = 'index.php?station=' + station;
-        }
-    </script>
-</body>
-</html>
+        <script src="script.js"></script>
+    </body>
+    </html>
