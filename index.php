@@ -15,11 +15,10 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Đặt tên trạm
-$stations = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-$station = isset($_GET['station']) ? $_GET['station'] : 'A'; // Lấy trạm từ tham số URL
+// Lấy trạm từ yêu cầu
+$station = isset($_GET['station']) ? $_GET['station'] : 'A';
 
-// Lấy dữ liệu từ bảng cho trạm
+// Lấy dữ liệu từ bảng cho trạm tương ứng
 $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE '$station%'";
 $stmt = sqlsrv_query($conn, $sql);
 
@@ -29,27 +28,20 @@ if ($stmt === false) {
 }
 
 // Tạo mảng để lưu dữ liệu
+$data = [];
+$customers = [];
 $highlighted = [];
-$chartData = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $data[] = $row;
+    $customers[$row['MAKH']][] = $row['RFID'];
     $highlighted[] = trim($row['RFID']);
-    $chartData[] = [
-        'TENKH' => $row['TENKH'],
-        'LUONG_PALLET' => $row['LUONG_PALLET']
-    ];
 }
 
 // Đóng kết nối
 sqlsrv_close($conn);
 
-// Tạo dữ liệu cho biểu đồ
-$labels = [];
-$values = [];
-
-foreach ($chartData as $data) {
-    $labels[] = $data['TENKH'];
-    $values[] = $data['LUONG_PALLET'];
-}
+// Trả về dữ liệu dưới dạng JSON
+echo json_encode(['data' => $data, 'customers' => $customers, 'highlighted' => $highlighted]);
 ?>
 
 <!DOCTYPE html>
@@ -57,72 +49,52 @@ foreach ($chartData as $data) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - Station <?= $station ?></title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Warehouse Management - Station A</title>
     <style>
         body {
-            background-color: #001F3F;
-            color: white;
-            font-size: 12px;
-            font-family: Arial, sans-serif;
+            background-color: #001F3F; /* Xanh đậm */
+            color: white; /* Màu chữ trắng */
+            font-size: 8px; /* Kích thước chữ */
         }
         h2 {
             text-align: center;
-            font-size: 24px;
+            font-size: 24px; /* Cỡ chữ tiêu đề lớn hơn */
+        }
+        caption {
+            font-size: 16px; /* Cỡ chữ cho caption lớn hơn */
         }
         .container {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px;
+            display: flex; /* Sử dụng flexbox để bố trí các phần tử */
+            justify-content: space-around; /* Căn giữa các bảng */
+            margin: 20px; /* Giãn cách giữa các bảng và biểu đồ */
         }
         table {
-            width: 30%;
+            width: 30%; /* Mỗi bảng chiếm 30% màn hình */
             border-collapse: collapse;
+            font-size: 8px; /* Kích thước chữ trong bảng */
         }
         th, td {
-            border: 2px solid white;
-            padding: 5px;
+            border: 2px solid white; /* Đường viền trắng */
+            padding: 5px; /* Padding cho ô */
             text-align: center;
         }
         td.highlight {
-            background-color: #32CD32;
+            background-color: #32CD32; /* Màu xanh lục cho ô được highlight */
         }
         .chart-container {
-            width: 30%;
-            margin: 20px;
+            width: 30%; /* Chiếm 30% màn hình cho biểu đồ */
+            margin: 20px; /* Giãn cách giữa các biểu đồ */
         }
         .charts {
-            display: flex;
-            justify-content: space-around;
-        }
-        .nav-buttons {
-            text-align: center;
-            margin: 20px;
-        }
-        .nav-buttons a {
-            margin: 5px;
-            padding: 10px 15px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .nav-buttons a:hover {
-            background-color: #0056b3;
+            display: flex; /* Bố trí 2 biểu đồ nằm ngang */
+            justify-content: space-around; /* Căn giữa các biểu đồ */
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<h2>Warehouse Station <?= $station ?></h2>
-
-<!-- Phần điều hướng cho các trạm -->
-<div class="nav-buttons">
-    <?php foreach ($stations as $st): ?>
-        <a href="?station=<?= $st ?>">Station <?= $st ?></a>
-    <?php endforeach; ?>
-</div>
+<h2>Warehouse Station A</h2>
 
 <div class="container">
     <!-- Bảng Left Rack -->
@@ -132,7 +104,7 @@ foreach ($chartData as $data) {
             <tr>
                 <?php for ($col = 1; $col <= 14; $col++): ?>
                     <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>L<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
+                    <td class="<?= in_array('AL' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AL<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
                 <?php endfor; ?>
             </tr>
         <?php endfor; ?>
@@ -145,13 +117,14 @@ foreach ($chartData as $data) {
             <tr>
                 <?php for ($col = 1; $col <= 14; $col++): ?>
                     <?php $index = ($row - 1) * 14 + $col; ?>
-                    <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"><?= $station ?>R<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
+                    <td class="<?= in_array('AR' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">AR<?= str_pad($index, 2, '0', STR_PAD_LEFT) ?></td>
                 <?php endfor; ?>
             </tr>
         <?php endfor; ?>
     </table>
 </div>
 
+<!-- Biểu đồ -->
 <div class="charts">
     <!-- Biểu đồ cột -->
     <div class="chart-container">
@@ -165,56 +138,89 @@ foreach ($chartData as $data) {
 </div>
 
 <script>
-// Dữ liệu cho biểu đồ cột
-const barLabels = <?= json_encode($labels) ?>;
-const barData = <?= json_encode($values) ?>;
+    // Dữ liệu biểu đồ
+    const customers = <?= json_encode($customers) ?>;
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+    const totalSlots = 196; // Tổng số ô (98x2)
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
-// Biểu đồ cột
-const barCtx = document.getElementById('barChart').getContext('2d');
-const barChart = new Chart(barCtx, {
-    type: 'bar',
-    data: {
-        labels: barLabels,
-        datasets: [{
-            label: 'Pallets',
-            data: barData,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
+    // Biểu đồ cột
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: customerLabels, // Mã khách hàng
+            datasets: [{
+                label: 'Used Slots', // Nhãn trục Y
+                data: customerData, // Số lượng RFID cho mỗi khách hàng
+                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu lam tươi
+                borderColor: 'white', // Đường viền trắng
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white' // Màu chữ trắng cho legend
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Used Slots', // Nhãn cho trục Y
+                        color: 'white' // Màu chữ trắng cho nhãn
+                    },
+                    grid: {
+                        color: 'white' // Màu đường lưới trắng
+                    },
+                    ticks: {
+                        color: 'white', // Màu chữ trắng cho tick marks
+                        stepSize: 1 // Đặt độ chia cho trục Y là 1
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'white' // Màu đường lưới trắng
+                    },
+                    ticks: {
+                        color: 'white' // Màu chữ trắng cho tick marks
+                    }
+                }
             }
         }
-    }
-});
+    });
 
-// Biểu đồ tròn
-const pieCtx = document.getElementById('pieChart').getContext('2d');
-const pieChart = new Chart(pieCtx, {
-    type: 'pie',
-    data: {
-        labels: ['Occupied', 'Available'],
-        datasets: [{
-            data: [barData.reduce((a, b) => a + b, 0), 196 - barData.reduce((a, b) => a + b, 0)],
-            backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
-            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
+    // Biểu đồ tròn
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Used', 'Remaining'], // Nhãn cho biểu đồ tròn
+            datasets: [{
+                data: [filledSlots, totalSlots - filledSlots],
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu đỏ và xanh
+                borderColor: 'white', // Đường viền trắng
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white' // Màu chữ trắng cho legend
+                    }
+                }
             }
         }
-    }
-});
+    });
 </script>
 
 </body>
 </html>
+
