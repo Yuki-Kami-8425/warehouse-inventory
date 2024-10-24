@@ -15,17 +15,9 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy trạm từ query string, mặc định là 'all'
-$station = isset($_GET['station']) ? $_GET['station'] : 'all';
-
-// Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
-if ($station === 'all') {
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
-} else {
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
-    $params = array($station . '%');
-}
-$stmt = sqlsrv_query($conn, $sql, $params ?? null);
+// Lấy dữ liệu từ bảng cho trạm A
+$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE 'A%'";
+$stmt = sqlsrv_query($conn, $sql);
 
 // Kiểm tra lỗi khi truy vấn
 if ($stmt === false) {
@@ -39,7 +31,7 @@ $highlighted = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $data[] = $row;
     $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
-    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
+    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng, giữ danh sách RFID để highlight
 }
 
 // Đóng kết nối
@@ -51,86 +43,75 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
+    <title>Warehouse Management</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             background-color: #001F3F; /* Xanh đậm */
             color: white; /* Màu chữ trắng */
+            font-size: 8px; /* Kích thước chữ */
             display: flex;
-        }
-        /* Sidebar styling */
-        .sidebar {
             height: 100vh;
-            width: 250px;
-            background-color: #111;
-            padding-top: 20px;
-            position: fixed;
+        }
+        .sidebar {
+            background-color: #001F3F; /* Màu nền sidebar */
+            width: 200px; /* Độ rộng của sidebar */
+            padding: 10px; /* Padding cho sidebar */
+            position: fixed; /* Cố định sidebar */
+            height: 100%; /* Chiều cao đầy đủ */
+            overflow: auto; /* Thêm cuộn nếu cần */
         }
         .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
             display: block;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: white;
         }
         .sidebar a:hover {
-            background-color: #575757;
+            background-color: #005F7F; /* Màu nền khi hover */
         }
-        .dropdown-btn {
-            background-color: #111;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            width: 100%;
-            text-align: left;
+        .sidebar .dropdown-btn {
             cursor: pointer;
         }
-        .dropdown-btn:hover {
-            background-color: #575757;
-        }
-        .dropdown-container {
+        .dropdown-content {
             display: none;
-            background-color: #262626;
+            padding-left: 15px;
         }
-        .dropdown-container a {
-            padding-left: 30px;
-        }
-
-        /* Main content styling */
-        .main-content {
-            margin-left: 250px;
+        .content {
+            margin-left: 220px; /* Để nội dung không bị che bởi sidebar */
             padding: 20px;
-            width: 100%;
+            flex-grow: 1; /* Cho phép nội dung lấp đầy không gian còn lại */
         }
         h2 {
             text-align: center;
-        }
-        .container {
-            display: flex; 
-            justify-content: space-around; 
-            margin: 20px;
+            font-size: 24px; /* Cỡ chữ tiêu đề lớn hơn */
         }
         table {
-            width: 30%;
+            width: 100%; /* Chiếm 100% chiều rộng */
             border-collapse: collapse;
-            font-size: 8px;
+            font-size: 8px; /* Kích thước chữ trong bảng */
+            margin-top: 20px; /* Giãn cách trên bảng */
         }
         th, td {
-            border: 2px solid white;
-            padding: 5px;
+            border: 2px solid white; /* Đường viền trắng */
+            padding: 5px; /* Padding cho ô */
             text-align: center;
         }
-        td.highlight {
-            background-color: #32CD32;
+        .slideshow-container {
+            position: relative;
+            max-width: 100%; /* Để slideshow chiếm 100% chiều rộng */
+            margin: auto;
         }
-        .chart-container {
-            width: 40%; 
-            margin: 20px;
+        .mySlides {
+            display: none; /* Ẩn tất cả các slide ban đầu */
         }
-        .charts {
-            display: flex; 
-            justify-content: space-around; 
+        .dot {
+            height: 15px;
+            width: 15px;
+            margin: 0 2px;
+            background-color: white;
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -138,201 +119,122 @@ sqlsrv_close($conn);
 <body>
 
 <div class="sidebar">
-    <li>
-        <a href="#" onclick="showPage('home');" class="main-link">
-            <i class="fas fa-home"></i>
-            <span class="link-text"> Home</span>
-        </a>
-    </li>
-    <button class="dropdown-btn">Dashboard 
-        <i class="fa fa-caret-down"></i>
-    </button>
-    <div class="dropdown-container">
-        <a href="?station=all">All</a>
-        <a href="?station=A">Station A</a>
-        <a href="?station=B">Station B</a>
-        <a href="?station=C">Station C</a>
-        <a href="?station=D">Station D</a>
-        <a href="?station=E">Station E</a>
-        <a href="?station=F">Station F</a>
-        <a href="?station=G">Station G</a>
+    <h2>Menu</h2>
+    <a href="#" id="homeBtn">Home</a>
+    <a href="#" class="dropdown-btn">Dashboard</a>
+    <div class="dropdown-content">
+        <a href="#" id="allBtn">All</a>
+        <a href="#" id="stationA">Station A</a>
+        <a href="#" id="stationB">Station B</a>
+        <a href="#" id="stationC">Station C</a>
+        <a href="#" id="stationD">Station D</a>
+        <a href="#" id="stationE">Station E</a>
+        <a href="#" id="stationF">Station F</a>
+        <a href="#" id="stationG">Station G</a>
     </div>
-    <li>
-        <a href="#" onclick="showPage('edit-warehouse');" class="main-link">
-            <i class="fas fa-edit"></i>
-            <span class="link-text"> Edit</span>
-        </a>
-    </li>
+    <a href="#" id="listBtn">List</a>
 </div>
 
-<div id="home" class="page">
-    <div class="slideshow-container">
-        <div class="slide">
-            <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
-            <img class="slide-image" src="Picture1.png" alt="Slide 1">
+<div class="content">
+    <div id="home">
+        <div class="slideshow-container">
+            <div class="mySlides fade">
+                <img src="image1.jpg" style="width:100%">
+            </div>
+            <div class="mySlides fade">
+                <img src="image2.jpg" style="width:100%">
+            </div>
+            <div class="mySlides fade">
+                <img src="image3.jpg" style="width:100%">
+            </div>
+            <div class="mySlides fade">
+                <img src="image4.jpg" style="width:100%">
+            </div>
         </div>
-        <div class="slide">
-            <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
-            <img class="slide-image" src="Picture2.png" alt="Slide 2">
-        </div>
-        <div class="slide">
-            <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
-            <img class="slide-image" src="Picture3.png" alt="Slide 3">
-        </div>
-    
-        <div class="dots">
-            <span class="dot" onclick="showSlide(1)"></span>
-            <span class="dot" onclick="showSlide(2)"></span>
-            <span class="dot" onclick="showSlide(3)"></span>
+        
+        <div style="text-align:center">
+            <span class="dot" onclick="currentSlide(1)"></span> 
+            <span class="dot" onclick="currentSlide(2)"></span> 
+            <span class="dot" onclick="currentSlide(3)"></span> 
+            <span class="dot" onclick="currentSlide(4)"></span> 
         </div>
     </div>
-    
-</div>
 
-<div class="main-content">
-    <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
+    <div id="dashboard" style="display: none;">
+        <!-- Biểu đồ và bảng cho các trạm sẽ hiển thị ở đây -->
+    </div>
 
-    <?php if ($station !== 'all'): ?>
-        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
-        <div class="container">
-            <!-- Bảng Left Rack -->
-            <table>
-                <caption>Left Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
-
-            <!-- Bảng Right Rack -->
-            <table>
-                <caption>Right Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
-        </div>
-    <?php endif; ?>
-
-    <!-- Biểu đồ -->
-    <div class="charts">
-        <!-- Biểu đồ cột -->
-        <div class="chart-container">
-            <canvas id="barChart"></canvas>
-        </div>
-
-        <!-- Biểu đồ tròn -->
-        <div class="chart-container">
-            <canvas id="pieChart"></canvas>
-        </div>
+    <div id="list" style="display: none;">
+        <table>
+            <caption style="caption-side: top;">List of Items</caption>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Quantity</th>
+            </tr>
+            <?php
+            // Kết nối lại để lấy dữ liệu cho bảng
+            $conn = sqlsrv_connect($serverName, $connectionOptions);
+            
+            // Lấy dữ liệu từ bảng
+            $sqlList = "SELECT ID, NAME, QUANTITY FROM dbo.items"; // Thay đổi tên bảng và cột tương ứng
+            $stmtList = sqlsrv_query($conn, $sqlList);
+            
+            if ($stmtList === false) {
+                die(print_r(sqlsrv_errors(), true));
+            }
+            
+            while ($rowList = sqlsrv_fetch_array($stmtList, SQLSRV_FETCH_ASSOC)) {
+                echo "<tr>";
+                echo "<td>" . $rowList['ID'] . "</td>";
+                echo "<td>" . $rowList['NAME'] . "</td>";
+                echo "<td>" . $rowList['QUANTITY'] . "</td>";
+                echo "</tr>";
+            }
+            
+            // Đóng kết nối
+            sqlsrv_close($conn);
+            ?>
+        </table>
     </div>
 </div>
 
 <script>
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
-    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    let slideIndex = 0;
+    showSlides();
 
-    // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: customerLabels,
-            datasets: [{
-                label: 'Used Slots',
-                data: customerData,
-                backgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Used Slots',
-                        color: 'white'
-                    },
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white',
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white'
-                    }
-                }
-            }
+    function showSlides() {
+        let slides = document.getElementsByClassName("mySlides");
+        let dots = document.getElementsByClassName("dot");
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
         }
+        slideIndex++;
+        if (slideIndex > slides.length) {slideIndex = 1}    
+        for (let i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active", "");
+        }
+        slides[slideIndex - 1].style.display = "block";  
+        dots[slideIndex - 1].className += " active";
+        setTimeout(showSlides, 10000); // Thay đổi sau mỗi 10 giây
+    }
+
+    function currentSlide(n) {
+        slideIndex = n - 1; // Cập nhật chỉ số slide hiện tại
+        showSlides();
+    }
+
+    // Logic cho các nút
+    document.getElementById('homeBtn').addEventListener('click', function() {
+        document.getElementById('home').style.display = 'block';
+        document.getElementById('list').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'none';
     });
 
-    // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Used', 'Remaining'],
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            }
-        }
-    });
-
-    // Dropdown logic
-    document.querySelector('.dropdown-btn').addEventListener('click', function() {
-        this.classList.toggle('active');
-        const dropdownContent = this.nextElementSibling;
-        if (dropdownContent.style.display === 'block') {
-            dropdownContent.style.display = 'none';
-        } else {
-            dropdownContent.style.display = 'block';
-        }
+    document.getElementById('listBtn').addEventListener('click', function() {
+        document.getElementById('home').style.display = 'none';
+        document.getElementById('list').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
     });
 </script>
 
