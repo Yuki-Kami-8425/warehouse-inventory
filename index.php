@@ -67,13 +67,18 @@ sqlsrv_close($conn);
             background-color: #111;
             padding-top: 20px;
             position: fixed;
+            transition: width 0.3s;
         }
-        .sidebar a {
+        .sidebar.collapsed {
+            width: 50px; /* Chiều rộng khi thu gọn */
+        }
+        .sidebar a, .sidebar button {
             padding: 10px 15px;
             text-decoration: none;
             font-size: 18px;
             color: white;
-            display: block;
+            display: flex; /* Hiển thị theo chiều dọc */
+            align-items: center; /* Căn giữa biểu tượng và văn bản */
         }
         .sidebar a:hover {
             background-color: #575757;
@@ -86,9 +91,6 @@ sqlsrv_close($conn);
             width: 100%;
             text-align: left;
             cursor: pointer;
-        }
-        .dropdown-btn:hover {
-            background-color: #575757;
         }
         .dropdown-container {
             display: none;
@@ -133,83 +135,19 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
         }
-        .sidebar {
-    /* Các thuộc tính hiện tại của sidebar */
-    transition: width 0.3s;
-}
 
-.sidebar-content {
-    display: block; /* Hiển thị nội dung khi sidebar mở */
-}
+        .toggle-btn {
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 10px;
+        }
 
-.sidebar.collapsed {
-    width: 50px; /* Chiều rộng khi thu gọn */
-}
-
-.sidebar.collapsed .sidebar-content {
-    display: none; /* Ẩn nội dung khi thu gọn */
-}
-
-.toggle-btn {
-    background-color: transparent;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 10px;
-}
-.sidebar-content a, .sidebar-content button {
-    display: flex;
-    align-items: center; /* Căn giữa biểu tượng và văn bản */
-    padding: 10px 15px;
-    text-decoration: none;
-    color: white;
-    font-size: 18px;
-}
-
-.sidebar-content a i, .sidebar-content button i {
-    margin-right: 10px; /* Khoảng cách giữa biểu tượng và văn bản */
-}
-
-.sidebar.collapsed .link-text {
-    display: none; /* Ẩn văn bản khi sidebar thu gọn */
-}
-
-.sidebar {
-    /* Các thuộc tính hiện tại của sidebar */
-    width: 250px;
-    transition: width 0.3s;
-}
-
-.sidebar.collapsed {
-    width: 50px; /* Chiều rộng khi thu gọn */
-}
-
-.sidebar-content {
-    display: block; /* Hiển thị nội dung khi sidebar mở */
-}
-
-.sidebar.collapsed .sidebar-content {
-    display: none; /* Ẩn nội dung khi thu gọn */
-}
-
-.sidebar-content a, .sidebar-content button {
-    display: flex;
-    align-items: center; /* Căn giữa biểu tượng và văn bản */
-    padding: 10px 15px;
-    text-decoration: none;
-    color: white;
-    font-size: 18px;
-}
-
-.sidebar-content a i, .sidebar-content button i {
-    margin-right: 10px; /* Khoảng cách giữa biểu tượng và văn bản */
-}
-
-.sidebar.collapsed .link-text {
-    display: none; /* Ẩn văn bản khi sidebar thu gọn */
-}
-
+        .sidebar.collapsed .link-text {
+            display: none; /* Ẩn văn bản khi sidebar thu gọn */
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -269,7 +207,6 @@ sqlsrv_close($conn);
     </div>
 </div>
 
-
 <div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
@@ -308,124 +245,77 @@ sqlsrv_close($conn);
         </div>
     <?php endif; ?>
 
-    <!-- Biểu đồ -->
-    <div class="charts">
-        <!-- Biểu đồ cột -->
-        <div class="chart-container">
-            <canvas id="barChart"></canvas>
-        </div>
+    <!-- Bảng dữ liệu -->
+    <div class="container">
+        <table>
+            <caption>Data Table</caption>
+            <thead>
+                <tr>
+                    <th>MAKH</th>
+                    <th>TENKH</th>
+                    <th>LUONG_PALLET</th>
+                    <th>RFID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($data as $row): ?>
+                    <tr>
+                        <td><?= $row['MAKH'] ?></td>
+                        <td><?= $row['TENKH'] ?></td>
+                        <td><?= $row['LUONG_PALLET'] ?></td>
+                        <td><?= $row['RFID'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 
-        <!-- Biểu đồ tròn -->
-        <div class="chart-container">
-            <canvas id="pieChart"></canvas>
-        </div>
+    <!-- Biểu đồ -->
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
     </div>
 </div>
 
 <script>
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
-    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
-
-    // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
+    // Biểu đồ sử dụng Chart.js
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: customerLabels,
+            labels: <?= json_encode(array_keys($customers)) ?>,
             datasets: [{
-                label: 'Used Slots',
-                data: customerData,
-                backgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: 'white',
-                borderWidth: 2
+                label: 'Số lượng Pallet',
+                data: <?= json_encode(array_map(function($customer) {
+                    return count($customer);
+                }, $customers)) ?>,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
             }]
         },
         options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            },
             scales: {
                 y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Used Slots',
-                        color: 'white'
-                    },
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white',
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white'
-                    }
+                    beginAtZero: true
                 }
             }
         }
     });
 
-    // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Used', 'Remaining'],
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            }
-        }
+    // Xử lý thu gọn sidebar
+    document.querySelector('.toggle-btn').addEventListener('click', () => {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('collapsed');
+        const dropdowns = document.querySelectorAll('.dropdown-container');
+        dropdowns.forEach(dropdown => dropdown.style.display = 'none'); // Ẩn tất cả dropdowns khi thu gọn
     });
 
-    // Dropdown logic
-    document.querySelector('.dropdown-btn').addEventListener('click', function() {
-        this.classList.toggle('active');
-        const dropdownContent = this.nextElementSibling;
-        if (dropdownContent.style.display === 'block') {
-            dropdownContent.style.display = 'none';
-        } else {
-            dropdownContent.style.display = 'block';
-        }
+    // Xử lý dropdown cho Dashboard
+    const dropdownBtn = document.querySelector('.dropdown-btn');
+    dropdownBtn.addEventListener('click', () => {
+        const dropdownContainer = document.querySelector('.dropdown-container');
+        dropdownContainer.style.display = dropdownContainer.style.display === 'block' ? 'none' : 'block';
     });
-    document.querySelector('.toggle-btn').addEventListener('click', function() {
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.classList.toggle('collapsed');
-});
-document.querySelector('.toggle-btn').addEventListener('click', function() {
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.classList.toggle('collapsed');
-});
-
-
 </script>
-
 </body>
 </html>
