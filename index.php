@@ -175,6 +175,40 @@ sqlsrv_close($conn);
     display: none; /* Ẩn văn bản khi sidebar thu gọn */
 }
 
+.sidebar {
+    /* Các thuộc tính hiện tại của sidebar */
+    width: 250px;
+    transition: width 0.3s;
+}
+
+.sidebar.collapsed {
+    width: 50px; /* Chiều rộng khi thu gọn */
+}
+
+.sidebar-content {
+    display: block; /* Hiển thị nội dung khi sidebar mở */
+}
+
+.sidebar.collapsed .sidebar-content {
+    display: none; /* Ẩn nội dung khi thu gọn */
+}
+
+.sidebar-content a, .sidebar-content button {
+    display: flex;
+    align-items: center; /* Căn giữa biểu tượng và văn bản */
+    padding: 10px 15px;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+}
+
+.sidebar-content a i, .sidebar-content button i {
+    margin-right: 10px; /* Khoảng cách giữa biểu tượng và văn bản */
+}
+
+.sidebar.collapsed .link-text {
+    display: none; /* Ẩn văn bản khi sidebar thu gọn */
+}
 
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -234,6 +268,7 @@ sqlsrv_close($conn);
         </a>
     </div>
 </div>
+
 
 <div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
@@ -384,6 +419,11 @@ sqlsrv_close($conn);
     const sidebar = document.querySelector('.sidebar');
     sidebar.classList.toggle('collapsed');
 });
+document.querySelector('.toggle-btn').addEventListener('click', function() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('collapsed');
+});
+
 
 </script>
 
