@@ -44,6 +44,7 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
 
 // Đóng kết nối
 sqlsrv_close($conn);
+$station = isset($_GET['station']) ? $_GET['station'] : 'all';
 ?>
 
 <!DOCTYPE html>
@@ -51,317 +52,85 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
-    
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #001F3F; /* Xanh đậm */
-            color: white; /* Màu chữ trắng */
-            display: flex;
-        }
-        /* Sidebar styling */
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #111;
-            padding-top: 20px;
-            position: fixed;
-        }
-        .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: block;
-        }
-        .sidebar a:hover {
-            background-color: #575757;
-        }
-        .dropdown-btn {
-            background-color: #111;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-        }
-        .dropdown-btn:hover {
-            background-color: #575757;
-        }
-        .dropdown-container {
-            display: none;
-            background-color: #262626;
-        }
-        .dropdown-container a {
-            padding-left: 30px;
-        }
-
-        /* Main content styling */
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            width: 100%;
-        }
-        h2 {
-            text-align: center;
-        }
-        .container {
-            display: flex; 
-            justify-content: space-around; 
-            margin: 20px;
-        }
-        table {
-            width: 30%;
-            border-collapse: collapse;
-            font-size: 8px;
-        }
-        th, td {
-            border: 2px solid white;
-            padding: 5px;
-            text-align: center;
-        }
-        td.highlight {
-            background-color: #32CD32;
-        }
-        .chart-container {
-            width: 40%; 
-            margin: 20px;
-        }
-        .charts {
-            display: flex; 
-            justify-content: space-around; 
-        }
-
-    /* Thay đổi CSS của sidebar */
-.sidebar {
-    height: 100vh;
-    width: 250px; /* Chiều rộng bình thường */
-    background-color: #111;
-    padding-top: 20px;
-    position: fixed;
-    transition: width 0.3s; /* Hiệu ứng chuyển đổi */
-}
-.sidebar.collapsed {
-    width: 60px; /* Chiều rộng khi thu gọn */
-}
-.toggle-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    margin-left: 10px; /* Khoảng cách bên trái */
-}
-.sidebar a, .dropdown-btn {
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 18px;
-    color: white;
-    display: flex; /* Chuyển sang chế độ flex để căn giữa icon và text */
-    align-items: center; /* Căn giữa theo chiều dọc */
-}
-.sidebar .text {
-    display: inline; /* Hiển thị text bình thường */
-}
-.sidebar.collapsed .text {
-    display: none; /* Ẩn text khi thu gọn */
-}
-.sidebar a i, .dropdown-btn i {
-    margin-right: 10px; /* Khoảng cách giữa icon và text */
-}
-
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css"> <!-- Đường dẫn đến CSS -->
+    <script src="script.js"></script> <!-- Đường dẫn đến JavaScript -->
+    <title>Warehouse Management</title>
 </head>
 <body>
-
-<div class="sidebar">
-    <button id="toggleSidebar" class="toggle-btn"><i class="fa fa-angle-left"></i></button>
-    <a href="#"><i class="fa fa-home"></i> <span class="text">Home</span></a>
-    <button class="dropdown-btn"><i class="fa fa-tachometer-alt"></i> <span class="text">Dashboard</span>
-        <i class="fa fa-caret-down"></i>
-    </button>
-    <div class="dropdown-container">
-        <a href="?station=all"><i class="fa fa-th-large"></i> <span class="text">All</span></a>
-        <a href="?station=A"><i class="fa fa-warehouse"></i> <span class="text">Station A</span></a>
-        <a href="?station=B"><i class="fa fa-warehouse"></i> <span class="text">Station B</span></a>
-        <a href="?station=C"><i class="fa fa-warehouse"></i> <span class="text">Station C</span></a>
-        <a href="?station=D"><i class="fa fa-warehouse"></i> <span class="text">Station D</span></a>
-        <a href="?station=E"><i class="fa fa-warehouse"></i> <span class="text">Station E</span></a>
-        <a href="?station=F"><i class="fa fa-warehouse"></i> <span class="text">Station F</span></a>
-        <a href="?station=G"><i class="fa fa-warehouse"></i> <span class="text">Station G</span></a>
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <ul>
+            <li><a href="#" class="main-link" onclick="showPage('home')">Home</a></li>
+            <li>
+                <a href="#" class="main-link" onclick="toggleStations()">Dashboard</a>
+                <div class="station-list">
+                    <a href="#" class="station-link" onclick="loadStation('all')">All</a>
+                    <a href="#" class="station-link" onclick="loadStation('stationA')">Station A</a>
+                    <a href="#" class="station-link" onclick="loadStation('stationB')">Station B</a>
+                    <a href="#" class="station-link" onclick="loadStation('stationC')">Station C</a>
+                    <a href="#" class="station-link" onclick="loadStation('stationD')">Station D</a>
+                    <a href="#" class="station-link" onclick="loadStation('stationE')">Station E</a>
+                    <a href="#" class="station-link" onclick="loadStation('stationF')">Station F</a>
+                    <a href="#" class="station-link" onclick="loadStation('stationG')">Station G</a>
+                </div>
+            </li>
+            <li><a href="#" class="main-link" onclick="showPage('list')">List</a></li>
+        </ul>
     </div>
-    <a href="#"><i class="fa fa-list"></i> <span class="text">List</span></a>
-</div>
 
-<div class="main-content">
-    <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
+    <div class="content">
+        <div class="main-content">
+            <h2>
+                <?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . ucfirst($station) ?>
+            </h2>
 
-    <?php if ($station !== 'all'): ?>
-        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
-        <div class="container">
-            <!-- Bảng Left Rack -->
-            <table>
-                <caption>Left Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
-
-            <!-- Bảng Right Rack -->
-            <table>
-                <caption>Right Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
-        </div>
-    <?php endif; ?>
-
-    <!-- Biểu đồ -->
-    <div class="charts">
-        <!-- Biểu đồ cột -->
-        <div class="chart-container">
-            <canvas id="barChart"></canvas>
-        </div>
-
-        <!-- Biểu đồ tròn -->
-        <div class="chart-container">
-            <canvas id="pieChart"></canvas>
+            <?php if ($station !== 'all'): ?>
+                <!-- Hiển thị thông tin cho các trạm cụ thể -->
+                <p>Details for <?= ucfirst($station) ?>...</p>
+                <!-- Code hiển thị thông tin khác cho trạm -->
+            <?php else: ?>
+                <!-- Hiển thị thông tin cho tất cả các nhà kho -->
+                <p>Overall data for all stations...</p>
+                <!-- Code hiển thị thông tin tổng quan -->
+            <?php endif; ?>
         </div>
     </div>
-</div>
 
-<script>
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
-    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    <div class="datetime" id="datetime"></div> <!-- Hiển thị ngày giờ -->
 
-    // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: customerLabels,
-            datasets: [{
-                label: 'Used Slots',
-                data: customerData,
-                backgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Used Slots',
-                        color: 'white'
-                    },
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white',
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white'
-                    }
-                }
+    <script>
+        function showPage(page) {
+            // Logic để ẩn hiện các trang khác nhau
+            if (page === 'home') {
+                document.querySelector('.main-content').innerHTML = '<h2>Home</h2><p>Welcome to the warehouse management system.</p>';
+                // Thêm logic khác nếu cần
+            } else if (page === 'list') {
+                document.querySelector('.main-content').innerHTML = '<h2>List</h2><p>Here is the list of all stations...</p>';
+                // Thêm logic khác nếu cần
             }
         }
-    });
 
-    // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Used', 'Remaining'],
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
+        function toggleStations() {
+            const stationList = document.querySelector('.station-list');
+            stationList.classList.toggle('open'); // Mở hoặc đóng danh sách trạm
+        }
+
+        function loadStation(station) {
+            const mainContent = document.querySelector('.main-content');
+            if (station === 'all') {
+                mainContent.innerHTML = '<h2>Warehouse Overview</h2><p>Overall data for all stations...</p>';
+            } else {
+                mainContent.innerHTML = `<h2>Warehouse Station ${station.charAt(0).toUpperCase() + station.slice(1)}</h2><p>Details for ${station.charAt(0).toUpperCase() + station.slice(1)}...</p>`;
             }
+            toggleStations(); // Đóng danh sách trạm sau khi chọn
         }
-    });
 
-    // Dropdown logic
-    document.querySelector('.dropdown-btn').addEventListener('click', function() {
-        this.classList.toggle('active');
-        const dropdownContent = this.nextElementSibling;
-        if (dropdownContent.style.display === 'block') {
-            dropdownContent.style.display = 'none';
-        } else {
-            dropdownContent.style.display = 'block';
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.querySelector('.content');
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
         }
-    });
-
-    // Thêm logic để thu gọn thanh sidebar
-    document.querySelector('.sidebar').addEventListener('mouseover', function() {
-        this.classList.remove('collapsed');
-    });
-
-    document.querySelector('.sidebar').addEventListener('mouseout', function() {
-        this.classList.add('collapsed');
-    });
-    // Logic để thu gọn hoặc mở rộng sidebar
-    document.getElementById('toggleSidebar').addEventListener('click', function() {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.classList.toggle('collapsed');
-        
-        // Thay đổi icon tùy theo trạng thái
-        const icon = sidebar.classList.contains('collapsed') ? 'fa-angle-right' : 'fa-angle-left';
-        this.innerHTML = `<i class="fa ${icon}"></i>`;
-    });
-
-</script>
-
+    </script>
 </body>
 </html>
