@@ -52,6 +52,7 @@ sqlsrv_close($conn);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
+    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -132,53 +133,16 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
         }
-        /* Slideshow styles */
-        .slideshow-container {
-            position: relative;
-            max-width: 100%;
-            margin: auto;
-        }
-        .mySlides {
-            display: none;
-        }
-        .prev, .next {
-            cursor: pointer;
-            position: absolute;
-            top: 50%;
-            width: auto;
-            padding: 16px;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-            transition: 0.6s ease;
-            border-radius: 0 3px 3px 0;
-            user-select: none;
-        }
-        .next {
-            right: 0;
-            border-radius: 3px 0 0 3px;
-        }
-        .prev:hover, .next:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-        /* List table styles */
-        table.list {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-        table.list th, table.list td {
-            border: 1px solid white;
-            padding: 8px;
-            text-align: center;
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
 
-<div class="sidebar">
-    <a href="index.php?station=all">Home</a>
+<body>
+<div class="sidebar" id="sidebar">
+    <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    <li><a href="#" onclick="showPage('home');" class="main-link"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
     <button class="dropdown-btn">Dashboard 
         <i class="fa fa-caret-down"></i>
     </button>
@@ -192,32 +156,33 @@ sqlsrv_close($conn);
         <a href="?station=F">Station F</a>
         <a href="?station=G">Station G</a>
     </div>
-    <a href="#" id="listButton">List</a>
+    <li><a href="#" onclick="showPage('edit-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> Edit</span></a></li>
 </div>
 
 <div class="main-content">
-    <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
-
-    <!-- Slideshow ở Home -->
-    <?php if ($station === 'all'): ?>
+    <div id="home" class="page">
         <div class="slideshow-container">
-            <div class="mySlides fade">
-                <img src="image1.jpg" style="width:100%">
+            <div class="slide">
+                <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                <img class="slide-image" src="Picture1.png" alt="Slide 1">
             </div>
-            <div class="mySlides fade">
-                <img src="image2.jpg" style="width:100%">
+            <div class="slide">
+                <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                <img class="slide-image" src="Picture2.png" alt="Slide 2">
             </div>
-            <div class="mySlides fade">
-                <img src="image3.jpg" style="width:100%">
+            <div class="slide">
+                <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                <img class="slide-image" src="Picture3.png" alt="Slide 3">
             </div>
-            <div class="mySlides fade">
-                <img src="image4.jpg" style="width:100%">
+        
+            <div class="dots">
+                <span class="dot" onclick="showSlide(1)"></span>
+                <span class="dot" onclick="showSlide(2)"></span>
+                <span class="dot" onclick="showSlide(3)"></span>
             </div>
-
-            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-            <a class="next" onclick="plusSlides(1)">&#10095;</a>
         </div>
-    <?php endif; ?>
+    </div>
+    <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
     <?php if ($station !== 'all'): ?>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
@@ -256,105 +221,112 @@ sqlsrv_close($conn);
 
     <!-- Biểu đồ -->
     <div class="charts">
-        <!-- Biểu đồ tròn -->
-        <div class="chart-container">
-            <canvas id="pieChart"></canvas>
-        </div>
         <!-- Biểu đồ cột -->
         <div class="chart-container">
             <canvas id="barChart"></canvas>
+        </div>
+
+        <!-- Biểu đồ tròn -->
+        <div class="chart-container">
+            <canvas id="pieChart"></canvas>
         </div>
     </div>
 </div>
 
 <script>
-// Slideshow
-let slideIndex = 0;
-showSlides();
+    // Dữ liệu biểu đồ
+    const customers = <?= json_encode($customers) ?>;
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
-function showSlides() {
-    let i;
-    let slides = document.getElementsByClassName("mySlides");
-    for (i = 0; i < slides.length; i++) {
-        slides[i].style.display = "none";  
-    }
-    slideIndex++;
-    if (slideIndex > slides.length) {slideIndex = 1}    
-    slides[slideIndex-1].style.display = "block";  
-    setTimeout(showSlides, 10000); // Chuyển ảnh mỗi 10 giây
-}
-
-function plusSlides(n) {
-    slideIndex += n - 1;
-    showSlides();
-}
-
-// Biểu đồ tròn
-const pieData = {
-    labels: <?php echo json_encode(array_keys($customers)); ?>,
-    datasets: [{
-        label: 'Pallets Count',
-        data: <?php echo json_encode(array_map('count', $customers)); ?>,
-        backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)',
-            'rgba(255, 99, 132, 0.2)'
-        ],
-        borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)',
-            'rgba(255, 99, 132, 1)'
-        ],
-        borderWidth: 1
-    }]
-};
-
-const pieChart = new Chart(document.getElementById('pieChart'), {
-    type: 'pie',
-    data: pieData,
-});
-
-// Biểu đồ cột
-const barData = {
-    labels: <?php echo json_encode(array_keys($customers)); ?>,
-    datasets: [{
-        label: 'Pallets Count',
-        data: <?php echo json_encode(array_map('count', $customers)); ?>,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
-    }]
-};
-
-const barChart = new Chart(document.getElementById('barChart'), {
-    type: 'bar',
-    data: barData,
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
+    // Biểu đồ cột
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: customerLabels,
+            datasets: [{
+                label: 'Used Slots',
+                data: customerData,
+                backgroundColor: 'rgba(54, 162, 235, 1)',
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Used Slots',
+                        color: 'white'
+                    },
+                    grid: {
+                        color: 'white'
+                    },
+                    ticks: {
+                        color: 'white',
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'white'
+                    },
+                    ticks: {
+                        color: 'white'
+                    }
+                }
             }
         }
-    }
-});
+    });
 
-// Hiện danh sách dữ liệu khi nhấn nút List
-document.getElementById("listButton").addEventListener("click", function() {
-    let table = '<table class="list"><tr><th>Customer ID</th><th>Customer Name</th><th>Pallet Count</th></tr>';
-    <?php foreach ($data as $row): ?>
-        table += '<tr><td><?= $row['MAKH'] ?></td><td><?= $row['TENKH'] ?></td><td><?= $row['LUONG_PALLET'] ?></td></tr>';
-    <?php endforeach; ?>
-    table += '</table>';
-    document.body.innerHTML += table; // Thêm bảng vào body
-});
+    // Biểu đồ tròn
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Used', 'Remaining'],
+            datasets: [{
+                data: [filledSlots, totalSlots - filledSlots],
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                }
+            }
+        }
+    });
+
+    // Dropdown logic
+    document.querySelector('.dropdown-btn').addEventListener('click', function() {
+        this.classList.toggle('active');
+        const dropdownContent = this.nextElementSibling;
+        if (dropdownContent.style.display === 'block') {
+            dropdownContent.style.display = 'none';
+        } else {
+            dropdownContent.style.display = 'block';
+        }
+    });
 </script>
+<script src="script.js"></script>
 </body>
 </html>
