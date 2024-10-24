@@ -55,96 +55,100 @@ sqlsrv_close($conn);
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: #001F3F; /* Xanh đậm */
+            color: white; /* Màu chữ trắng */
         }
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #333;
-            padding-top: 20px;
+        h2 {
+            text-align: center;
         }
-        .sidebar a, .dropdown-btn {
-            padding: 15px 20px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: block;
-            background: none;
-            border: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            outline: none;
+        .container {
+            display: flex; 
+            justify-content: space-around; 
+            margin: 20px;
         }
-        .sidebar a:hover, .dropdown-btn:hover {
-            background-color: #575757;
+        table {
+            width: 30%;
+            border-collapse: collapse;
+            font-size: 8px;
         }
-        .dropdown-container {
-            display: none;
-            background-color: #414141;
-            padding-left: 20px;
+        th, td {
+            border: 2px solid white;
+            padding: 5px;
+            text-align: center;
         }
-        .main {
-            margin-left: 260px;
-            padding: 20px;
+        td.highlight {
+            background-color: #32CD32;
         }
         .chart-container {
-            width: 50%;
-            margin: auto;
+            width: 40%; 
+            margin: 20px;
         }
         .charts {
-            display: flex;
-            justify-content: space-around;
+            display: flex; 
+            justify-content: space-around; 
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <a href="#">Home</a>
-    <button class="dropdown-btn">Dashboard 
-        <i class="fa fa-caret-down"></i>
-    </button>
-    <div class="dropdown-container">
-        <a href="?station=all">All</a>
-        <?php foreach (range('A', 'G') as $st): ?>
-            <a href="?station=<?= $st ?>">Station <?= $st ?></a>
-        <?php endforeach; ?>
+<h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
+
+<?php if ($station !== 'all'): ?>
+    <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
+    <div class="container">
+        <!-- Bảng Left Rack -->
+        <table>
+            <caption>Left Rack</caption>
+            <?php for ($row = 7; $row >= 1; $row--): ?>
+                <tr>
+                    <?php for ($col = 1; $col <= 14; $col++): ?>
+                        <?php $index = ($row - 1) * 14 + $col; ?>
+                        <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                            <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                        </td>
+                    <?php endfor; ?>
+                </tr>
+            <?php endfor; ?>
+        </table>
+
+        <!-- Bảng Right Rack -->
+        <table>
+            <caption>Right Rack</caption>
+            <?php for ($row = 7; $row >= 1; $row--): ?>
+                <tr>
+                    <?php for ($col = 1; $col <= 14; $col++): ?>
+                        <?php $index = ($row - 1) * 14 + $col; ?>
+                        <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                            <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                        </td>
+                    <?php endfor; ?>
+                </tr>
+            <?php endfor; ?>
+        </table>
     </div>
-    <a href="#">List</a>
-</div>
+<?php endif; ?>
 
-<!-- Main content -->
-<div class="main">
-    <h2>Warehouse <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></h2>
+<!-- Biểu đồ -->
+<div class="charts">
+    <!-- Biểu đồ cột -->
+    <div class="chart-container">
+        <canvas id="barChart"></canvas>
+    </div>
 
-    <!-- Biểu đồ -->
-    <div class="charts">
-        <div class="chart-container">
-            <canvas id="barChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <canvas id="pieChart"></canvas>
-        </div>
+    <!-- Biểu đồ tròn -->
+    <div class="chart-container">
+        <canvas id="pieChart"></canvas>
     </div>
 </div>
 
 <script>
-    // Lấy dữ liệu từ PHP
+    // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers);
-    const customerData = customerLabels.map(key => customers[key].length);
-
-    // Tính toán số ô cho "All" trạm
-    const totalSlots = 1372; // 98x2x7 = 1372 ô cho cả 7 trạm
-    const filledSlots = <?= count($highlighted) ?>;
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
@@ -153,7 +157,7 @@ sqlsrv_close($conn);
         data: {
             labels: customerLabels,
             datasets: [{
-                label: 'Number of Stored Pallets',
+                label: 'Used Slots',
                 data: customerData,
                 backgroundColor: 'rgba(54, 162, 235, 1)',
                 borderColor: 'white',
@@ -165,7 +169,7 @@ sqlsrv_close($conn);
             plugins: {
                 legend: {
                     labels: {
-                        color: '#333'
+                        color: 'white'
                     }
                 }
             },
@@ -174,11 +178,23 @@ sqlsrv_close($conn);
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Stored Pallets',
-                        color: '#333'
+                        text: 'Number of Used Slots',
+                        color: 'white'
+                    },
+                    grid: {
+                        color: 'white'
                     },
                     ticks: {
+                        color: 'white',
                         stepSize: 1
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'white'
+                    },
+                    ticks: {
+                        color: 'white'
                     }
                 }
             }
@@ -202,18 +218,11 @@ sqlsrv_close($conn);
             plugins: {
                 legend: {
                     labels: {
-                        color: '#333'
+                        color: 'white'
                     }
                 }
             }
         }
-    });
-
-    // Dropdown toggle
-    document.querySelector('.dropdown-btn').addEventListener('click', function() {
-        this.classList.toggle('active');
-        const dropdownContent = this.nextElementSibling;
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
     });
 </script>
 
