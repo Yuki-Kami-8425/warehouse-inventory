@@ -136,51 +136,66 @@ sqlsrv_close($conn);
         }
 
     /* Thay đổi CSS của sidebar */
-    .sidebar {
-        height: 100vh;
-        width: 250px; /* Chiều rộng bình thường */
-        background-color: #111;
-        padding-top: 20px;
-        position: fixed;
-        transition: width 0.3s; /* Hiệu ứng chuyển đổi */
-    }
-    .sidebar.collapsed {
-        width: 60px; /* Chiều rộng khi thu gọn */
-    }
-    .sidebar a, .dropdown-btn {
-        padding: 10px 15px;
-        text-decoration: none;
-        font-size: 18px;
-        color: white;
-        display: flex; /* Chuyển sang chế độ flex để căn giữa icon và text */
-        align-items: center; /* Căn giữa theo chiều dọc */
-    }
-    .sidebar a i, .dropdown-btn i {
-        margin-right: 10px; /* Khoảng cách giữa icon và text */
-    }
+.sidebar {
+    height: 100vh;
+    width: 250px; /* Chiều rộng bình thường */
+    background-color: #111;
+    padding-top: 20px;
+    position: fixed;
+    transition: width 0.3s; /* Hiệu ứng chuyển đổi */
+}
+.sidebar.collapsed {
+    width: 60px; /* Chiều rộng khi thu gọn */
+}
+.toggle-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: 10px; /* Khoảng cách bên trái */
+}
+.sidebar a, .dropdown-btn {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: flex; /* Chuyển sang chế độ flex để căn giữa icon và text */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+.sidebar .text {
+    display: inline; /* Hiển thị text bình thường */
+}
+.sidebar.collapsed .text {
+    display: none; /* Ẩn text khi thu gọn */
+}
+.sidebar a i, .dropdown-btn i {
+    margin-right: 10px; /* Khoảng cách giữa icon và text */
+}
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="sidebar">
-    <a href="#"><i class="fa fa-home"></i> Home</a>
-    <button class="dropdown-btn"><i class="fa fa-tachometer-alt"></i> Dashboard 
+    <button id="toggleSidebar" class="toggle-btn"><i class="fa fa-angle-left"></i></button>
+    <a href="#"><i class="fa fa-home"></i> <span class="text">Home</span></a>
+    <button class="dropdown-btn"><i class="fa fa-tachometer-alt"></i> <span class="text">Dashboard</span>
         <i class="fa fa-caret-down"></i>
     </button>
     <div class="dropdown-container">
-        <a href="?station=all"><i class="fa fa-th-large"></i> All</a>
-        <a href="?station=A"><i class="fa fa-warehouse"></i> Station A</a>
-        <a href="?station=B"><i class="fa fa-warehouse"></i> Station B</a>
-        <a href="?station=C"><i class="fa fa-warehouse"></i> Station C</a>
-        <a href="?station=D"><i class="fa fa-warehouse"></i> Station D</a>
-        <a href="?station=E"><i class="fa fa-warehouse"></i> Station E</a>
-        <a href="?station=F"><i class="fa fa-warehouse"></i> Station F</a>
-        <a href="?station=G"><i class="fa fa-warehouse"></i> Station G</a>
+        <a href="?station=all"><i class="fa fa-th-large"></i> <span class="text">All</span></a>
+        <a href="?station=A"><i class="fa fa-warehouse"></i> <span class="text">Station A</span></a>
+        <a href="?station=B"><i class="fa fa-warehouse"></i> <span class="text">Station B</span></a>
+        <a href="?station=C"><i class="fa fa-warehouse"></i> <span class="text">Station C</span></a>
+        <a href="?station=D"><i class="fa fa-warehouse"></i> <span class="text">Station D</span></a>
+        <a href="?station=E"><i class="fa fa-warehouse"></i> <span class="text">Station E</span></a>
+        <a href="?station=F"><i class="fa fa-warehouse"></i> <span class="text">Station F</span></a>
+        <a href="?station=G"><i class="fa fa-warehouse"></i> <span class="text">Station G</span></a>
     </div>
-    <a href="#"><i class="fa fa-list"></i> List</a>
+    <a href="#"><i class="fa fa-list"></i> <span class="text">List</span></a>
 </div>
-
 
 <div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
@@ -336,6 +351,16 @@ sqlsrv_close($conn);
     document.querySelector('.sidebar').addEventListener('mouseout', function() {
         this.classList.add('collapsed');
     });
+    // Logic để thu gọn hoặc mở rộng sidebar
+    document.getElementById('toggleSidebar').addEventListener('click', function() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('collapsed');
+        
+        // Thay đổi icon tùy theo trạng thái
+        const icon = sidebar.classList.contains('collapsed') ? 'fa-angle-right' : 'fa-angle-left';
+        this.innerHTML = `<i class="fa ${icon}"></i>`;
+    });
+
 </script>
 
 </body>
