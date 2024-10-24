@@ -51,6 +51,7 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
     <style>
         body {
@@ -157,6 +158,23 @@ sqlsrv_close($conn);
     cursor: pointer;
     padding: 10px;
 }
+.sidebar-content a, .sidebar-content button {
+    display: flex;
+    align-items: center; /* Căn giữa biểu tượng và văn bản */
+    padding: 10px 15px;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+}
+
+.sidebar-content a i, .sidebar-content button i {
+    margin-right: 10px; /* Khoảng cách giữa biểu tượng và văn bản */
+}
+
+.sidebar.collapsed .link-text {
+    display: none; /* Ẩn văn bản khi sidebar thu gọn */
+}
+
 
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -168,24 +186,54 @@ sqlsrv_close($conn);
         <i class="fa fa-bars"></i> <!-- Biểu tượng để thu gọn -->
     </button>
     <div class="sidebar-content">
-        <a href="#">Home</a>
-        <button class="dropdown-btn">Dashboard 
-            <i class="fa fa-caret-down"></i>
+        <a href="#">
+            <i class="fa fa-home"></i> <!-- Biểu tượng Home -->
+            <span class="link-text">Home</span>
+        </a>
+        <button class="dropdown-btn">
+            <i class="fa fa-tachometer-alt"></i> <!-- Biểu tượng Dashboard -->
+            <span class="link-text">Dashboard</span>
         </button>
         <div class="dropdown-container">
-            <a href="?station=all">All</a>
-            <a href="?station=A">Station A</a>
-            <a href="?station=B">Station B</a>
-            <a href="?station=C">Station C</a>
-            <a href="?station=D">Station D</a>
-            <a href="?station=E">Station E</a>
-            <a href="?station=F">Station F</a>
-            <a href="?station=G">Station G</a>
+            <a href="?station=all">
+                <i class="fa fa-th-large"></i> <!-- Biểu tượng All -->
+                <span class="link-text">All</span>
+            </a>
+            <a href="?station=A">
+                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station A -->
+                <span class="link-text">Station A</span>
+            </a>
+            <a href="?station=B">
+                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station B -->
+                <span class="link-text">Station B</span>
+            </a>
+            <a href="?station=C">
+                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station C -->
+                <span class="link-text">Station C</span>
+            </a>
+            <a href="?station=D">
+                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station D -->
+                <span class="link-text">Station D</span>
+            </a>
+            <a href="?station=E">
+                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station E -->
+                <span class="link-text">Station E</span>
+            </a>
+            <a href="?station=F">
+                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station F -->
+                <span class="link-text">Station F</span>
+            </a>
+            <a href="?station=G">
+                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station G -->
+                <span class="link-text">Station G</span>
+            </a>
         </div>
-        <a href="#">List</a>
+        <a href="#">
+            <i class="fa fa-list"></i> <!-- Biểu tượng List -->
+            <span class="link-text">List</span>
+        </a>
     </div>
 </div>
-
 
 <div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
