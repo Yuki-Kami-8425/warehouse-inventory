@@ -182,9 +182,9 @@ sqlsrv_close($conn);
             </div>
         </div>
     </div>
-    <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
-    <?php if ($station !== 'all'): ?>
+    <?php if ($station !== 'all' && $station !== 'home'): ?>
+        <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
             <!-- Bảng Left Rack -->
@@ -217,20 +217,20 @@ sqlsrv_close($conn);
                 <?php endfor; ?>
             </table>
         </div>
+
+        <!-- Biểu đồ -->
+        <div class="charts">
+            <!-- Biểu đồ cột -->
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
+            </div>
+
+            <!-- Biểu đồ tròn -->
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
     <?php endif; ?>
-
-    <!-- Biểu đồ -->
-    <div class="charts">
-        <!-- Biểu đồ cột -->
-        <div class="chart-container">
-            <canvas id="barChart"></canvas>
-        </div>
-
-        <!-- Biểu đồ tròn -->
-        <div class="chart-container">
-            <canvas id="pieChart"></canvas>
-        </div>
-    </div>
 </div>
 
 <script>

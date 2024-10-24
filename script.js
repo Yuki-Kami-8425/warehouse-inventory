@@ -46,30 +46,22 @@ function toggleStations() {
     showPage('all');
 }
 
-function showPage(pageId) {
-    let pages = document.querySelectorAll('.page');
-    let links = document.querySelectorAll('.sidebar ul li a');
-
-    pages.forEach(page => {
-        page.style.display = 'none';
-    });
-
-    links.forEach(link => {
-        link.classList.remove('active'); // Xóa lớp active
-    });
-
-    document.getElementById(pageId).style.display = 'block';
-
-    const activeLink = [...links].find(link => link.onclick.toString().includes(pageId));
-    if (activeLink) {
-        activeLink.classList.add('active'); // Thêm lớp active cho liên kết đã chọn
-    }
-
-    // Đóng danh sách trạm nếu chọn Home hoặc Edit
-    if (pageId === 'home' || pageId === 'edit-warehouse') {
-        document.querySelector('.station-list').classList.remove('open'); // Đóng danh sách trạm
+function showPage(page) {
+    if (page === 'home') {
+        document.getElementById('home').style.display = 'block';
+        // Ẩn bảng và biểu đồ
+        document.querySelector('.charts').style.display = 'none';
+        // Thêm logic ẩn bảng
+        // ...
+    } else {
+        // Hiển thị bảng và biểu đồ tương ứng
+        document.querySelector('.charts').style.display = 'block';
+        // Ẩn ảnh chuyển động
+        document.getElementById('home').style.display = 'none';
+        // ...
     }
 }
+
 
 function updateTime() {
     const now = new Date();
@@ -181,5 +173,25 @@ function hideTooltip() {
     if (tooltip) {
         tooltip.remove(); // Xóa tooltip khỏi DOM
     }
+}
+
+
+function toggleStations() {
+    const stationList = document.getElementById('stationList');
+    stationList.classList.toggle('show');
+}
+
+function showPage(page) {
+    // Logic để hiển thị trang tương ứng
+    document.getElementById('content').innerHTML = `<h2>${page.charAt(0).toUpperCase() + page.slice(1)} Page</h2>`;
+}
+
+function loadStation(station) {
+    fetch(`path/to/your/php/file.php?station=${station}`)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('content').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
 }
 
