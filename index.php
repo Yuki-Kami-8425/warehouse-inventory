@@ -57,6 +57,51 @@ sqlsrv_close($conn);
             font-family: Arial, sans-serif;
             background-color: #001F3F; /* Xanh đậm */
             color: white; /* Màu chữ trắng */
+            display: flex;
+        }
+        /* Sidebar styling */
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            background-color: #111;
+            padding-top: 20px;
+            position: fixed;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .dropdown-btn {
+            background-color: #111;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+        .dropdown-btn:hover {
+            background-color: #575757;
+        }
+        .dropdown-container {
+            display: none;
+            background-color: #262626;
+        }
+        .dropdown-container a {
+            padding-left: 30px;
+        }
+
+        /* Main content styling */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            width: 100%;
         }
         h2 {
             text-align: center;
@@ -92,53 +137,73 @@ sqlsrv_close($conn);
 </head>
 <body>
 
-<h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
-
-<?php if ($station !== 'all'): ?>
-    <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
-    <div class="container">
-        <!-- Bảng Left Rack -->
-        <table>
-            <caption>Left Rack</caption>
-            <?php for ($row = 7; $row >= 1; $row--): ?>
-                <tr>
-                    <?php for ($col = 1; $col <= 14; $col++): ?>
-                        <?php $index = ($row - 1) * 14 + $col; ?>
-                        <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                            <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                        </td>
-                    <?php endfor; ?>
-                </tr>
-            <?php endfor; ?>
-        </table>
-
-        <!-- Bảng Right Rack -->
-        <table>
-            <caption>Right Rack</caption>
-            <?php for ($row = 7; $row >= 1; $row--): ?>
-                <tr>
-                    <?php for ($col = 1; $col <= 14; $col++): ?>
-                        <?php $index = ($row - 1) * 14 + $col; ?>
-                        <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                            <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                        </td>
-                    <?php endfor; ?>
-                </tr>
-            <?php endfor; ?>
-        </table>
+<div class="sidebar">
+    <a href="#">Home</a>
+    <button class="dropdown-btn">Dashboard 
+        <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+        <a href="?station=all">All</a>
+        <a href="?station=A">Station A</a>
+        <a href="?station=B">Station B</a>
+        <a href="?station=C">Station C</a>
+        <a href="?station=D">Station D</a>
+        <a href="?station=E">Station E</a>
+        <a href="?station=F">Station F</a>
+        <a href="?station=G">Station G</a>
     </div>
-<?php endif; ?>
+    <a href="#">List</a>
+</div>
 
-<!-- Biểu đồ -->
-<div class="charts">
-    <!-- Biểu đồ cột -->
-    <div class="chart-container">
-        <canvas id="barChart"></canvas>
-    </div>
+<div class="main-content">
+    <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
-    <!-- Biểu đồ tròn -->
-    <div class="chart-container">
-        <canvas id="pieChart"></canvas>
+    <?php if ($station !== 'all'): ?>
+        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
+        <div class="container">
+            <!-- Bảng Left Rack -->
+            <table>
+                <caption>Left Rack</caption>
+                <?php for ($row = 7; $row >= 1; $row--): ?>
+                    <tr>
+                        <?php for ($col = 1; $col <= 14; $col++): ?>
+                            <?php $index = ($row - 1) * 14 + $col; ?>
+                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                                <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                            </td>
+                        <?php endfor; ?>
+                    </tr>
+                <?php endfor; ?>
+            </table>
+
+            <!-- Bảng Right Rack -->
+            <table>
+                <caption>Right Rack</caption>
+                <?php for ($row = 7; $row >= 1; $row--): ?>
+                    <tr>
+                        <?php for ($col = 1; $col <= 14; $col++): ?>
+                            <?php $index = ($row - 1) * 14 + $col; ?>
+                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                                <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                            </td>
+                        <?php endfor; ?>
+                    </tr>
+                <?php endfor; ?>
+            </table>
+        </div>
+    <?php endif; ?>
+
+    <!-- Biểu đồ -->
+    <div class="charts">
+        <!-- Biểu đồ cột -->
+        <div class="chart-container">
+            <canvas id="barChart"></canvas>
+        </div>
+
+        <!-- Biểu đồ tròn -->
+        <div class="chart-container">
+            <canvas id="pieChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -222,6 +287,17 @@ sqlsrv_close($conn);
                     }
                 }
             }
+        }
+    });
+
+    // Dropdown logic
+    document.querySelector('.dropdown-btn').addEventListener('click', function() {
+        this.classList.toggle('active');
+        const dropdownContent = this.nextElementSibling;
+        if (dropdownContent.style.display === 'block') {
+            dropdownContent.style.display = 'none';
+        } else {
+            dropdownContent.style.display = 'block';
         }
     });
 </script>
