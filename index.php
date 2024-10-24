@@ -51,112 +51,68 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Warehouse Management</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #001F3F; /* Xanh đậm */
-            color: white; /* Màu chữ trắng */
-            display: flex;
+        /* Các kiểu CSS khác đã có trước đó... */
+
+        /* Slideshow styling */
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            margin: auto;
         }
-        /* Sidebar styling */
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #111;
-            padding-top: 20px;
-            position: fixed;
+        .slide {
+            display: none; /* Ẩn tất cả slides theo mặc định */
         }
-        .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: block;
+        .slide img {
+            width: 100%; /* Đảm bảo hình ảnh chiếm toàn bộ chiều rộng */
+            height: auto; /* Giữ tỷ lệ chiều cao */
         }
-        .sidebar a:hover {
-            background-color: #575757;
-        }
-        .dropdown-btn {
-            background-color: #111;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            width: 100%;
-            text-align: left;
+        .dot {
             cursor: pointer;
+            height: 15px;
+            width: 15px;
+            margin: 0 2px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.6s ease;
         }
-        .dropdown-btn:hover {
-            background-color: #575757;
-        }
-        .dropdown-container {
-            display: none;
-            background-color: #262626;
-        }
-        .dropdown-container a {
-            padding-left: 30px;
+        .dot.active {
+            background-color: #717171;
         }
 
-        /* Main content styling */
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            width: 100%;
-        }
-        h2 {
-            text-align: center;
-        }
-        .container {
-            display: flex; 
-            justify-content: space-around; 
-            margin: 20px;
-        }
-        table {
-            width: 30%;
-            border-collapse: collapse;
-            font-size: 8px;
-        }
-        th, td {
-            border: 2px solid white;
-            padding: 5px;
-            text-align: center;
-        }
-        td.highlight {
-            background-color: #32CD32;
-        }
-        .chart-container {
-            width: 40%; 
-            margin: 20px;
+        /* Các kiểu CSS cho dashboard và list */
+        .page {
+            display: none; /* Ẩn tất cả các trang theo mặc định */
         }
         .charts {
-            display: flex; 
-            justify-content: space-around; 
+            display: flex;
+            justify-content: space-between;
+        }
+        .chart-container {
+            width: 48%;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-<div class="sidebar" id="sidebar">
-    <button class="toggle-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </button>
-    <li><a href="#" onclick="showPage('home');" class="main-link"><i class="fas fa-home"></i><span class="link-text"> Home</span></a></li>
+
+<div class="sidebar">
+    <a href="#" onclick="showPage('home')">Home</a>
     <button class="dropdown-btn">Dashboard 
         <i class="fa fa-caret-down"></i>
     </button>
     <div class="dropdown-container">
-        <a href="?station=all">All</a>
-        <a href="?station=A">Station A</a>
-        <a href="?station=B">Station B</a>
-        <a href="?station=C">Station C</a>
-        <a href="?station=D">Station D</a>
-        <a href="?station=E">Station E</a>
-        <a href="?station=F">Station F</a>
-        <a href="?station=G">Station G</a>
+        <a href="#" onclick="showPage('dashboard', 'all')">All</a>
+        <a href="#" onclick="showPage('dashboard', 'A')">Station A</a>
+        <a href="#" onclick="showPage('dashboard', 'B')">Station B</a>
+        <a href="#" onclick="showPage('dashboard', 'C')">Station C</a>
+        <a href="#" onclick="showPage('dashboard', 'D')">Station D</a>
+        <a href="#" onclick="showPage('dashboard', 'E')">Station E</a>
+        <a href="#" onclick="showPage('dashboard', 'F')">Station F</a>
+        <a href="#" onclick="showPage('dashboard', 'G')">Station G</a>
     </div>
-    <li><a href="#" onclick="showPage('edit-warehouse');" class="main-link"><i class="fas fa-edit"></i><span class="link-text"> Edit</span></a></li>
+    <a href="#" onclick="showPage('list')">List</a>
 </div>
 
 <div class="main-content">
@@ -183,40 +139,42 @@ sqlsrv_close($conn);
         </div>
     </div>
 
-    <?php if ($station !== 'all' && $station !== 'home'): ?>
+    <div id="dashboard" class="page">
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
-        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
-        <div class="container">
-            <!-- Bảng Left Rack -->
-            <table>
-                <caption>Left Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
 
-            <!-- Bảng Right Rack -->
-            <table>
-                <caption>Right Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
-        </div>
+        <?php if ($station !== 'all'): ?>
+            <div class="container">
+                <!-- Bảng Left Rack -->
+                <table>
+                    <caption>Left Rack</caption>
+                    <?php for ($row = 7; $row >= 1; $row--): ?>
+                        <tr>
+                            <?php for ($col = 1; $col <= 14; $col++): ?>
+                                <?php $index = ($row - 1) * 14 + $col; ?>
+                                <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                                    <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                                </td>
+                            <?php endfor; ?>
+                        </tr>
+                    <?php endfor; ?>
+                </table>
+
+                <!-- Bảng Right Rack -->
+                <table>
+                    <caption>Right Rack</caption>
+                    <?php for ($row = 7; $row >= 1; $row--): ?>
+                        <tr>
+                            <?php for ($col = 1; $col <= 14; $col++): ?>
+                                <?php $index = ($row - 1) * 14 + $col; ?>
+                                <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                                    <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                                </td>
+                            <?php endfor; ?>
+                        </tr>
+                    <?php endfor; ?>
+                </table>
+            </div>
+        <?php endif; ?>
 
         <!-- Biểu đồ -->
         <div class="charts">
@@ -230,10 +188,54 @@ sqlsrv_close($conn);
                 <canvas id="pieChart"></canvas>
             </div>
         </div>
-    <?php endif; ?>
+    </div>
+
+    <div id="list" class="page">
+        <!-- Nội dung cho List sẽ ở đây -->
+        <h2>List Content</h2>
+        <p>Đây là nội dung của List.</p>
+    </div>
 </div>
 
 <script>
+    let currentSlide = 0;
+    showSlides();
+
+    function showSlides() {
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        slides.forEach((slide, index) => {
+            slide.style.display = (index === currentSlide) ? 'block' : 'none';
+            dots[index].className = dots[index].className.replace(' active', '');
+        });
+        dots[currentSlide].className += ' active';
+        currentSlide = (currentSlide + 1) % slides.length;
+        setTimeout(showSlides, 3000); // Thay đổi slide mỗi 3 giây
+    }
+
+    function showPage(pageId, station = 'all') {
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => {
+            page.style.display = 'none'; // Ẩn tất cả các trang
+        });
+        document.getElementById(pageId).style.display = 'block'; // Hiện trang được chọn
+
+        if (pageId === 'home') {
+            showSlides(); // Bắt đầu slideshow khi vào trang Home
+        } else {
+            // Cập nhật giá trị trạm
+            if (pageId === 'dashboard') {
+                // Gọi lại với station nếu cần
+                loadDashboardData(station);
+            }
+        }
+    }
+
+    function loadDashboardData(station) {
+        // Gọi lại trang hoặc làm gì đó để cập nhật dữ liệu dựa trên trạm đã chọn
+        // Ví dụ, sử dụng AJAX để lấy dữ liệu cho biểu đồ hoặc bảng
+    }
+
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
@@ -320,13 +322,9 @@ sqlsrv_close($conn);
     document.querySelector('.dropdown-btn').addEventListener('click', function() {
         this.classList.toggle('active');
         const dropdownContent = this.nextElementSibling;
-        if (dropdownContent.style.display === 'block') {
-            dropdownContent.style.display = 'none';
-        } else {
-            dropdownContent.style.display = 'block';
-        }
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
     });
 </script>
-<script src="script.js"></script>
+
 </body>
 </html>
