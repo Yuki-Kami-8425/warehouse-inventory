@@ -51,7 +51,9 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -132,28 +134,53 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
         }
+
+    /* Thay đổi CSS của sidebar */
+    .sidebar {
+        height: 100vh;
+        width: 250px; /* Chiều rộng bình thường */
+        background-color: #111;
+        padding-top: 20px;
+        position: fixed;
+        transition: width 0.3s; /* Hiệu ứng chuyển đổi */
+    }
+    .sidebar.collapsed {
+        width: 60px; /* Chiều rộng khi thu gọn */
+    }
+    .sidebar a, .dropdown-btn {
+        padding: 10px 15px;
+        text-decoration: none;
+        font-size: 18px;
+        color: white;
+        display: flex; /* Chuyển sang chế độ flex để căn giữa icon và text */
+        align-items: center; /* Căn giữa theo chiều dọc */
+    }
+    .sidebar a i, .dropdown-btn i {
+        margin-right: 10px; /* Khoảng cách giữa icon và text */
+    }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="sidebar">
-    <a href="#">Home</a>
-    <button class="dropdown-btn">Dashboard 
+    <a href="#"><i class="fa fa-home"></i> Home</a>
+    <button class="dropdown-btn"><i class="fa fa-tachometer-alt"></i> Dashboard 
         <i class="fa fa-caret-down"></i>
     </button>
     <div class="dropdown-container">
-        <a href="?station=all">All</a>
-        <a href="?station=A">Station A</a>
-        <a href="?station=B">Station B</a>
-        <a href="?station=C">Station C</a>
-        <a href="?station=D">Station D</a>
-        <a href="?station=E">Station E</a>
-        <a href="?station=F">Station F</a>
-        <a href="?station=G">Station G</a>
+        <a href="?station=all"><i class="fa fa-th-large"></i> All</a>
+        <a href="?station=A"><i class="fa fa-warehouse"></i> Station A</a>
+        <a href="?station=B"><i class="fa fa-warehouse"></i> Station B</a>
+        <a href="?station=C"><i class="fa fa-warehouse"></i> Station C</a>
+        <a href="?station=D"><i class="fa fa-warehouse"></i> Station D</a>
+        <a href="?station=E"><i class="fa fa-warehouse"></i> Station E</a>
+        <a href="?station=F"><i class="fa fa-warehouse"></i> Station F</a>
+        <a href="?station=G"><i class="fa fa-warehouse"></i> Station G</a>
     </div>
-    <a href="#">List</a>
+    <a href="#"><i class="fa fa-list"></i> List</a>
 </div>
+
 
 <div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
@@ -299,6 +326,15 @@ sqlsrv_close($conn);
         } else {
             dropdownContent.style.display = 'block';
         }
+    });
+
+    // Thêm logic để thu gọn thanh sidebar
+    document.querySelector('.sidebar').addEventListener('mouseover', function() {
+        this.classList.remove('collapsed');
+    });
+
+    document.querySelector('.sidebar').addEventListener('mouseout', function() {
+        this.classList.add('collapsed');
     });
 </script>
 
