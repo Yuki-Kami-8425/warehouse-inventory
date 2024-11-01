@@ -52,7 +52,6 @@ sqlsrv_close($conn);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Thêm Font Awesome -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -60,55 +59,62 @@ sqlsrv_close($conn);
             color: white; /* Màu chữ trắng */
             display: flex;
             margin: 0;
+            height: 100vh;
         }
         /* Sidebar styling */
         .sidebar {
             height: 100vh;
-            width: 60px; /* Kích thước thanh sidebar */
+            width: 250px;
             background-color: #111;
             padding-top: 20px;
             position: fixed;
-            transition: width 0.2s; /* Hiệu ứng chuyển đổi khi thu gọn */
+            transition: width 0.3s;
         }
-        .sidebar a, .sidebar button {
-            padding: 10px;
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
             text-decoration: none;
+            font-size: 18px;
             color: white;
             display: block;
-            text-align: center;
+            transition: padding 0.3s;
         }
-        .sidebar a:hover, .dropdown-btn:hover {
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .dropdown-btn {
+            background-color: #111;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+        .dropdown-btn:hover {
             background-color: #575757;
         }
         .dropdown-container {
             display: none;
             background-color: #262626;
         }
-        /* Chỉ hiển thị icon khi thu gọn */
-        .sidebar.collapsed {
-            width: 60px;
-        }
-        .sidebar.collapsed a, .sidebar.collapsed button {
-            padding: 10px 0;
-        }
-        .icon {
-            display: block;
-        }
-        .icon.hide-text {
-            display: none; /* Ẩn text khi thu gọn */
+        .dropdown-container a {
+            padding-left: 30px;
         }
 
         /* Main content styling */
         .main-content {
-            margin-left: 60px; /* Căn giữa nội dung chính */
+            margin-left: 250px;
             padding: 20px;
-            width: 100%;
-            transition: margin-left 0.2s;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s;
         }
-        .collapsed + .main-content {
-            margin-left: 60px; /* Thay đổi khi sidebar thu gọn */
+        .main-content.collapsed {
+            margin-left: 70px;
+            width: calc(100% - 70px);
         }
-
         h2 {
             text-align: center;
         }
@@ -138,35 +144,49 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
         }
+        .toggle-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            position: absolute;
+            top: 20px;
+            left: 250px;
+            transition: left 0.3s;
+        }
+        .toggle-button.collapsed {
+            left: 70px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="sidebar">
-    <button class="collapse-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i> <!-- Icon để thu gọn -->
+    <button class="toggle-button" onclick="toggleSidebar()">☰</button>
+    <a href="#">Home</a>
+    <button class="dropdown-btn">Dashboard 
+        <i class="fa fa-caret-down"></i>
     </button>
-    <a href="#" class="icon"><i class="fas fa-home"></i><span class="hide-text">Home</span></a>
-    <button class="dropdown-btn icon"><i class="fas fa-chart-bar"></i><span class="hide-text">Dashboard</span></button>
     <div class="dropdown-container">
-        <a href="?station=all"><i class="fas fa-th"></i><span class="hide-text">All</span></a>
-        <a href="?station=A"><i class="fas fa-cube"></i><span class="hide-text">Station A</span></a>
-        <a href="?station=B"><i class="fas fa-cube"></i><span class="hide-text">Station B</span></a>
-        <a href="?station=C"><i class="fas fa-cube"></i><span class="hide-text">Station C</span></a>
-        <a href="?station=D"><i class="fas fa-cube"></i><span class="hide-text">Station D</span></a>
-        <a href="?station=E"><i class="fas fa-cube"></i><span class="hide-text">Station E</span></a>
-        <a href="?station=F"><i class="fas fa-cube"></i><span class="hide-text">Station F</span></a>
-        <a href="?station=G"><i class="fas fa-cube"></i><span class="hide-text">Station G</span></a>
+        <a href="?station=all">All</a>
+        <a href="?station=A">Station A</a>
+        <a href="?station=B">Station B</a>
+        <a href="?station=C">Station C</a>
+        <a href="?station=D">Station D</a>
+        <a href="?station=E">Station E</a>
+        <a href="?station=F">Station F</a>
+        <a href="?station=G">Station G</a>
     </div>
-    <a href="#" class="icon"><i class="fas fa-list"></i><span class="hide-text">List</span></a>
+    <a href="#">List</a>
 </div>
 
 <div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
     <?php if ($station !== 'all'): ?>
-        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
             <!-- Bảng Left Rack -->
             <table>
@@ -215,29 +235,41 @@ sqlsrv_close($conn);
 </div>
 
 <script>
-    // Dữ liệu cho biểu đồ
-    const labels = <?= json_encode(array_keys($customers)); ?>;
-    const values = <?= json_encode(array_map('count', $customers)); ?>;
+    // Dữ liệu biểu đồ
+    const customers = <?= json_encode($customers) ?>;
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
     const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: customerLabels,
             datasets: [{
-                label: 'Number of RFID',
-                data: values,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Số lượng RFID',
+                data: customerData,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
             }]
         },
         options: {
-            responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Số lượng'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Khách hàng'
+                    }
                 }
             }
         }
@@ -248,48 +280,31 @@ sqlsrv_close($conn);
     const pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
-            labels: labels,
+            labels: ['Đã sử dụng', 'Còn trống'],
             datasets: [{
-                data: values,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(201, 203, 207, 0.2)',
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(255, 205, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(201, 203, 207, 1)',
-                ],
-                borderWidth: 1
+                label: 'Tình trạng ô',
+                data: [filledSlots, totalSlots - filledSlots],
+                backgroundColor: ['#36A2EB', '#FF6384'],
+                hoverOffset: 4
             }]
-        },
-        options: {
-            responsive: true,
         }
     });
 
+    // Chức năng thu gọn thanh sidebar
     function toggleSidebar() {
         const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const toggleButton = document.querySelector('.toggle-button');
+
         sidebar.classList.toggle('collapsed');
-        document.querySelector('.main-content').classList.toggle('collapsed');
+        mainContent.classList.toggle('collapsed');
+        toggleButton.classList.toggle('collapsed');
     }
 
-    // Logic cho dropdown
+    // Chức năng xổ xuống của Dashboard
     document.querySelector('.dropdown-btn').addEventListener('click', function() {
-        this.classList.toggle('active');
-        const dropdownContent = this.nextElementSibling;
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block';
     });
 </script>
-
 </body>
 </html>
