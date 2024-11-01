@@ -58,8 +58,6 @@ sqlsrv_close($conn);
             background-color: #001F3F; /* Xanh đậm */
             color: white; /* Màu chữ trắng */
             display: flex;
-            margin: 0;
-            height: 100vh;
         }
         /* Sidebar styling */
         .sidebar {
@@ -71,15 +69,19 @@ sqlsrv_close($conn);
             transition: width 0.3s;
         }
         .sidebar.collapsed {
-            width: 70px;
+            width: 60px;
         }
         .sidebar a {
             padding: 10px 15px;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 16px; /* Cỡ chữ đã được điều chỉnh */
             color: white;
-            display: block;
-            transition: padding 0.3s;
+            display: flex;
+            align-items: center; /* Căn giữa icon và chữ */
+        }
+        .sidebar a img {
+            width: 24px; /* Kích thước icon */
+            margin-right: 10px; /* Khoảng cách giữa icon và chữ */
         }
         .sidebar a:hover {
             background-color: #575757;
@@ -92,6 +94,8 @@ sqlsrv_close($conn);
             width: 100%;
             text-align: left;
             cursor: pointer;
+            display: flex;
+            align-items: center;
         }
         .dropdown-btn:hover {
             background-color: #575757;
@@ -109,11 +113,11 @@ sqlsrv_close($conn);
             margin-left: 250px;
             padding: 20px;
             width: calc(100% - 250px);
-            transition: margin-left 0.3s;
+            transition: margin-left 0.3s, width 0.3s;
         }
         .main-content.collapsed {
-            margin-left: 70px;
-            width: calc(100% - 70px);
+            margin-left: 60px;
+            width: calc(100% - 60px);
         }
         h2 {
             text-align: center;
@@ -145,48 +149,44 @@ sqlsrv_close($conn);
             justify-content: space-around; 
         }
         .toggle-button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 10px;
             position: absolute;
-            top: 20px;
-            left: 250px;
-            transition: left 0.3s;
-        }
-        .toggle-button.collapsed {
-            left: 70px;
+            left: 10px;
+            top: 10px;
+            background-color: #111;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
+<button class="toggle-button" onclick="toggleSidebar()">☰</button>
+
 <div class="sidebar">
-    <button class="toggle-button" onclick="toggleSidebar()">☰</button>
-    <a href="#">Home</a>
-    <button class="dropdown-btn">Dashboard 
-        <i class="fa fa-caret-down"></i>
-    </button>
+    <a href="#"><img src="icon_home.png" alt="Home Icon">Home</a>
+    <button class="dropdown-btn"><img src="icon_dashboard.png" alt="Dashboard Icon">Dashboard <i class="fa fa-caret-down"></i></button>
     <div class="dropdown-container">
-        <a href="?station=all">All</a>
-        <a href="?station=A">Station A</a>
-        <a href="?station=B">Station B</a>
-        <a href="?station=C">Station C</a>
-        <a href="?station=D">Station D</a>
-        <a href="?station=E">Station E</a>
-        <a href="?station=F">Station F</a>
-        <a href="?station=G">Station G</a>
+        <a href="?station=all"><img src="icon_all.png" alt="All Icon">All</a>
+        <a href="?station=A"><img src="icon_a.png" alt="Station A Icon">Station A</a>
+        <a href="?station=B"><img src="icon_b.png" alt="Station B Icon">Station B</a>
+        <a href="?station=C"><img src="icon_c.png" alt="Station C Icon">Station C</a>
+        <a href="?station=D"><img src="icon_d.png" alt="Station D Icon">Station D</a>
+        <a href="?station=E"><img src="icon_e.png" alt="Station E Icon">Station E</a>
+        <a href="?station=F"><img src="icon_f.png" alt="Station F Icon">Station F</a>
+        <a href="?station=G"><img src="icon_g.png" alt="Station G Icon">Station G</a>
     </div>
-    <a href="#">List</a>
+    <a href="#"><img src="icon_list.png" alt="List Icon">List</a>
 </div>
 
 <div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
     <?php if ($station !== 'all'): ?>
+        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
             <!-- Bảng Left Rack -->
             <table>
@@ -235,76 +235,85 @@ sqlsrv_close($conn);
 </div>
 
 <script>
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
-    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    // Dữ liệu cho biểu đồ cột
+    const barData = {
+        labels: [<?php foreach ($data as $item) echo '"' . $item['TENKH'] . '", '; ?>],
+        datasets: [{
+            label: 'Number of Pallets',
+            data: [<?php foreach ($data as $item) echo $item['LUONG_PALLET'] . ', '; ?>],
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    };
 
-    // Biểu đồ cột
+    // Dữ liệu cho biểu đồ tròn
+    const pieData = {
+        labels: [<?php foreach ($data as $item) echo '"' . $item['TENKH'] . '", '; ?>],
+        datasets: [{
+            label: 'Number of Pallets',
+            data: [<?php foreach ($data as $item) echo $item['LUONG_PALLET'] . ', '; ?>],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    // Thiết lập biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
+    new Chart(ctxBar, {
         type: 'bar',
-        data: {
-            labels: customerLabels,
-            datasets: [{
-                label: 'Số lượng RFID',
-                data: customerData,
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
+        data: barData,
         options: {
             scales: {
                 y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Số lượng'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Khách hàng'
-                    }
+                    beginAtZero: true
                 }
             }
         }
     });
 
-    // Biểu đồ tròn
+    // Thiết lập biểu đồ tròn
     const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
+    new Chart(ctxPie, {
         type: 'pie',
-        data: {
-            labels: ['Đã sử dụng', 'Còn trống'],
-            datasets: [{
-                label: 'Tình trạng ô',
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['#36A2EB', '#FF6384'],
-                hoverOffset: 4
-            }]
-        }
+        data: pieData,
     });
 
-    // Chức năng thu gọn thanh sidebar
+    // Chức năng thu gọn/không thu gọn sidebar
+    let sidebarCollapsed = false;
+
     function toggleSidebar() {
         const sidebar = document.querySelector('.sidebar');
         const mainContent = document.querySelector('.main-content');
-        const toggleButton = document.querySelector('.toggle-button');
-
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('collapsed');
-        toggleButton.classList.toggle('collapsed');
+        sidebarCollapsed = !sidebarCollapsed;
+        sidebar.classList.toggle('collapsed', sidebarCollapsed);
+        mainContent.classList.toggle('collapsed', sidebarCollapsed);
     }
 
-    // Chức năng xổ xuống của Dashboard
-    document.querySelector('.dropdown-btn').addEventListener('click', function() {
-        this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block';
+    // Hiển thị menu dropdown cho Dashboard
+    const dropdown = document.querySelector('.dropdown-btn');
+    const dropdownContainer = document.querySelector('.dropdown-container');
+    dropdown.addEventListener('click', () => {
+        dropdownContainer.style.display = dropdownContainer.style.display === 'none' ? 'block' : 'none';
     });
 </script>
+
 </body>
 </html>
