@@ -155,7 +155,7 @@ sqlsrv_close($conn);
     <a href="#">List</a>
 </div>
 
-<div class="main-content">
+<div id="dashboard" class="page">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
     <?php if ($station !== 'all'): ?>
