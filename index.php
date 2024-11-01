@@ -51,7 +51,6 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
     <style>
         body {
@@ -67,18 +66,13 @@ sqlsrv_close($conn);
             background-color: #111;
             padding-top: 20px;
             position: fixed;
-            transition: width 0.3s;
         }
-        .sidebar.collapsed {
-            width: 50px; /* Chiều rộng khi thu gọn */
-        }
-        .sidebar a, .sidebar button {
+        .sidebar a {
             padding: 10px 15px;
             text-decoration: none;
             font-size: 18px;
             color: white;
-            display: flex; /* Hiển thị theo chiều dọc */
-            align-items: center; /* Căn giữa biểu tượng và văn bản */
+            display: block;
         }
         .sidebar a:hover {
             background-color: #575757;
@@ -91,6 +85,9 @@ sqlsrv_close($conn);
             width: 100%;
             text-align: left;
             cursor: pointer;
+        }
+        .dropdown-btn:hover {
+            background-color: #575757;
         }
         .dropdown-container {
             display: none;
@@ -135,76 +132,27 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
         }
-
-        .toggle-btn {
-            background-color: transparent;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 10px;
-        }
-
-        .sidebar.collapsed .link-text {
-            display: none; /* Ẩn văn bản khi sidebar thu gọn */
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="sidebar">
-    <button class="toggle-btn">
-        <i class="fa fa-bars"></i> <!-- Biểu tượng để thu gọn -->
+    <a href="#">Home</a>
+    <button class="dropdown-btn">Dashboard 
+        <i class="fa fa-caret-down"></i>
     </button>
-    <div class="sidebar-content">
-        <a href="#">
-            <i class="fa fa-home"></i> <!-- Biểu tượng Home -->
-            <span class="link-text">Home</span>
-        </a>
-        <button class="dropdown-btn">
-            <i class="fa fa-tachometer-alt"></i> <!-- Biểu tượng Dashboard -->
-            <span class="link-text">Dashboard</span>
-        </button>
-        <div class="dropdown-container">
-            <a href="?station=all">
-                <i class="fa fa-th-large"></i> <!-- Biểu tượng All -->
-                <span class="link-text">All</span>
-            </a>
-            <a href="?station=A">
-                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station A -->
-                <span class="link-text">Station A</span>
-            </a>
-            <a href="?station=B">
-                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station B -->
-                <span class="link-text">Station B</span>
-            </a>
-            <a href="?station=C">
-                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station C -->
-                <span class="link-text">Station C</span>
-            </a>
-            <a href="?station=D">
-                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station D -->
-                <span class="link-text">Station D</span>
-            </a>
-            <a href="?station=E">
-                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station E -->
-                <span class="link-text">Station E</span>
-            </a>
-            <a href="?station=F">
-                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station F -->
-                <span class="link-text">Station F</span>
-            </a>
-            <a href="?station=G">
-                <i class="fa fa-warehouse"></i> <!-- Biểu tượng Station G -->
-                <span class="link-text">Station G</span>
-            </a>
-        </div>
-        <a href="#">
-            <i class="fa fa-list"></i> <!-- Biểu tượng List -->
-            <span class="link-text">List</span>
-        </a>
+    <div class="dropdown-container">
+        <a href="?station=all">All</a>
+        <a href="?station=A">Station A</a>
+        <a href="?station=B">Station B</a>
+        <a href="?station=C">Station C</a>
+        <a href="?station=D">Station D</a>
+        <a href="?station=E">Station E</a>
+        <a href="?station=F">Station F</a>
+        <a href="?station=G">Station G</a>
     </div>
+    <a href="#">List</a>
 </div>
 
 <div class="main-content">
@@ -245,77 +193,114 @@ sqlsrv_close($conn);
         </div>
     <?php endif; ?>
 
-    <!-- Bảng dữ liệu -->
-    <div class="container">
-        <table>
-            <caption>Data Table</caption>
-            <thead>
-                <tr>
-                    <th>MAKH</th>
-                    <th>TENKH</th>
-                    <th>LUONG_PALLET</th>
-                    <th>RFID</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($data as $row): ?>
-                    <tr>
-                        <td><?= $row['MAKH'] ?></td>
-                        <td><?= $row['TENKH'] ?></td>
-                        <td><?= $row['LUONG_PALLET'] ?></td>
-                        <td><?= $row['RFID'] ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
     <!-- Biểu đồ -->
-    <div class="chart-container">
-        <canvas id="myChart"></canvas>
+    <div class="charts">
+        <!-- Biểu đồ cột -->
+        <div class="chart-container">
+            <canvas id="barChart"></canvas>
+        </div>
+
+        <!-- Biểu đồ tròn -->
+        <div class="chart-container">
+            <canvas id="pieChart"></canvas>
+        </div>
     </div>
 </div>
 
 <script>
-    // Biểu đồ sử dụng Chart.js
-    const ctx = document.getElementById('myChart').getContext('2d');
-    const myChart = new Chart(ctx, {
+    // Dữ liệu biểu đồ
+    const customers = <?= json_encode($customers) ?>;
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+
+    // Biểu đồ cột
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: <?= json_encode(array_keys($customers)) ?>,
+            labels: customerLabels,
             datasets: [{
-                label: 'Số lượng Pallet',
-                data: <?= json_encode(array_map(function($customer) {
-                    return count($customer);
-                }, $customers)) ?>,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
+                label: 'Used Slots',
+                data: customerData,
+                backgroundColor: 'rgba(54, 162, 235, 1)',
+                borderColor: 'white',
+                borderWidth: 2
             }]
         },
         options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                }
+            },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Used Slots',
+                        color: 'white'
+                    },
+                    grid: {
+                        color: 'white'
+                    },
+                    ticks: {
+                        color: 'white',
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'white'
+                    },
+                    ticks: {
+                        color: 'white'
+                    }
                 }
             }
         }
     });
 
-    // Xử lý thu gọn sidebar
-    document.querySelector('.toggle-btn').addEventListener('click', () => {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.classList.toggle('collapsed');
-        const dropdowns = document.querySelectorAll('.dropdown-container');
-        dropdowns.forEach(dropdown => dropdown.style.display = 'none'); // Ẩn tất cả dropdowns khi thu gọn
+    // Biểu đồ tròn
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Used', 'Remaining'],
+            datasets: [{
+                data: [filledSlots, totalSlots - filledSlots],
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                }
+            }
+        }
     });
 
-    // Xử lý dropdown cho Dashboard
-    const dropdownBtn = document.querySelector('.dropdown-btn');
-    dropdownBtn.addEventListener('click', () => {
-        const dropdownContainer = document.querySelector('.dropdown-container');
-        dropdownContainer.style.display = dropdownContainer.style.display === 'block' ? 'none' : 'block';
+    // Dropdown logic
+    document.querySelector('.dropdown-btn').addEventListener('click', function() {
+        this.classList.toggle('active');
+        const dropdownContent = this.nextElementSibling;
+        if (dropdownContent.style.display === 'block') {
+            dropdownContent.style.display = 'none';
+        } else {
+            dropdownContent.style.display = 'block';
+        }
     });
 </script>
+
 </body>
 </html>
