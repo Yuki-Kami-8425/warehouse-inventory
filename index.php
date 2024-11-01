@@ -56,7 +56,7 @@ sqlsrv_close($conn);
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #001F3F; /* Xanh đậm */
+            background-color: #001F3F; /* Màu nền */
             color: white; /* Màu chữ trắng */
             display: flex;
         }
@@ -160,49 +160,44 @@ sqlsrv_close($conn);
 <div class="main-content" id="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
-    <?php if ($station !== 'all'): ?>
-        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
-        <div class="container">
-            <!-- Bảng Left Rack -->
-            <table>
-                <caption>Left Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
+    <!-- Phần hiển thị kho -->
+    <div class="container">
+        <!-- Bảng Left Rack -->
+        <table>
+            <caption>Left Rack</caption>
+            <?php for ($row = 7; $row >= 1; $row--): ?>
+                <tr>
+                    <?php for ($col = 1; $col <= 14; $col++): ?>
+                        <?php $index = ($row - 1) * 14 + $col; ?>
+                        <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                            <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                        </td>
+                    <?php endfor; ?>
+                </tr>
+            <?php endfor; ?>
+        </table>
 
-            <!-- Bảng Right Rack -->
-            <table>
-                <caption>Right Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
-        </div>
-    <?php endif; ?>
+        <!-- Bảng Right Rack -->
+        <table>
+            <caption>Right Rack</caption>
+            <?php for ($row = 7; $row >= 1; $row--): ?>
+                <tr>
+                    <?php for ($col = 1; $col <= 14; $col++): ?>
+                        <?php $index = ($row - 1) * 14 + $col; ?>
+                        <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                            <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                        </td>
+                    <?php endfor; ?>
+                </tr>
+            <?php endfor; ?>
+        </table>
+    </div>
 
     <!-- Biểu đồ -->
     <div class="charts">
-        <!-- Biểu đồ cột -->
         <div class="chart-container">
             <canvas id="barChart"></canvas>
         </div>
-
-        <!-- Biểu đồ tròn -->
         <div class="chart-container">
             <canvas id="pieChart"></canvas>
         </div>
@@ -210,26 +205,38 @@ sqlsrv_close($conn);
 </div>
 
 <script>
+    // Toggle sidebar
+    const toggleButton = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    toggleButton.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('collapsed');
+        toggleButton.innerHTML = sidebar.classList.contains('collapsed') ? '<i class="fas fa-angle-right"></i>' : '<i class="fas fa-angle-left"></i>';
+    });
+
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho từng khách hàng
+    const customerLabels = Object.keys(customers);
+    const customerData = customerLabels.map(label => customers[label].length);
 
     // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(barCtx, {
         type: 'bar',
         data: {
             labels: customerLabels,
             datasets: [{
                 label: 'Số lượng RFID',
                 data: customerData,
-                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
             }]
         },
         options: {
+            responsive: true,
             scales: {
                 y: {
                     beginAtZero: true
@@ -239,45 +246,39 @@ sqlsrv_close($conn);
     });
 
     // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(pieCtx, {
         type: 'pie',
         data: {
             labels: customerLabels,
             datasets: [{
-                label: 'Số lượng RFID',
                 data: customerData,
-                backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(255, 99, 132, 0.5)'],
-                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 99, 132, 1)'],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 99, 132, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
                 borderWidth: 1
             }]
-        }
-    });
-
-    // Logic thu gọn thanh sidebar
-    const toggleSidebarBtn = document.getElementById('toggleSidebar');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
-
-    toggleSidebarBtn.addEventListener('click', function() {
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('collapsed');
-        this.innerHTML = sidebar.classList.contains('collapsed') ? '<i class="fas fa-angle-right"></i>' : '<i class="fas fa-angle-left"></i>';
-    });
-
-    // Logic cho dropdown
-    const dropdownBtn = document.querySelector('.dropdown-btn');
-    const dropdownContainer = document.querySelector('.dropdown-container');
-
-    dropdownBtn.addEventListener('click', function() {
-        dropdownContainer.style.display = dropdownContainer.style.display === 'block' ? 'none' : 'block';
-    });
-
-    window.addEventListener('click', function(event) {
-        if (!dropdownBtn.contains(event.target) && !dropdownContainer.contains(event.target)) {
-            dropdownContainer.style.display = 'none';
+        },
+        options: {
+            responsive: true
         }
     });
 </script>
+
 </body>
 </html>
