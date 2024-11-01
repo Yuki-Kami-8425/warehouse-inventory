@@ -52,120 +52,144 @@ sqlsrv_close($conn);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM7Jbgtv/5ZlSk1BpGtv3DeD3sI5XfT1E6z9dRe" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Basic resets */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; background-color: #001F3F; color: #FFF; display: flex; }
-        
-        /* Sidebar styling */
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #1a1a2e;
-            padding-top: 20px;
-            position: fixed;
-            transition: width 0.3s;
-            overflow: hidden;
-        }
-        .sidebar a, .dropdown-btn {
-            padding: 12px 20px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #f1f1f1;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.2s;
-            white-space: nowrap;
-        }
-        .sidebar a:hover, .dropdown-btn:hover { background-color: #575757; }
-        .dropdown-btn i { margin-left: auto; transition: transform 0.3s; }
-        .dropdown-container { display: none; background-color: #333; padding-left: 30px; }
-        
-        /* Main content styling */
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            width: calc(100% - 250px);
-            transition: margin-left 0.3s, width 0.3s;
-        }
-        
-        /* Table and chart styling */
-        .container { display: flex; justify-content: space-around; margin: 20px 0; }
-        table {
-            width: 40%;
-            border-collapse: collapse;
-            font-size: 10px;
-            background-color: #222;
-        }
-        th, td { border: 1px solid #444; padding: 8px; text-align: center; color: #ddd; }
-        td.highlight { background-color: #32CD32; }
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #001F3F;
+    color: white;
+    display: flex;
+}
 
-        /* Chart styling */
-        .chart-container { width: 45%; }
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #111;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+}
+
+.sidebar-logo, .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-logo {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.sidebar-item:hover {
+    background-color: #575757;
+}
+
+.sidebar-item i {
+    font-size: 18px;
+    width: 30px;
+}
+
+.sidebar-item .sidebar-text {
+    display: inline-block;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-text {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.dropdown-container {
+    display: none;
+    flex-direction: column;
+}
+
+.sidebar.collapsed .dropdown-container {
+    display: none;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    width: calc(100% - 250px);
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed + .main-content {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+}
+
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-<div class="sidebar">
-    <a href="#">Home</a>
-    <button class="dropdown-btn">Dashboard <i class="fas fa-caret-down"></i></button>
+<div class="sidebar" id="sidebar">
+    <a href="#" class="sidebar-logo"><i class="fas fa-warehouse"></i><span class="sidebar-text">Warehouse</span></a>
+    <a href="#" class="sidebar-item"><i class="fas fa-home"></i><span class="sidebar-text">Home</span></a>
+    <button class="dropdown-btn sidebar-item"><i class="fas fa-chart-bar"></i><span class="sidebar-text">Dashboard</span><i class="fa fa-caret-down"></i></button>
     <div class="dropdown-container">
-        <a href="?station=all">All</a>
-        <a href="?station=A">Station A</a>
-        <a href="?station=B">Station B</a>
-        <a href="?station=C">Station C</a>
-        <a href="?station=D">Station D</a>
-        <a href="?station=E">Station E</a>
-        <a href="?station=F">Station F</a>
-        <a href="?station=G">Station G</a>
+        <a href="?station=all" class="sidebar-item"><i class="fas fa-globe"></i><span class="sidebar-text">All</span></a>
+        <?php foreach (range('A', 'G') as $s): ?>
+            <a href="?station=<?= $s ?>" class="sidebar-item"><i class="fas fa-map-marker-alt"></i><span class="sidebar-text">Station <?= $s ?></span></a>
+        <?php endforeach; ?>
     </div>
-    <a href="#">List</a>
+    <a href="#" class="sidebar-item"><i class="fas fa-list"></i><span class="sidebar-text">List</span></a>
+    <button id="toggle-btn" class="sidebar-item"><i class="fas fa-bars"></i></button>
 </div>
 
 <div class="main-content">
-    <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
+<h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
-    <?php if ($station !== 'all'): ?>
-        <div class="container">
-            <!-- Bảng Left Rack -->
-            <table>
-                <caption>Left Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
+<?php if ($station !== 'all'): ?>
+    <div class="container">
+        <!-- Bảng Left Rack -->
+        <table>
+            <caption>Left Rack</caption>
+            <?php for ($row = 7; $row >= 1; $row--): ?>
+                <tr>
+                    <?php for ($col = 1; $col <= 14; $col++): ?>
+                        <?php $index = ($row - 1) * 14 + $col; ?>
+                        <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                            <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                        </td>
+                    <?php endfor; ?>
+                </tr>
+            <?php endfor; ?>
+        </table>
 
-            <!-- Bảng Right Rack -->
-            <table>
-                <caption>Right Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endfor; ?>
-            </table>
-        </div>
-    <?php endif; ?>
-
-    <!-- Biểu đồ -->
-    <div class="charts">
-        <div class="chart-container"><canvas id="barChart"></canvas></div>
-        <div class="chart-container"><canvas id="pieChart"></canvas></div>
+        <!-- Bảng Right Rack -->
+        <table>
+            <caption>Right Rack</caption>
+            <?php for ($row = 7; $row >= 1; $row--): ?>
+                <tr>
+                    <?php for ($col = 1; $col <= 14; $col++): ?>
+                        <?php $index = ($row - 1) * 14 + $col; ?>
+                        <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                            <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                        </td>
+                    <?php endfor; ?>
+                </tr>
+            <?php endfor; ?>
+        </table>
     </div>
+<?php endif; ?>
+
+<!-- Biểu đồ -->
+<div class="charts">
+    <div class="chart-container"><canvas id="barChart"></canvas></div>
+    <div class="chart-container"><canvas id="pieChart"></canvas></div>
+</div>
+</div>
 </div>
 
 <script>
@@ -207,5 +231,17 @@ sqlsrv_close($conn);
     });
 </script>
 
+<script>
+    // Dropdown and Sidebar Toggle Script
+    document.querySelector('.dropdown-btn').addEventListener('click', function() {
+        this.classList.toggle('active');
+        const dropdownContent = this.nextElementSibling;
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    });
+    document.getElementById('toggle-btn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+    });
+</script>
 </body>
 </html>
+
