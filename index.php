@@ -27,19 +27,22 @@ if ($station === 'all') {
 }
 $stmt = sqlsrv_query($conn, $sql, $params ?? null);
 
+// Kiểm tra lỗi khi truy vấn
 if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
+// Tạo mảng để lưu dữ liệu
 $data = [];
 $customers = [];
 $highlighted = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $data[] = $row;
-    $customers[$row['MAKH']][] = $row['RFID'];
-    $highlighted[] = trim($row['RFID']);
+    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
+    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
 
+// Đóng kết nối
 sqlsrv_close($conn);
 ?>
 
@@ -49,82 +52,114 @@ sqlsrv_close($conn);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Thêm Font Awesome -->
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #001F3F;
-            color: white;
+            background-color: #001F3F; /* Xanh đậm */
+            color: white; /* Màu chữ trắng */
             display: flex;
+            margin: 0;
         }
-        
         /* Sidebar styling */
         .sidebar {
             height: 100vh;
-            width: 250px;
+            width: 60px; /* Kích thước thanh sidebar */
             background-color: #111;
             padding-top: 20px;
             position: fixed;
-            transition: width 0.3s;
-        }
-        .sidebar.collapsed {
-            width: 80px;
+            transition: width 0.2s; /* Hiệu ứng chuyển đổi khi thu gọn */
         }
         .sidebar a, .sidebar button {
-            padding: 10px 20px;
+            padding: 10px;
             text-decoration: none;
-            font-size: 18px;
             color: white;
-            display: flex;
-            align-items: center;
-            transition: background 0.3s;
+            display: block;
+            text-align: center;
         }
-        .sidebar a:hover, .sidebar button:hover {
+        .sidebar a:hover, .dropdown-btn:hover {
             background-color: #575757;
-        }
-        .sidebar .icon {
-            margin-right: 15px;
-            transition: margin 0.3s;
-        }
-        .sidebar.collapsed .icon {
-            margin-right: 0;
-        }
-        .sidebar .link-text {
-            transition: opacity 0.3s;
-        }
-        .sidebar.collapsed .link-text {
-            opacity: 0;
         }
         .dropdown-container {
             display: none;
             background-color: #262626;
         }
+        /* Chỉ hiển thị icon khi thu gọn */
+        .sidebar.collapsed {
+            width: 60px;
+        }
+        .sidebar.collapsed a, .sidebar.collapsed button {
+            padding: 10px 0;
+        }
+        .icon {
+            display: block;
+        }
+        .icon.hide-text {
+            display: none; /* Ẩn text khi thu gọn */
+        }
 
         /* Main content styling */
         .main-content {
-            margin-left: 250px;
+            margin-left: 60px; /* Căn giữa nội dung chính */
             padding: 20px;
             width: 100%;
+            transition: margin-left 0.2s;
         }
+        .collapsed + .main-content {
+            margin-left: 60px; /* Thay đổi khi sidebar thu gọn */
+        }
+
         h2 {
             text-align: center;
         }
-        /* Rest of the styling for tables, charts, and general layout... */
-
+        .container {
+            display: flex; 
+            justify-content: space-around; 
+            margin: 20px;
+        }
+        table {
+            width: 30%;
+            border-collapse: collapse;
+            font-size: 8px;
+        }
+        th, td {
+            border: 2px solid white;
+            padding: 5px;
+            text-align: center;
+        }
+        td.highlight {
+            background-color: #32CD32;
+        }
+        .chart-container {
+            width: 40%; 
+            margin: 20px;
+        }
+        .charts {
+            display: flex; 
+            justify-content: space-around; 
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="sidebar">
-    <button class="dropdown-btn"><i class="fas fa-bars icon"></i><span class="link-text">Menu</span></button>
-    <a href="#"><i class="fas fa-home icon"></i><span class="link-text">Home</span></a>
-    <button class="dropdown-btn"><i class="fas fa-chart-bar icon"></i><span class="link-text">Dashboard</span></button>
+    <button class="collapse-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i> <!-- Icon để thu gọn -->
+    </button>
+    <a href="#" class="icon"><i class="fas fa-home"></i><span class="hide-text">Home</span></a>
+    <button class="dropdown-btn icon"><i class="fas fa-chart-bar"></i><span class="hide-text">Dashboard</span></button>
     <div class="dropdown-container">
-        <a href="?station=all"><i class="fas fa-th-list icon"></i><span class="link-text">All Stations</span></a>
-        <a href="?station=A"><i class="fas fa-industry icon"></i><span class="link-text">Station A</span></a>
-        <!-- Add links for other stations as needed -->
+        <a href="?station=all"><i class="fas fa-th"></i><span class="hide-text">All</span></a>
+        <a href="?station=A"><i class="fas fa-cube"></i><span class="hide-text">Station A</span></a>
+        <a href="?station=B"><i class="fas fa-cube"></i><span class="hide-text">Station B</span></a>
+        <a href="?station=C"><i class="fas fa-cube"></i><span class="hide-text">Station C</span></a>
+        <a href="?station=D"><i class="fas fa-cube"></i><span class="hide-text">Station D</span></a>
+        <a href="?station=E"><i class="fas fa-cube"></i><span class="hide-text">Station E</span></a>
+        <a href="?station=F"><i class="fas fa-cube"></i><span class="hide-text">Station F</span></a>
+        <a href="?station=G"><i class="fas fa-cube"></i><span class="hide-text">Station G</span></a>
     </div>
-    <a href="#"><i class="fas fa-list icon"></i><span class="link-text">List</span></a>
+    <a href="#" class="icon"><i class="fas fa-list"></i><span class="hide-text">List</span></a>
 </div>
 
 <div class="main-content">
@@ -180,59 +215,29 @@ sqlsrv_close($conn);
 </div>
 
 <script>
-        // Dữ liệu biểu đồ
-        const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
-    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    // Dữ liệu cho biểu đồ
+    const labels = <?= json_encode(array_keys($customers)); ?>;
+    const values = <?= json_encode(array_map('count', $customers)); ?>;
 
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
     const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: customerLabels,
+            labels: labels,
             datasets: [{
-                label: 'Used Slots',
-                data: customerData,
-                backgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: 'white',
-                borderWidth: 2
+                label: 'Number of RFID',
+                data: values,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            },
             scales: {
                 y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Used Slots',
-                        color: 'white'
-                    },
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white',
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white'
-                    }
+                    beginAtZero: true
                 }
             }
         }
@@ -243,44 +248,46 @@ sqlsrv_close($conn);
     const pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
-            labels: ['Used', 'Remaining'],
+            labels: labels,
             datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                borderColor: 'white',
-                borderWidth: 2
+                data: values,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 205, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(201, 203, 207, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(201, 203, 207, 1)',
+                ],
+                borderWidth: 1
             }]
         },
         options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            }
+            responsive: true,
         }
     });
 
-    // Dropdown logic
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('collapsed');
+        document.querySelector('.main-content').classList.toggle('collapsed');
+    }
+
+    // Logic cho dropdown
     document.querySelector('.dropdown-btn').addEventListener('click', function() {
         this.classList.toggle('active');
         const dropdownContent = this.nextElementSibling;
-        if (dropdownContent.style.display === 'block') {
-            dropdownContent.style.display = 'none';
-        } else {
-            dropdownContent.style.display = 'block';
-        }
-    });
-    document.querySelectorAll('.dropdown-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.classList.toggle('active');
-            const dropdownContent = this.nextElementSibling;
-            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-        });
-    });
-    document.querySelector('.dropdown-btn').addEventListener('click', function() {
-        document.querySelector('.sidebar').classList.toggle('collapsed');
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
     });
 </script>
 
