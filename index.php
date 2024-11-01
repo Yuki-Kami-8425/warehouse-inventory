@@ -50,89 +50,59 @@ sqlsrv_close($conn);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM7Jbgtv/5ZlSk1BpGtv3DeD3sI5XfT1E6z9dRe" crossorigin="anonymous">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #001F3F; /* Xanh đậm */
-            color: white; /* Màu chữ trắng */
-            display: flex;
-        }
+        /* Basic resets */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background-color: #001F3F; color: #FFF; display: flex; }
+        
         /* Sidebar styling */
         .sidebar {
             height: 100vh;
             width: 250px;
-            background-color: #111;
+            background-color: #1a1a2e;
             padding-top: 20px;
             position: fixed;
+            transition: width 0.3s;
+            overflow: hidden;
         }
-        .sidebar a {
-            padding: 10px 15px;
+        .sidebar a, .dropdown-btn {
+            padding: 12px 20px;
             text-decoration: none;
             font-size: 18px;
-            color: white;
-            display: block;
+            color: #f1f1f1;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+            white-space: nowrap;
         }
-        .sidebar a:hover {
-            background-color: #575757;
-        }
-        .dropdown-btn {
-            background-color: #111;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-        }
-        .dropdown-btn:hover {
-            background-color: #575757;
-        }
-        .dropdown-container {
-            display: none;
-            background-color: #262626;
-        }
-        .dropdown-container a {
-            padding-left: 30px;
-        }
-
+        .sidebar a:hover, .dropdown-btn:hover { background-color: #575757; }
+        .dropdown-btn i { margin-left: auto; transition: transform 0.3s; }
+        .dropdown-container { display: none; background-color: #333; padding-left: 30px; }
+        
         /* Main content styling */
         .main-content {
             margin-left: 250px;
             padding: 20px;
-            width: 100%;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s, width 0.3s;
         }
-        h2 {
-            text-align: center;
-        }
-        .container {
-            display: flex; 
-            justify-content: space-around; 
-            margin: 20px;
-        }
+        
+        /* Table and chart styling */
+        .container { display: flex; justify-content: space-around; margin: 20px 0; }
         table {
-            width: 30%;
+            width: 40%;
             border-collapse: collapse;
-            font-size: 8px;
+            font-size: 10px;
+            background-color: #222;
         }
-        th, td {
-            border: 2px solid white;
-            padding: 5px;
-            text-align: center;
-        }
-        td.highlight {
-            background-color: #32CD32;
-        }
-        .chart-container {
-            width: 40%; 
-            margin: 20px;
-        }
-        .charts {
-            display: flex; 
-            justify-content: space-around; 
-        }
+        th, td { border: 1px solid #444; padding: 8px; text-align: center; color: #ddd; }
+        td.highlight { background-color: #32CD32; }
+
+        /* Chart styling */
+        .chart-container { width: 45%; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -140,29 +110,24 @@ sqlsrv_close($conn);
 
 <div class="sidebar">
     <a href="#">Home</a>
-    <button class="dropdown-btn">Dashboard 
-        <i class="fa fa-caret-down"></i>
-    </button>
+    <button class="dropdown-btn">Dashboard <i class="fas fa-caret-down"></i></button>
     <div class="dropdown-container">
-    <ul class="station-list">
-        <li><a href="?station=all" class="station-link"><i class="fas fa-th-list"></i> <span class="link-text">All</span></a></li>
-        <li><a href="?station=A" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station A</span></a></li>
-        <li><a href="?station=B" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station B</span></a></li>
-        <li><a href="?station=C" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station C</span></a></li>
-        <li><a href="?station=D" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station D</span></a></li>
-        <li><a href="?station=E" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station E</span></a></li>
-        <li><a href="?station=F" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station F</span></a></li>
-        <li><a href="?station=G" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station G</span></a></li>
-    </ul>
-</div>
+        <a href="?station=all">All</a>
+        <a href="?station=A">Station A</a>
+        <a href="?station=B">Station B</a>
+        <a href="?station=C">Station C</a>
+        <a href="?station=D">Station D</a>
+        <a href="?station=E">Station E</a>
+        <a href="?station=F">Station F</a>
+        <a href="?station=G">Station G</a>
+    </div>
     <a href="#">List</a>
 </div>
 
-<div id="dashboard" class="page">
+<div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
     <?php if ($station !== 'all'): ?>
-        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
             <!-- Bảng Left Rack -->
             <table>
@@ -198,110 +163,47 @@ sqlsrv_close($conn);
 
     <!-- Biểu đồ -->
     <div class="charts">
-        <!-- Biểu đồ cột -->
-        <div class="chart-container">
-            <canvas id="barChart"></canvas>
-        </div>
-
-        <!-- Biểu đồ tròn -->
-        <div class="chart-container">
-            <canvas id="pieChart"></canvas>
-        </div>
+        <div class="chart-container"><canvas id="barChart"></canvas></div>
+        <div class="chart-container"><canvas id="pieChart"></canvas></div>
     </div>
 </div>
 
 <script>
-    // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
-    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    const customerLabels = Object.keys(customers);
+    const customerData = customerLabels.map(key => customers[key].length);
+    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>);
+    const filledSlots = <?= count($highlighted) ?>;
 
     // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
+    new Chart(document.getElementById('barChart').getContext('2d'), {
         type: 'bar',
         data: {
             labels: customerLabels,
-            datasets: [{
-                label: 'Used Slots',
-                data: customerData,
-                backgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: 'white',
-                borderWidth: 2
-            }]
+            datasets: [{ label: 'Used Slots', data: customerData, backgroundColor: 'rgba(54, 162, 235, 1)', borderColor: 'white', borderWidth: 2 }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            },
+            plugins: { legend: { labels: { color: 'white' } } },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Used Slots',
-                        color: 'white'
-                    },
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white',
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white'
-                    }
-                }
+                y: { beginAtZero: true, title: { display: true, text: 'Number of Used Slots', color: 'white' }, ticks: { color: 'white' }, grid: { color: '#333' } },
+                x: { ticks: { color: 'white' }, grid: { color: '#333' } }
             }
         }
     });
 
     // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
+    new Chart(document.getElementById('pieChart').getContext('2d'), {
         type: 'pie',
-        data: {
-            labels: ['Used', 'Remaining'],
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            }
-        }
+        data: { labels: ['Used', 'Remaining'], datasets: [{ data: [filledSlots, totalSlots - filledSlots], backgroundColor: ['#FF6384', '#36A2EB'], borderWidth: 1 }] },
+        options: { plugins: { legend: { labels: { color: 'white' } } } }
     });
 
     // Dropdown logic
     document.querySelector('.dropdown-btn').addEventListener('click', function() {
         this.classList.toggle('active');
         const dropdownContent = this.nextElementSibling;
-        if (dropdownContent.style.display === 'block') {
-            dropdownContent.style.display = 'none';
-        } else {
-            dropdownContent.style.display = 'block';
-        }
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
     });
 </script>
 
