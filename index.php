@@ -51,6 +51,7 @@ sqlsrv_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
     <style>
         body {
@@ -66,38 +67,23 @@ sqlsrv_close($conn);
             background-color: #111;
             padding-top: 20px;
             position: fixed;
-            transition: width 0.3s;
+            transition: width 0.3s; /* Hiệu ứng khi thu gọn */
         }
         .sidebar.collapsed {
-            width: 60px;
+            width: 80px; /* Kích thước khi thu gọn */
         }
-        .sidebar a {
+        .sidebar a, .dropdown-btn {
             padding: 10px 15px;
             text-decoration: none;
-            font-size: 16px; /* Cỡ chữ đã được điều chỉnh */
+            font-size: 16px;
             color: white;
             display: flex;
-            align-items: center; /* Căn giữa icon và chữ */
+            align-items: center; /* Canh giữa icon và text */
         }
-        .sidebar a img {
-            width: 24px; /* Kích thước icon */
-            margin-right: 10px; /* Khoảng cách giữa icon và chữ */
+        .sidebar a i, .dropdown-btn i {
+            margin-right: 10px; /* Khoảng cách giữa icon và text */
         }
         .sidebar a:hover {
-            background-color: #575757;
-        }
-        .dropdown-btn {
-            background-color: #111;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        .dropdown-btn:hover {
             background-color: #575757;
         }
         .dropdown-container {
@@ -112,12 +98,11 @@ sqlsrv_close($conn);
         .main-content {
             margin-left: 250px;
             padding: 20px;
-            width: calc(100% - 250px);
-            transition: margin-left 0.3s, width 0.3s;
+            width: 100%;
+            transition: margin-left 0.3s; /* Hiệu ứng khi thu gọn */
         }
         .main-content.collapsed {
-            margin-left: 60px;
-            width: calc(100% - 60px);
+            margin-left: 80px; /* Kích thước khi thu gọn */
         }
         h2 {
             text-align: center;
@@ -148,47 +133,47 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
         }
-        .toggle-button {
+
+        /* Icon thu gọn sidebar */
+        .toggle-btn {
             position: absolute;
-            left: 10px;
             top: 10px;
+            right: -25px; /* Đặt ở bên phải sidebar */
             background-color: #111;
-            color: white;
             border: none;
-            padding: 10px;
+            color: white;
             cursor: pointer;
-            transition: all 0.3s;
+            font-size: 18px;
+            padding: 10px;
+            transition: right 0.3s;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<button class="toggle-button" onclick="toggleSidebar()">☰</button>
-
 <div class="sidebar">
-    <a href="#"><img src="icon_home.png" alt="Home Icon">Home</a>
-    <button class="dropdown-btn"><img src="icon_dashboard.png" alt="Dashboard Icon">Dashboard <i class="fa fa-caret-down"></i></button>
+    <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button> <!-- Icon thu gọn -->
+    <a href="#"><i class="fas fa-home"></i> Home</a>
+    <button class="dropdown-btn"><i class="fas fa-tachometer-alt"></i> Dashboard <i class="fa fa-caret-down"></i></button>
     <div class="dropdown-container">
-        <a href="?station=all"><img src="icon_all.png" alt="All Icon">All</a>
-        <a href="?station=A"><img src="icon_a.png" alt="Station A Icon">Station A</a>
-        <a href="?station=B"><img src="icon_b.png" alt="Station B Icon">Station B</a>
-        <a href="?station=C"><img src="icon_c.png" alt="Station C Icon">Station C</a>
-        <a href="?station=D"><img src="icon_d.png" alt="Station D Icon">Station D</a>
-        <a href="?station=E"><img src="icon_e.png" alt="Station E Icon">Station E</a>
-        <a href="?station=F"><img src="icon_f.png" alt="Station F Icon">Station F</a>
-        <a href="?station=G"><img src="icon_g.png" alt="Station G Icon">Station G</a>
+        <a href="?station=all"><i class="fas fa-box"></i> All</a>
+        <a href="?station=A"><i class="fas fa-box"></i> Station A</a>
+        <a href="?station=B"><i class="fas fa-box"></i> Station B</a>
+        <a href="?station=C"><i class="fas fa-box"></i> Station C</a>
+        <a href="?station=D"><i class="fas fa-box"></i> Station D</a>
+        <a href="?station=E"><i class="fas fa-box"></i> Station E</a>
+        <a href="?station=F"><i class="fas fa-box"></i> Station F</a>
+        <a href="?station=G"><i class="fas fa-box"></i> Station G</a>
     </div>
-    <a href="#"><img src="icon_list.png" alt="List Icon">List</a>
+    <a href="#"><i class="fas fa-list"></i> List</a>
 </div>
 
 <div class="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
     <?php if ($station !== 'all'): ?>
-        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
-            <!-- Bảng Left Rack -->
             <table>
                 <caption>Left Rack</caption>
                 <?php for ($row = 7; $row >= 1; $row--): ?>
@@ -203,7 +188,6 @@ sqlsrv_close($conn);
                 <?php endfor; ?>
             </table>
 
-            <!-- Bảng Right Rack -->
             <table>
                 <caption>Right Rack</caption>
                 <?php for ($row = 7; $row >= 1; $row--): ?>
@@ -222,12 +206,9 @@ sqlsrv_close($conn);
 
     <!-- Biểu đồ -->
     <div class="charts">
-        <!-- Biểu đồ cột -->
         <div class="chart-container">
             <canvas id="barChart"></canvas>
         </div>
-
-        <!-- Biểu đồ tròn -->
         <div class="chart-container">
             <canvas id="pieChart"></canvas>
         </div>
@@ -260,7 +241,7 @@ sqlsrv_close($conn);
                 'rgba(75, 192, 192, 0.2)',
                 'rgba(153, 102, 255, 0.2)',
                 'rgba(255, 159, 64, 0.2)',
-                'rgba(255, 99, 132, 0.2)'
+                'rgba(255, 205, 86, 0.2)'
             ],
             borderColor: [
                 'rgba(255, 99, 132, 1)',
@@ -269,15 +250,13 @@ sqlsrv_close($conn);
                 'rgba(75, 192, 192, 1)',
                 'rgba(153, 102, 255, 1)',
                 'rgba(255, 159, 64, 1)',
-                'rgba(255, 99, 132, 1)'
+                'rgba(255, 205, 86, 1)'
             ],
             borderWidth: 1
         }]
     };
 
-    // Thiết lập biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    new Chart(ctxBar, {
+    const barChartConfig = {
         type: 'bar',
         data: barData,
         options: {
@@ -287,33 +266,46 @@ sqlsrv_close($conn);
                 }
             }
         }
-    });
+    };
 
-    // Thiết lập biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    new Chart(ctxPie, {
+    const pieChartConfig = {
         type: 'pie',
-        data: pieData,
-    });
+        data: pieData
+    };
 
-    // Chức năng thu gọn/không thu gọn sidebar
-    let sidebarCollapsed = false;
+    const barChart = new Chart(
+        document.getElementById('barChart'),
+        barChartConfig
+    );
 
+    const pieChart = new Chart(
+        document.getElementById('pieChart'),
+        pieChartConfig
+    );
+
+    // Hàm thu gọn sidebar
     function toggleSidebar() {
         const sidebar = document.querySelector('.sidebar');
         const mainContent = document.querySelector('.main-content');
-        sidebarCollapsed = !sidebarCollapsed;
-        sidebar.classList.toggle('collapsed', sidebarCollapsed);
-        mainContent.classList.toggle('collapsed', sidebarCollapsed);
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('collapsed');
     }
 
-    // Hiển thị menu dropdown cho Dashboard
+    // Dropdown toggle
     const dropdown = document.querySelector('.dropdown-btn');
-    const dropdownContainer = document.querySelector('.dropdown-container');
-    dropdown.addEventListener('click', () => {
-        dropdownContainer.style.display = dropdownContainer.style.display === 'none' ? 'block' : 'none';
-    });
-</script>
+    dropdown.onclick = function () {
+        this.nextElementSibling.classList.toggle('show');
+    };
 
+    // Đóng dropdown nếu nhấp bên ngoài
+    window.onclick = function (event) {
+        if (!event.target.matches('.dropdown-btn')) {
+            const dropdowns = document.getElementsByClassName("dropdown-container");
+            for (let i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].classList.remove('show');
+            }
+        }
+    };
+</script>
 </body>
 </html>
