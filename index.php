@@ -50,6 +50,7 @@ sqlsrv_close($conn);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
     <style>
@@ -143,15 +144,17 @@ sqlsrv_close($conn);
         <i class="fa fa-caret-down"></i>
     </button>
     <div class="dropdown-container">
-        <a href="?station=all">All</a>
-        <a href="?station=A">Station A</a>
-        <a href="?station=B">Station B</a>
-        <a href="?station=C">Station C</a>
-        <a href="?station=D">Station D</a>
-        <a href="?station=E">Station E</a>
-        <a href="?station=F">Station F</a>
-        <a href="?station=G">Station G</a>
-    </div>
+    <ul class="station-list">
+        <li><a href="?station=all" class="station-link"><i class="fas fa-th-list"></i> <span class="link-text">All</span></a></li>
+        <li><a href="?station=A" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station A</span></a></li>
+        <li><a href="?station=B" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station B</span></a></li>
+        <li><a href="?station=C" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station C</span></a></li>
+        <li><a href="?station=D" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station D</span></a></li>
+        <li><a href="?station=E" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station E</span></a></li>
+        <li><a href="?station=F" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station F</span></a></li>
+        <li><a href="?station=G" class="station-link"><i class="fas fa-industry"></i> <span class="link-text">Station G</span></a></li>
+    </ul>
+</div>
     <a href="#">List</a>
 </div>
 
