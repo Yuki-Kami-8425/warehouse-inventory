@@ -164,13 +164,19 @@ sqlsrv_close($conn);
             flex-direction: column; /* Đặt chiều dọc */
             align-items: center; /* Căn giữa */
         }
-        /* Hiệu ứng hover và màu khi được chọn */
+        /* Hiệu ứng hover thay đổi màu chữ */
         .sidebar a:hover, .dropdown-btn:hover {
-            background-color: #32CD32; /* Màu lục tươi khi hover */
+            color: #32CD32; /* Màu lục tươi khi hover */
         }
 
+        /* Màu chữ khi được chọn */
         .sidebar a.active, .dropdown-btn.active {
-            background-color: #1E90FF; /* Màu lam tươi khi được chọn */
+            color: #1E90FF; /* Màu lam tươi khi được chọn */
+        }
+
+        /* Đảm bảo các icon không thay đổi màu */
+        .sidebar a i, .dropdown-btn i {
+            color: inherit; /* Để icon có cùng màu với chữ */
         }
         /* Hiệu ứng tooltip */
         .sidebar a, .dropdown-btn {
