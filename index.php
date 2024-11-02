@@ -169,23 +169,53 @@ sqlsrv_close($conn);
     <li>
         <a href="#" onclick="showPage('home');" class="main-link">
             <i class="fas fa-home"></i>
-            <span class="link-text"> Home</span>
+            <span class="link-text">Home</span>
         </a>
     </li>
 
-    <button class="dropdown-btn">Dashboard <i class="fas fa-tachometer-alt"></i></button>
+    <button class="dropdown-btn">
+        <i class="fas fa-tachometer-alt"></i>
+        <span class="link-text">Dashboard</span>
+    </button>
     <div class="dropdown-container">
-        <a href="?station=all">All <i class="fas fa-th-list"></i></a>
-        <a href="?station=A">Station A <i class="fas fa-industry"></i></a>
-        <a href="?station=B">Station B <i class="fas fa-industry"></i></a>
-        <a href="?station=C">Station C <i class="fas fa-industry"></i></a>
-        <a href="?station=D">Station D <i class="fas fa-industry"></i></a>
-        <a href="?station=E">Station E <i class="fas fa-industry"></i></a>
-        <a href="?station=F">Station F <i class="fas fa-industry"></i></a>
-        <a href="?station=G">Station G <i class="fas fa-industry"></i></a>
+        <a href="?station=all">
+            <i class="fas fa-th-list"></i>
+            <span class="link-text">All</span>
+        </a>
+        <a href="?station=A">
+            <i class="fas fa-industry"></i>
+            <span class="link-text">Station A</span>
+        </a>
+        <a href="?station=B">
+            <i class="fas fa-industry"></i>
+            <span class="link-text">Station B</span>
+        </a>
+        <a href="?station=C">
+            <i class="fas fa-industry"></i>
+            <span class="link-text">Station C</span>
+        </a>
+        <a href="?station=D">
+            <i class="fas fa-industry"></i>
+            <span class="link-text">Station D</span>
+        </a>
+        <a href="?station=E">
+            <i class="fas fa-industry"></i>
+            <span class="link-text">Station E</span>
+        </a>
+        <a href="?station=F">
+            <i class="fas fa-industry"></i>
+            <span class="link-text">Station F</span>
+        </a>
+        <a href="?station=G">
+            <i class="fas fa-industry"></i>
+            <span class="link-text">Station G</span>
+        </a>
     </div>
 
-    <a href="#">List <i class="fas fa-list"></i></a>
+    <a href="#">
+        <i class="fas fa-list"></i>
+        <span class="link-text">List</span>
+    </a>
     <button id="toggleSidebar" style="background: none; border: none; color: white; cursor: pointer; padding: 10px 15px;">
         <i class="fas fa-angle-left"></i>
     </button>
