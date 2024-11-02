@@ -56,7 +56,7 @@ sqlsrv_close($conn);
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #001F3F; /* Màu nền */
+            background-color: #001F3F; /* Xanh đậm */
             color: white; /* Màu chữ trắng */
             display: flex;
         }
@@ -139,18 +139,29 @@ sqlsrv_close($conn);
 <body>
 
 <div class="sidebar" id="sidebar">
-    <a href="#">Home <i class="fas fa-home"></i></a>
-    <button class="dropdown-btn">Dashboard <i class="fas fa-caret-down"></i></button>
+    <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <li>
+        <a href="#" onclick="showPage('home');" class="main-link">
+            <i class="fas fa-home"></i>
+            <span class="link-text"> Home</span>
+        </a>
+    </li>
+
+    <button class="dropdown-btn">Dashboard <i class="fas fa-tachometer-alt"></i></button>
     <div class="dropdown-container">
-        <a href="?station=all">All <i class="fas fa-warehouse"></i></a>
-        <a href="?station=A">Station A <i class="fas fa-location-arrow"></i></a>
-        <a href="?station=B">Station B <i class="fas fa-location-arrow"></i></a>
-        <a href="?station=C">Station C <i class="fas fa-location-arrow"></i></a>
+        <a href="?station=all">All <i class="fas fa-th-list"></i></a>
+        <a href="?station=A">Station A <i class="fas fa-industry"></i></a>
+        <a href="?station=B">Station B <i class="fas fa-industry"></i></a>
+        <a href="?station=C">Station C <i class="fas fa-industry"></i></a>
         <a href="?station=D">Station D <i class="fas fa-location-arrow"></i></a>
-        <a href="?station=E">Station E <i class="fas fa-location-arrow"></i></a>
-        <a href="?station=F">Station F <i class="fas fa-location-arrow"></i></a>
-        <a href="?station=G">Station G <i class="fas fa-location-arrow"></i></a>
+        <a href="?station=E">Station E <i class="fas fa-industry"></i></a>
+        <a href="?station=F">Station F <i class="fas fa-industry"></i></a>
+        <a href="?station=G">Station G <i class="fas fa-industry"></i></a>
     </div>
+
     <a href="#">List <i class="fas fa-list"></i></a>
     <button id="toggleSidebar" style="background: none; border: none; color: white; cursor: pointer; padding: 10px 15px;">
         <i class="fas fa-angle-left"></i>
@@ -160,44 +171,49 @@ sqlsrv_close($conn);
 <div class="main-content" id="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
 
-    <!-- Phần hiển thị kho -->
-    <div class="container">
-        <!-- Bảng Left Rack -->
-        <table>
-            <caption>Left Rack</caption>
-            <?php for ($row = 7; $row >= 1; $row--): ?>
-                <tr>
-                    <?php for ($col = 1; $col <= 14; $col++): ?>
-                        <?php $index = ($row - 1) * 14 + $col; ?>
-                        <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                            <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                        </td>
-                    <?php endfor; ?>
-                </tr>
-            <?php endfor; ?>
-        </table>
+    <?php if ($station !== 'all'): ?>
+        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
+        <div class="container">
+            <!-- Bảng Left Rack -->
+            <table>
+                <caption>Left Rack</caption>
+                <?php for ($row = 7; $row >= 1; $row--): ?>
+                    <tr>
+                        <?php for ($col = 1; $col <= 14; $col++): ?>
+                            <?php $index = ($row - 1) * 14 + $col; ?>
+                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                                <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                            </td>
+                        <?php endfor; ?>
+                    </tr>
+                <?php endfor; ?>
+            </table>
 
-        <!-- Bảng Right Rack -->
-        <table>
-            <caption>Right Rack</caption>
-            <?php for ($row = 7; $row >= 1; $row--): ?>
-                <tr>
-                    <?php for ($col = 1; $col <= 14; $col++): ?>
-                        <?php $index = ($row - 1) * 14 + $col; ?>
-                        <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                            <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                        </td>
-                    <?php endfor; ?>
-                </tr>
-            <?php endfor; ?>
-        </table>
-    </div>
+            <!-- Bảng Right Rack -->
+            <table>
+                <caption>Right Rack</caption>
+                <?php for ($row = 7; $row >= 1; $row--): ?>
+                    <tr>
+                        <?php for ($col = 1; $col <= 14; $col++): ?>
+                            <?php $index = ($row - 1) * 14 + $col; ?>
+                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                                <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                            </td>
+                        <?php endfor; ?>
+                    </tr>
+                <?php endfor; ?>
+            </table>
+        </div>
+    <?php endif; ?>
 
     <!-- Biểu đồ -->
     <div class="charts">
+        <!-- Biểu đồ cột -->
         <div class="chart-container">
             <canvas id="barChart"></canvas>
         </div>
+
+        <!-- Biểu đồ tròn -->
         <div class="chart-container">
             <canvas id="pieChart"></canvas>
         </div>
@@ -205,80 +221,96 @@ sqlsrv_close($conn);
 </div>
 
 <script>
-    // Toggle sidebar
-    const toggleButton = document.getElementById('toggleSidebar');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
-
-    toggleButton.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('collapsed');
-        toggleButton.innerHTML = sidebar.classList.contains('collapsed') ? '<i class="fas fa-angle-right"></i>' : '<i class="fas fa-angle-left"></i>';
-    });
-
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers);
-    const customerData = customerLabels.map(label => customers[label].length);
+        // Dữ liệu biểu đồ
+        const customers = <?= json_encode($customers) ?>;
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
     // Biểu đồ cột
-    const barCtx = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(barCtx, {
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
             labels: customerLabels,
             datasets: [{
-                label: 'Số lượng RFID',
+                label: 'Used Slots',
                 data: customerData,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
+                backgroundColor: 'rgba(54, 162, 235, 1)',
+                borderColor: 'white',
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                }
+            },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Used Slots',
+                        color: 'white'
+                    },
+                    grid: {
+                        color: 'white'
+                    },
+                    ticks: {
+                        color: 'white',
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'white'
+                    },
+                    ticks: {
+                        color: 'white'
+                    }
                 }
             }
         }
     });
 
     // Biểu đồ tròn
-    const pieCtx = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(pieCtx, {
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
-            labels: customerLabels,
+            labels: ['Used', 'Remaining'],
             datasets: [{
-                data: customerData,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(255, 99, 132, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(255, 99, 132, 1)'
-                ],
-                borderWidth: 1
+                data: [filledSlots, totalSlots - filledSlots],
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderColor: 'white',
+                borderWidth: 2
             }]
         },
         options: {
-            responsive: true
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                }
+            }
+        }
+    });
+
+    // Dropdown logic
+    document.querySelector('.dropdown-btn').addEventListener('click', function() {
+        this.classList.toggle('active');
+        const dropdownContent = this.nextElementSibling;
+        if (dropdownContent.style.display === 'block') {
+            dropdownContent.style.display = 'none';
+        } else {
+            dropdownContent.style.display = 'block';
         }
     });
 </script>
-
-</body>
-</html>
