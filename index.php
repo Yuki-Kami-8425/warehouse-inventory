@@ -164,6 +164,33 @@ sqlsrv_close($conn);
             flex-direction: column; /* Đặt chiều dọc */
             align-items: center; /* Căn giữa */
         }
+        /* Hiệu ứng hover và màu khi được chọn */
+        .sidebar a:hover, .dropdown-btn:hover {
+            background-color: #32CD32; /* Màu lục tươi khi hover */
+        }
+
+        .sidebar a.active, .dropdown-btn.active {
+            background-color: #1E90FF; /* Màu lam tươi khi được chọn */
+        }
+        /* Hiệu ứng tooltip */
+        .sidebar a, .dropdown-btn {
+            position: relative;
+        }
+        .sidebar a:hover::after, .dropdown-btn:hover::after {
+            content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
+            position: absolute;
+            left: 100%; /* Hiển thị tooltip bên phải của phần tử */
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #000; /* Màu nền tooltip */
+            color: #fff; /* Màu chữ tooltip */
+            padding: 5px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+            z-index: 1;
+            opacity: 0.8; /* Độ mờ của tooltip */
+            margin-left: 10px; /* Khoảng cách giữa tooltip và phần tử */
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -175,7 +202,7 @@ sqlsrv_close($conn);
     </button>
 
     <li>
-        <a href="#" onclick="showPage('home');" class="main-link">
+        <a href="#" onclick="showPage('home');" class="main-link" data-tooltip="Go to Home">
             <i class="fas fa-home"></i>
             <span class="link-text">Home</span>
         </a>
