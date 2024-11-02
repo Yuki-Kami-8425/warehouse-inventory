@@ -74,6 +74,15 @@ sqlsrv_close($conn);
         .sidebar.collapsed {
             width: 60px; /* Kích thước sidebar khi thu gọn */
         }
+        .sidebar.collapsed .link-text {
+            display: none; /* Ẩn chữ khi sidebar thu gọn */
+        }
+        .sidebar a i {
+            margin-right: 0; /* Bỏ khoảng cách giữa icon và chữ */
+        }
+        .sidebar.collapsed a i {
+            margin-right: 0; /* Đảm bảo không có khoảng cách khi chỉ có icon */
+        }
         .sidebar a, .dropdown-btn {
             padding: 10px 15px;
             text-decoration: none;
@@ -95,7 +104,6 @@ sqlsrv_close($conn);
         .dropdown-container a {
             padding-left: 30px;
         }
-
         /* Main content styling */
         .main-content {
             margin-left: 250px;
@@ -363,18 +371,20 @@ sqlsrv_close($conn);
             dropdownContent.style.display = 'block';
         }
     });
+
     function toggleSidebar() {
     let sidebar = document.getElementById('sidebar');
-    let content = document.querySelector('.content');
+    let content = document.querySelector('.main-content'); // Đảm bảo có phần tử main-content nếu cần
 
-    if (sidebar.classList.contains('collapsed')) {
-        sidebar.classList.remove('collapsed');
-        content.classList.remove('collapsed');
-    } else {
-        sidebar.classList.add('collapsed');
-        content.classList.add('collapsed');
+    // Toggle lớp 'collapsed' cho sidebar
+    sidebar.classList.toggle('collapsed');
+    if (content) {
+        content.classList.toggle('collapsed'); // Chỉ thêm nếu bạn muốn nội dung cũng thay đổi vị trí
     }
-
-    updateFooterPosition(); // Cập nhật vị trí của footer sau khi thay đổi thanh công cụ
+    
+    // Cập nhật footer nếu cần thiết
+    if (typeof updateFooterPosition === 'function') {
+        updateFooterPosition();
+    }
 }
 </script>
