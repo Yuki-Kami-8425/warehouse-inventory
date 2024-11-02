@@ -62,11 +62,13 @@ sqlsrv_close($conn);
         }
         /* Sidebar styling */
         .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #111;
-            padding-top: 20px;
             position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 200px;
+            background-color: #2c3e50; /* Màu nền thanh bên */
+            padding-top: 60px;
             transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
         }
         .sidebar.collapsed {
@@ -133,6 +135,27 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
         }
+        .toggle-btn {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
+            color: white; /* Màu của biểu tượng */
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
+            border-radius: 5px; /* Bo góc một chút */
+            transform: scale(1.1); /* Phóng to một chút */
+            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+        }
+        .home-container {
+            display: flex; /* Sử dụng flexbox để căn chỉnh */
+            flex-direction: column; /* Đặt chiều dọc */
+            align-items: center; /* Căn giữa */
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -156,7 +179,7 @@ sqlsrv_close($conn);
         <a href="?station=A">Station A <i class="fas fa-industry"></i></a>
         <a href="?station=B">Station B <i class="fas fa-industry"></i></a>
         <a href="?station=C">Station C <i class="fas fa-industry"></i></a>
-        <a href="?station=D">Station D <i class="fas fa-location-arrow"></i></a>
+        <a href="?station=D">Station D <i class="fas fa-industry"></i></a>
         <a href="?station=E">Station E <i class="fas fa-industry"></i></a>
         <a href="?station=F">Station F <i class="fas fa-industry"></i></a>
         <a href="?station=G">Station G <i class="fas fa-industry"></i></a>
@@ -221,8 +244,8 @@ sqlsrv_close($conn);
 </div>
 
 <script>
-        // Dữ liệu biểu đồ
-        const customers = <?= json_encode($customers) ?>;
+    // Dữ liệu biểu đồ
+    const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
     const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
@@ -313,4 +336,18 @@ sqlsrv_close($conn);
             dropdownContent.style.display = 'block';
         }
     });
+    function toggleSidebar() {
+    let sidebar = document.getElementById('sidebar');
+    let content = document.querySelector('.content');
+
+    if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        content.classList.remove('collapsed');
+    } else {
+        sidebar.classList.add('collapsed');
+        content.classList.add('collapsed');
+    }
+
+    updateFooterPosition(); // Cập nhật vị trí của footer sau khi thay đổi thanh công cụ
+}
 </script>
