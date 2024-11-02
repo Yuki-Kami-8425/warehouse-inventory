@@ -94,9 +94,6 @@ sqlsrv_close($conn);
         .sidebar a i, .dropdown-btn i {
             margin-right: 10px; /* Khoảng cách giữa icon và chữ */
         }
-        .sidebar a:hover, .dropdown-btn:hover {
-            background-color: #575757;
-        }
         .dropdown-container {
             display: none;
             background-color: #262626;
@@ -168,12 +165,23 @@ sqlsrv_close($conn);
         .sidebar a:hover, .dropdown-btn:hover {
             color: #32CD32; /* Màu lục tươi khi hover */
         }
-
         /* Màu chữ khi được chọn */
         .sidebar a.active, .dropdown-btn.active {
             color: #1E90FF; /* Màu lam tươi khi được chọn */
         }
+        .sidebar a {
+            display: block;
+            color: #fff; /* Màu chữ */
+            text-decoration: none;
+            padding: 10px;
+            transition: background-color 0.3s ease;
+        }
 
+        /* Bỏ hiệu ứng nền xám khi hover */
+        .sidebar a:hover {
+            background-color: transparent; /* Hoặc bạn có thể không cần dòng này */
+            color: #fff; /* Giữ màu chữ */
+        }
         /* Đảm bảo các icon không thay đổi màu */
         .sidebar a i, .dropdown-btn i {
             color: inherit; /* Để icon có cùng màu với chữ */
@@ -214,46 +222,46 @@ sqlsrv_close($conn);
         </a>
     </li>
 
-    <button class="dropdown-btn">
+    <button class="dropdown-btn" onclick="toggleDropdown()">
         <i class="fas fa-tachometer-alt"></i>
         <span class="link-text">Dashboard</span>
     </button>
     <div class="dropdown-container">
-        <a href="?station=all">
+        <a href="?station=all" onclick="showPage('all');">
             <i class="fas fa-th-list"></i>
             <span class="link-text">All</span>
         </a>
-        <a href="?station=A">
+        <a href="?station=A" onclick="showPage('A');">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station A</span>
         </a>
-        <a href="?station=B">
+        <a href="?station=B" onclick="showPage('B');">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station B</span>
         </a>
-        <a href="?station=C">
+        <a href="?station=C" onclick="showPage('C');">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station C</span>
         </a>
-        <a href="?station=D">
+        <a href="?station=D" onclick="showPage('D');">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station D</span>
         </a>
-        <a href="?station=E">
+        <a href="?station=E" onclick="showPage('E');">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station E</span>
         </a>
-        <a href="?station=F">
+        <a href="?station=F" onclick="showPage('F');">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station F</span>
         </a>
-        <a href="?station=G">
+        <a href="?station=G" onclick="showPage('G');">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station G</span>
         </a>
     </div>
 
-    <a href="#">
+    <a href="#" onclick="showPage('list');">
         <i class="fas fa-list"></i>
         <span class="link-text">List</span>
     </a>
@@ -418,6 +426,23 @@ sqlsrv_close($conn);
     // Cập nhật footer nếu cần thiết
     if (typeof updateFooterPosition === 'function') {
         updateFooterPosition();
-    }
-}
+    }}   
+
+    document.querySelectorAll('.sidebar a').forEach(item => {
+        item.addEventListener('click', function(e) {
+            const dashboardDropdown = document.querySelector('.dashboard-dropdown'); // Thay đổi theo cấu trúc của bạn
+
+            if (this.classList.contains('dashboard')) {
+                // Nếu nút dashboard được chọn, không ẩn dropdown
+                dashboardDropdown.classList.toggle('show');
+            } else if (this.classList.contains('home') || this.classList.contains('list')) {
+                // Nếu chọn home hoặc list, ẩn dropdown
+                if (dashboardDropdown.classList.contains('show')) {
+                    dashboardDropdown.classList.remove('show');
+                }
+            } else {
+                // Các nút khác có thể không ảnh hưởng đến dropdown
+            }
+        });
+    });
 </script>
