@@ -216,9 +216,6 @@ sqlsrv_close($conn);
         <i class="fas fa-list"></i>
         <span class="link-text">List</span>
     </a>
-    <button id="toggleSidebar" style="background: none; border: none; color: white; cursor: pointer; padding: 10px 15px;">
-        <i class="fas fa-angle-left"></i>
-    </button>
 </div>
 
 <div class="main-content" id="main-content">
