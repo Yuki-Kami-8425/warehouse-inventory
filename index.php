@@ -272,6 +272,29 @@ sqlsrv_close($conn);
 
 <div class="main-content" id="main-content">
     <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
+    <?php if ($station === 'home'): ?>
+    <div id="home" class="page">
+        <div class="slideshow-container">
+            <div class="slide">
+                <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                <img class="slide-image" src="Picture1.png" alt="Slide 1">
+            </div>
+            <div class="slide">
+                <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                <img class="slide-image" src="Picture2.png" alt="Slide 2">
+            </div>
+            <div class="slide">
+                <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                <img class="slide-image" src="Picture3.png" alt="Slide 3">
+            </div>
+            <div class="dots">
+                <span class="dot" onclick="showSlide(1)"></span>
+                <span class="dot" onclick="showSlide(2)"></span>
+                <span class="dot" onclick="showSlide(3)"></span>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
     <?php if ($station !== 'all'): ?>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
@@ -443,4 +466,19 @@ sqlsrv_close($conn);
         });
     });
 
-</script>
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('station') || urlParams.get('station') === 'home') {
+            showPage('home');
+        } else {
+            showPage('data');
+        }
+    };
+    </script>
