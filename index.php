@@ -92,6 +92,7 @@ sqlsrv_close($conn);
             padding: 10px 15px;
             text-decoration: none;
             font-size: 18px;
+            color: white;
             display: flex;
             align-items: center;
         }
@@ -174,6 +175,7 @@ sqlsrv_close($conn);
             text-decoration: none;
             padding: 10px;
             transition: background-color 0.3s ease;
+            background-color: none;
         }
         /* Hiệu ứng hover cho toàn bộ chữ và icon trong sidebar */
         .sidebar a:hover, .dropdown-btn:hover {
