@@ -59,159 +59,179 @@ sqlsrv_close($conn);
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #001F3F; /* Xanh đậm */
-            color: white; /* Màu chữ trắng */
-            display: flex;
-        }
-        /* Sidebar styling */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 200px;
-            background-color: #2c3e50; /* Màu nền thanh bên */
-            padding-top: 60px;
-            transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
-        }
-        .sidebar.collapsed {
-            width: 60px; /* Kích thước sidebar khi thu gọn */
-        }
-        .sidebar.collapsed .link-text {
-            display: none; /* Ẩn chữ khi sidebar thu gọn */
-        }
-        .sidebar a i {
-            margin-right: 0; /* Bỏ khoảng cách giữa icon và chữ */
-        }
-        .sidebar.collapsed a i {
-            margin-right: 0; /* Đảm bảo không có khoảng cách khi chỉ có icon */
-        }
-        .sidebar a, .dropdown-btn {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: flex;
-            align-items: center;
-        }
-        .sidebar a i, .dropdown-btn i {
-            margin-right: 10px; /* Khoảng cách giữa icon và chữ */
-        }
-        .dropdown-container {
-            display: none;
-            background-color: #262626;
-        }
-        .dropdown-container a {
-            padding-left: 30px;
-        }
-        .dropdown-container.show {
-            display: block; /* Hiển thị dropdown khi có class 'show' */
-        }
-        /* Main content styling */
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            width: 100%;
-            transition: margin-left 0.3s; /* Hiệu ứng chuyển đổi khi sidebar thu gọn */
-        }
-        .main-content.collapsed {
-            margin-left: 60px; /* Kích thước margin khi sidebar thu gọn */
-        }
-        h2 {
-            text-align: center;
-        }
-        .container {
-            display: flex; 
-            justify-content: space-around; 
-            margin: 20px;
-        }
-        table {
-            width: 30%;
-            border-collapse: collapse;
-            font-size: 8px;
-        }
-        th, td {
-            border: 2px solid white;
-            padding: 5px;
-            text-align: center;
-        }
-        td.highlight {
-            background-color: #32CD32;
-        }
-        .chart-container {
-            width: 40%; 
-            margin: 20px;
-        }
-        .charts {
-            display: flex; 
-            justify-content: space-around; 
-        }
-        .toggle-btn {
-            position: absolute;
-            top: 15px;
-            left: 10px;
-            font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
-            color: white; /* Màu của biểu tượng */
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-        .toggle-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
-            border-radius: 5px; /* Bo góc một chút */
-            transform: scale(1.1); /* Phóng to một chút */
-            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
-        }
-        .home-container {
-            display: flex; /* Sử dụng flexbox để căn chỉnh */
-            flex-direction: column; /* Đặt chiều dọc */
-            align-items: center; /* Căn giữa */
-        }
-        /* Hiệu ứng hover thay đổi màu chữ */
-        .sidebar a:hover, .dropdown-btn:hover {
-            color: #32CD32; /* Màu lục tươi khi hover */
-        }
-        /* Màu chữ khi được chọn */
-        .sidebar a.active, .dropdown-btn.active {
-            color: #1E90FF; /* Màu lam tươi khi được chọn */
-        }
-        .sidebar a {
-            display: block;
-            color: #fff; /* Màu chữ */
-            text-decoration: none;
-            padding: 10px;
-            transition: background-color 0.3s ease;
-        }
-        /* Hiệu ứng hover cho toàn bộ chữ và icon trong sidebar */
-        .sidebar a:hover, .dropdown-btn:hover {
-            color: #32CD32; /* Màu chữ khi hover */
-            background-color: rgba(255, 255, 255, 0.1); /* Nền khi hover */
-        }
-        /* Đảm bảo icon cũng thay đổi màu sắc khi hover */
-        .sidebar a:hover i, .dropdown-btn:hover i {
-            color: #32CD32; /* Màu icon khi hover */
-        }
-        /* Hiệu ứng tooltip */
-        .sidebar a, .dropdown-btn {
-            position: relative;
-        }
-        .sidebar a:hover::after, .dropdown-btn:hover::after {
-            content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
-            position: absolute;
-            left: 100%; /* Hiển thị tooltip bên phải của phần tử */
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: #000; /* Màu nền tooltip */
-            color: #fff; /* Màu chữ tooltip */
-            padding: 5px 10px;
-            border-radius: 5px;
-            white-space: nowrap;
-            z-index: 1;
-            opacity: 0.8; /* Độ mờ của tooltip */
-            margin-left: 10px; /* Khoảng cách giữa tooltip và phần tử */
-        }
+/* Đặt font chữ và màu nền cho toàn bộ trang */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #001F3F; /* Màu xanh đậm */
+    color: white; /* Màu chữ trắng */
+    display: flex;
+    margin: 0; /* Bỏ khoảng cách mặc định */
+    height: 100vh; /* Chiều cao tối đa cho body */
+}
+
+/* Styling cho sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 200px; /* Chiều rộng mặc định của sidebar */
+    background-color: #2c3e50; /* Màu nền sidebar */
+    padding-top: 60px; /* Khoảng cách phía trên */
+    transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
+    overflow-y: auto; /* Cuộn khi nội dung nhiều */
+}
+
+.sidebar.collapsed {
+    width: 60px; /* Chiều rộng khi thu gọn */
+}
+
+.sidebar.collapsed .link-text {
+    display: none; /* Ẩn chữ khi sidebar thu gọn */
+}
+
+/* Styling cho các liên kết trong sidebar */
+.sidebar a, .dropdown-btn {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 16px; /* Kích thước chữ dễ đọc hơn */
+    color: white;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Hiệu ứng chuyển đổi cho màu nền và chữ */
+}
+
+.sidebar a:hover, .dropdown-btn:hover {
+    color: #32CD32; /* Màu chữ khi hover */
+    background-color: rgba(255, 255, 255, 0.1); /* Nền khi hover */
+}
+
+/* Đảm bảo icon cũng thay đổi màu sắc khi hover */
+.sidebar a i, .dropdown-btn i {
+    margin-right: 10px; /* Khoảng cách giữa icon và chữ */
+    transition: color 0.3s ease; /* Hiệu ứng chuyển đổi cho icon */
+}
+
+/* Styling cho dropdown */
+.dropdown-container {
+    display: none;
+    background-color: #262626;
+}
+
+.dropdown-container a {
+    padding-left: 30px; /* Khoảng cách bên trái cho các mục trong dropdown */
+}
+
+.dropdown-container.show {
+    display: block; /* Hiển thị dropdown khi có class 'show' */
+}
+
+/* Styling cho nội dung chính */
+.main-content {
+    margin-left: 250px; /* Khoảng cách bên trái cho nội dung chính */
+    padding: 20px;
+    width: 100%;
+    transition: margin-left 0.3s; /* Hiệu ứng chuyển đổi khi sidebar thu gọn */
+}
+
+.main-content.collapsed {
+    margin-left: 60px; /* Chiều rộng khi sidebar thu gọn */
+}
+
+/* Đặt tiêu đề căn giữa */
+h2 {
+    text-align: center;
+}
+
+/* Styling cho các container */
+.container {
+    display: flex; 
+    justify-content: space-around; 
+    margin: 20px 0; /* Thêm khoảng cách trên và dưới */
+}
+
+/* Styling cho bảng */
+table {
+    width: 30%;
+    border-collapse: collapse;
+    font-size: 12px; /* Kích thước chữ bảng */
+}
+
+th, td {
+    border: 2px solid white;
+    padding: 10px; /* Tăng khoảng cách bên trong */
+    text-align: center;
+}
+
+td.highlight {
+    background-color: #32CD32; /* Màu nền cho ô nổi bật */
+}
+
+/* Styling cho biểu đồ */
+.chart-container {
+    width: 40%; 
+    margin: 20px;
+}
+
+.charts {
+    display: flex; 
+    justify-content: space-around; 
+}
+
+/* Styling cho nút thu gọn sidebar */
+.toggle-btn {
+    position: absolute;
+    top: 15px;
+    left: 10px;
+    font-size: 24px; /* Kích thước biểu tượng thu gọn */
+    color: white; /* Màu của biểu tượng */
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Styling cho phần slideshow */
+.home-container {
+    display: flex; /* Sử dụng flexbox để căn chỉnh */
+    flex-direction: column; /* Đặt chiều dọc */
+    align-items: center; /* Căn giữa */
+}
+
+/* Hiệu ứng hover cho sidebar */
+.sidebar a:hover, .dropdown-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Nền nhẹ hơn khi hover */
+}
+
+/* Hiệu ứng tooltip */
+.sidebar a, .dropdown-btn {
+    position: relative;
+}
+
+.sidebar a:hover::after, .dropdown-btn:hover::after {
+    content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
+    position: absolute;
+    left: 100%; /* Hiển thị tooltip bên phải của phần tử */
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.9); /* Màu nền tooltip */
+    color: #fff; /* Màu chữ tooltip */
+    padding: 5px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 1;
+    margin-left: 10px; /* Khoảng cách giữa tooltip và phần tử */
+}
+
+/* Responsive design cho sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100px; /* Kích thước sidebar trên thiết bị nhỏ */
+    }
+
+    .main-content {
+        margin-left: 100px; /* Để tránh chồng lấp */
+    }
+}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -346,75 +366,75 @@ sqlsrv_close($conn);
                 </div>
          </div>
 
-        <?php elseif ($station === 'all'): ?>
-            <!-- Biểu đồ -->
-            <div class="charts">
-                <!-- Biểu đồ cột -->
-                <div class="chart-container">
-                    <canvas id="barChart"></canvas>
-                </div>
-
-                <!-- Biểu đồ tròn -->
-                <div class="chart-container">
-                    <canvas id="pieChart"></canvas>
-                </div>
+    <?php elseif ($station === 'all'): ?>
+        <!-- Biểu đồ -->
+        <div class="charts">
+            <!-- Biểu đồ cột -->
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
             </div>
-        <?php elseif ($station === 'list'): ?>
-            <h2>Danh sách kho hàng</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Số chứng từ</th>
-                        <th>Ngày chứng từ</th>
-                        <th>Mã khách hàng</th>
-                        <th>Tên khách hàng</th>
-                        <th>Mã sản phẩm</th>
-                        <th>Tên sản phẩm</th>
-                        <th>Đơn vị</th>
-                        <th>Số lượng pallet</th>
-                        <th>RFID</th>
-                        <th>Trạng thái pallet</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // Kết nối đến cơ sở dữ liệu
-                    $conn = new mysqli($servername, $username, $password, $dbname);
-                    
-                    // Kiểm tra kết nối
-                    if ($conn->connect_error) {
-                        die("Kết nối thất bại: " . $conn->connect_error);
+
+            <!-- Biểu đồ tròn -->
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+    <?php elseif ($station === 'list'): ?>
+        <h2>Danh sách kho hàng</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Số chứng từ</th>
+                    <th>Ngày chứng từ</th>
+                    <th>Mã khách hàng</th>
+                    <th>Tên khách hàng</th>
+                    <th>Mã sản phẩm</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Đơn vị</th>
+                    <th>Số lượng pallet</th>
+                    <th>RFID</th>
+                    <th>Trạng thái pallet</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                // Kết nối đến cơ sở dữ liệu
+                $conn = new mysqli($servername, $username, $password, $dbname);
+                
+                // Kiểm tra kết nối
+                if ($conn->connect_error) {
+                    die("Kết nối thất bại: " . $conn->connect_error);
+                }
+
+                // Truy vấn dữ liệu
+                $sql = "SELECT TOP (1000) [SOCT], [NGAYCT], [MAKH], [TENKH], [MASP], [TENSP], [DONVI], [LUONG_PALLET], [RFID], [PALLET_status] FROM [dbo].[stored_warehouse]";
+                $result = $conn->query($sql);
+
+                // Hiển thị dữ liệu
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        echo "<tr>
+                                <td>" . htmlspecialchars($row['SOCT']) . "</td>
+                                <td>" . htmlspecialchars($row['NGAYCT']) . "</td>
+                                <td>" . htmlspecialchars($row['MAKH']) . "</td>
+                                <td>" . htmlspecialchars($row['TENKH']) . "</td>
+                                <td>" . htmlspecialchars($row['MASP']) . "</td>
+                                <td>" . htmlspecialchars($row['TENSP']) . "</td>
+                                <td>" . htmlspecialchars($row['DONVI']) . "</td>
+                                <td>" . htmlspecialchars($row['LUONG_PALLET']) . "</td>
+                                <td>" . htmlspecialchars($row['RFID']) . "</td>
+                                <td>" . htmlspecialchars($row['PALLET_status']) . "</td>
+                            </tr>";
                     }
+                } else {
+                    echo "<tr><td colspan='10'>Không có dữ liệu</td></tr>";
+                }
 
-                    // Truy vấn dữ liệu
-                    $sql = "SELECT TOP (1000) [SOCT], [NGAYCT], [MAKH], [TENKH], [MASP], [TENSP], [DONVI], [LUONG_PALLET], [RFID], [PALLET_status] FROM [dbo].[stored_warehouse]";
-                    $result = $conn->query($sql);
-
-                    // Hiển thị dữ liệu
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
-                            echo "<tr>
-                                    <td>" . htmlspecialchars($row['SOCT']) . "</td>
-                                    <td>" . htmlspecialchars($row['NGAYCT']) . "</td>
-                                    <td>" . htmlspecialchars($row['MAKH']) . "</td>
-                                    <td>" . htmlspecialchars($row['TENKH']) . "</td>
-                                    <td>" . htmlspecialchars($row['MASP']) . "</td>
-                                    <td>" . htmlspecialchars($row['TENSP']) . "</td>
-                                    <td>" . htmlspecialchars($row['DONVI']) . "</td>
-                                    <td>" . htmlspecialchars($row['LUONG_PALLET']) . "</td>
-                                    <td>" . htmlspecialchars($row['RFID']) . "</td>
-                                    <td>" . htmlspecialchars($row['PALLET_status']) . "</td>
-                                </tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='10'>Không có dữ liệu</td></tr>";
-                    }
-
-                    // Đóng kết nối
-                    $conn->close();
-                    ?>
-                </tbody>
-            </table>
+                // Đóng kết nối
+                $conn->close();
+                ?>
+            </tbody>
+        </table>
     <?php endif; ?>
 </div>
 
