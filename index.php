@@ -212,8 +212,8 @@ sqlsrv_close($conn);
         .sidebar a.dashboard {
             background-color: transparent; /* Đảm bảo nền của nút Dashboard trong suốt */
         }
-        .sidebar a:focus, .sidebar a:active, .dropdown-btn:focus, .dropdown-btn:active {
-            color: #00aaff; /* Màu xanh lam tươi khi được chọn */
+        .sidebar a.active, .dropdown-btn.active {
+            color: #00aaff; /* Màu xanh lam tươi khi nút được chọn */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -509,12 +509,34 @@ sqlsrv_close($conn);
     document.querySelector('.dropdown-btn').addEventListener('click', function() {
         this.classList.toggle('active');
         const dropdownContent = this.nextElementSibling;
-        if (dropdownContent.style.display === 'block') {
-            dropdownContent.style.display = 'none';
-        } else {
-            dropdownContent.style.display = 'block';
-        }
+        dropdownContent.classList.toggle('show'); // Sử dụng class để hiện/ẩn dropdown
     });
+
+    // Giữ dropdown cho Dashboard khi đã xổ xuống
+    const dashboardButton = document.querySelector('.dropdown-toggle'); // Nút Dashboard
+    const homeButton = document.querySelector('#home-button'); // Nút Home
+    const listButton = document.querySelector('#list-button'); // Nút List
+
+    homeButton.addEventListener('click', function() {
+        const dropdown = document.querySelector('.dropdown-container');
+        dropdown.classList.remove('show'); // Ẩn dropdown khi ấn Home
+    });
+
+    listButton.addEventListener('click', function() {
+        const dropdown = document.querySelector('.dropdown-container');
+        dropdown.classList.remove('show'); // Ẩn dropdown khi ấn List
+    });
+
+    // Ẩn dropdown khi chọn một trạm, nhưng chỉ ẩn nếu không phải đang xổ xuống
+    document.querySelectorAll('.dropdown-container a').forEach(item => {
+        item.addEventListener('click', function() {
+            const dropdown = document.querySelector('.dropdown-container');
+            if (!dashboardButton.classList.contains('active')) {
+                dropdown.classList.remove('show'); // Ẩn dropdown nếu không phải Dashboard
+            }
+        });
+    });
+
 
     function toggleSidebar() {
     let sidebar = document.getElementById('sidebar');
@@ -536,12 +558,16 @@ sqlsrv_close($conn);
     dropdown.classList.toggle('show'); // Toggle class 'show' để hiện/ẩn dropdown
     }
 
-    document.querySelectorAll('.dropdown-container a').forEach(item => {
+    document.querySelectorAll('.sidebar a, .dropdown-btn').forEach(item => {
         item.addEventListener('click', function() {
-            const dropdown = document.querySelector('.dropdown-container');
-            dropdown.classList.remove('show'); // Ẩn dropdown khi chọn một trạm
+            // Loại bỏ lớp 'active' từ tất cả các nút
+            document.querySelectorAll('.sidebar a, .dropdown-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Thêm lớp 'active' vào nút được chọn
+            this.classList.add('active');
         });
     });
+
 
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(page => {
