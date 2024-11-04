@@ -18,6 +18,7 @@ if ($conn === false) {
 // Lấy trạm từ query string, mặc định là 'home'
 $station = isset($_GET['station']) ? $_GET['station'] : 'home';
 
+/*
 // Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
 if ($station === 'all') {
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
@@ -25,7 +26,7 @@ if ($station === 'all') {
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
 }
-$stmt = sqlsrv_query($conn, $sql, $params ?? null);
+$stmt = sqlsrv_query($conn, $sql, $params ?? null); */
 
 // Kiểm tra lỗi khi truy vấn
 if ($stmt === false) {
@@ -219,7 +220,7 @@ sqlsrv_close($conn);
     </button>
 
     <li>
-        <a href="#" onclick="showPage('home');" class="main-link" data-tooltip="Go to Home">
+        <a href="?station=home" onclick="showPage('home');" class="main-link" data-tooltip="Go to Home">
             <i class="fas fa-home"></i>
             <span class="link-text">Home</span>
         </a>
@@ -264,7 +265,7 @@ sqlsrv_close($conn);
         </a>
     </div>
 
-    <a href="#" onclick="showPage('list');">
+    <a href="?station=list" onclick="showPage('list');">
         <i class="fas fa-list"></i>
         <span class="link-text">List</span>
     </a>
