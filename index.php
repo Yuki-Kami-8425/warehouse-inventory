@@ -193,7 +193,7 @@ sqlsrv_close($conn);
             outline: none; /* Xóa outline khi nhấn */
             box-shadow: none; /* Xóa hiệu ứng bóng */
         }
-        .sidebar ul li a.selected {
+        .sidebar a.selected {
             color: #00BFFF; /* Màu xanh lam khi được chọn */
         }
         /* Hiệu ứng tooltip */
@@ -431,6 +431,55 @@ sqlsrv_close($conn);
     </div>
 
 <script>
+    let slideIndex = 1;
+    showSlides(slideIndex);
+
+    function showSlides(n) {
+        let slides = document.getElementsByClassName("slide");
+        let dots = document.getElementsByClassName("dot");
+        if (n > slides.length) { slideIndex = 1 }
+        if (n < 1) { slideIndex = slides.length }
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+        }
+        for (let i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active", "");
+        }
+        slides[slideIndex - 1].style.display = "block";
+        dots[slideIndex - 1].className += " active";
+    }
+
+    function currentSlide(n) {
+        showSlides(slideIndex = n);
+    }
+
+    setInterval(function() {
+        showSlides(slideIndex += 1);
+    }, 10000); // Thay đổi slide mỗi 10 giây
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('collapsed');
+    }
+
+    function toggleDropdown() {
+        const dropdown = document.querySelector('.dropdown-container');
+        dropdown.classList.toggle('show');
+    }
+
+    function showPage(page) {
+        // Function to show the selected page
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(p => p.style.display = 'none');
+        document.getElementById(page).style.display = 'block';
+    }
+
+    // Set default page
+    document.addEventListener('DOMContentLoaded', function() {
+        showPage('home'); // Load home page by default
+    });
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
@@ -568,39 +617,4 @@ sqlsrv_close($conn);
         showPage('data');
     }
 };
-
-let slideIndex = 0;
-showSlides();
-
-function showSlides() {
-    let slides = document.querySelectorAll('.slide');
-    let dots = document.querySelectorAll('.dot');
-
-    slides.forEach((slide, index) => {
-        slide.style.display = 'none'; // Ẩn tất cả các slide
-        dots[index].classList.remove("active"); // Xóa lớp active khỏi tất cả các dấu chấm
-    });
-
-    slideIndex++;
-    if (slideIndex > slides.length) {
-        slideIndex = 1; // Reset lại chỉ số nếu vượt quá số slide
-    }
-
-    slides[slideIndex - 1].style.display = 'block'; // Hiện slide hiện tại
-    dots[slideIndex - 1].classList.add("active"); // Đánh dấu dấu chấm hiện tại
-
-    setTimeout(showSlides, 5000); // Thay đổi slide mỗi 5 giây
-}
-
-function showSlide(index) {
-    slideIndex = index; // Đặt chỉ số slide hiện tại
-    let slides = document.querySelectorAll('.slide');
-    let dots = document.querySelectorAll('.dot');
-
-    slides.forEach(slide => slide.style.display = 'none'); // Ẩn tất cả các slide
-    dots.forEach(dot => dot.classList.remove("active")); // Xóa lớp active khỏi tất cả các dấu chấm
-
-    slides[slideIndex - 1].style.display = 'block'; // Hiện slide tương ứng
-    dots[slideIndex - 1].classList.add("active"); // Đánh dấu dấu chấm tương ứng
-}
 </script>
