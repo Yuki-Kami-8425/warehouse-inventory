@@ -276,30 +276,31 @@ sqlsrv_close($conn);
 </div>
 
 <div class="main-content" id="main-content">
-    <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
     <?php if ($station === 'home'): ?>
-    <div id="home" class="page">
-        <div class="slideshow-container">
-            <div class="slide">
-                <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
-                <img class="slide-image" src="Picture1.png" alt="Slide 1">
-            </div>
-            <div class="slide">
-                <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
-                <img class="slide-image" src="Picture2.png" alt="Slide 2">
-            </div>
-            <div class="slide">
-                <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
-                <img class="slide-image" src="Picture3.png" alt="Slide 3">
-            </div>
-            <div class="dots">
-                <span class="dot" onclick="showSlide(1)"></span>
-                <span class="dot" onclick="showSlide(2)"></span>
-                <span class="dot" onclick="showSlide(3)"></span>
+        <div id="home" class="page">
+            <div class="slideshow-container">
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                    <img class="slide-image" src="Picture1.png" alt="Slide 1">
+                </div>
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                    <img class="slide-image" src="Picture2.png" alt="Slide 2">
+                </div>
+                <div class="slide">
+                    <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                    <img class="slide-image" src="Picture3.png" alt="Slide 3">
+                </div>
+                <div class="dots">
+                    <span class="dot" onclick="showSlide(1)"></span>
+                    <span class="dot" onclick="showSlide(2)"></span>
+                    <span class="dot" onclick="showSlide(3)"></span>
+                </div>
             </div>
         </div>
-    </div>
+
     <?php elseif ($station !== 'all'): ?>
+        <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
             <!-- Bảng Left Rack -->
@@ -344,12 +345,22 @@ sqlsrv_close($conn);
                 <div class="chart-container">
                     <canvas id="pieChart"></canvas>
                 </div>
-            </div>
+         </div>
 
-        <?php elseif ($station === 'list'): ?>
-            <div> 
+        <?php elseif ($station === 'all'): ?>
+                    <!-- Biểu đồ -->
+        <div class="charts">
+                <!-- Biểu đồ cột -->
+                <div class="chart-container">
+                    <canvas id="barChart"></canvas>
+                </div>
 
-            </div>
+                <!-- Biểu đồ tròn -->
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+         </div>
+         <?php elseif ($station === 'list'): ?>
     <?php endif; ?>
 </div>
 
