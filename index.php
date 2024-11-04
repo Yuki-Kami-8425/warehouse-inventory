@@ -18,13 +18,13 @@ if ($conn === false) {
 // Lấy trạm từ query string, mặc định là 'home'
 $station = isset($_GET['station']) ? $_GET['station'] : 'home';
 
-// Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
+/* // Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
 if ($station === 'all') {
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
 } else {
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
-}
+} */
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
 
 // Kiểm tra lỗi khi truy vấn
