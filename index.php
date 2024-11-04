@@ -21,15 +21,15 @@ $station = isset($_GET['station']) ? $_GET['station'] : 'home';
 // Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
 if ($station === 'all') {
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+} elseif ($station === 'list') {
+    // Truy vấn tất cả dữ liệu từ bảng nếu là List
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+    $params = null; // Không cần tham số
 } elseif (in_array($station, ['A', 'B', 'C', 'D', 'E', 'F', 'G'])) {
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
 }
- else {
-    // Nếu không chọn all hoặc các trạm A-G, không hiển thị gì
-    $sql = null; // Không truy vấn
-    $params = null; // Không cần tham số
-}
+
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
 
 // Kiểm tra lỗi khi truy vấn
@@ -363,62 +363,27 @@ sqlsrv_close($conn);
             </div>
         </div>
         <?php elseif ($station === 'list'): ?>
-            <div id="list" class="page">
-                <h2>Danh sách kho hàng</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Số chứng từ</th>
-                            <th>Ngày chứng từ</th>
-                            <th>Mã khách hàng</th>
-                            <th>Tên khách hàng</th>
-                            <th>Mã sản phẩm</th>
-                            <th>Tên sản phẩm</th>
-                            <th>Đơn vị</th>
-                            <th>Số lượng pallet</th>
-                            <th>RFID</th>
-                            <th>Trạng thái pallet</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        // Kết nối đến cơ sở dữ liệu
-                        $conn = new mysqli($servername, $username, $password, $dbname);
-                        
-                        // Kiểm tra kết nối
-                        if ($conn->connect_error) {
-                            die("Kết nối thất bại: " . $conn->connect_error);
-                        }
-
-                        // Truy vấn dữ liệu
-                        $sql = "SELECT TOP (1000) [SOCT], [NGAYCT], [MAKH], [TENKH], [MASP], [TENSP], [DONVI], [LUONG_PALLET], [RFID], [PALLET_status] FROM [dbo].[stored_warehouse]";
-                        $result = $conn->query($sql);
-
-                        // Hiển thị dữ liệu
-                        if ($result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                                echo "<tr>
-                                        <td>" . htmlspecialchars($row['SOCT']) . "</td>
-                                        <td>" . htmlspecialchars($row['NGAYCT']) . "</td>
-                                        <td>" . htmlspecialchars($row['MAKH']) . "</td>
-                                        <td>" . htmlspecialchars($row['TENKH']) . "</td>
-                                        <td>" . htmlspecialchars($row['MASP']) . "</td>
-                                        <td>" . htmlspecialchars($row['TENSP']) . "</td>
-                                        <td>" . htmlspecialchars($row['DONVI']) . "</td>
-                                        <td>" . htmlspecialchars($row['LUONG_PALLET']) . "</td>
-                                        <td>" . htmlspecialchars($row['RFID']) . "</td>
-                                        <td>" . htmlspecialchars($row['PALLET_status']) . "</td>
-                                    </tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='10'>Không có dữ liệu</td></tr>";
-                        }
-                        // Đóng kết nối
-                        $conn->close();
-                        ?>
-                    </tbody>
-                </table>
-            </div>
+    <h2>Danh Sách Khách Hàng</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã Khách</th>
+                <th>Tên Khách</th>
+                <th>Số Pallet</th>
+                <th>RFID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['MAKH']) ?></td>
+                    <td><?= htmlspecialchars($row['TENKH']) ?></td>
+                    <td><?= htmlspecialchars($row['LUONG_PALLET']) ?></td>
+                    <td><?= htmlspecialchars($row['RFID']) ?></td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
         <?php endif; ?>
     </div>
 
