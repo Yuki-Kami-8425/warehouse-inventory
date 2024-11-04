@@ -260,7 +260,7 @@ sqlsrv_close($conn);
         </a>
     </div>
 
-    <a href="?station=list" onclick="showPage('list');">
+    <a href="?station=list" onclick="showPage('list');" data-tooltip="Watch List">
         <i class="fas fa-list"></i>
         <span class="link-text">List</span>
     </a>
@@ -352,6 +352,7 @@ sqlsrv_close($conn);
             </div>
         </div>
         <?php elseif ($station === 'list'): ?>
+            <div id="list" class="page"></div>
             <h2>Danh sách kho hàng</h2>
             <table>
                 <thead>
@@ -407,6 +408,7 @@ sqlsrv_close($conn);
                     ?>
                 </tbody>
             </table>
+            </div>
     <?php endif; ?>
 </div>
 
