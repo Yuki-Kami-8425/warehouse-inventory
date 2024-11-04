@@ -15,8 +15,8 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy trạm từ query string, mặc định là 'all'
-$station = isset($_GET['station']) ? $_GET['station'] : 'all';
+// Lấy trạm từ query string, mặc định là 'home'
+$station = isset($_GET['station']) ? $_GET['station'] : 'home';
 
 // Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
 if ($station === 'all') {
@@ -294,9 +294,7 @@ sqlsrv_close($conn);
             </div>
         </div>
     </div>
-<?php endif; ?>
-
-    <?php if ($station !== 'all'): ?>
+    <?php elseif ($station !== 'all'): ?>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
             <!-- Bảng Left Rack -->
