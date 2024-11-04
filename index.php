@@ -348,8 +348,8 @@ sqlsrv_close($conn);
          </div>
 
         <?php elseif ($station === 'all'): ?>
-                    <!-- Biểu đồ -->
-        <div class="charts">
+            <!-- Biểu đồ -->
+            <div class="charts">
                 <!-- Biểu đồ cột -->
                 <div class="chart-container">
                     <canvas id="barChart"></canvas>
@@ -359,8 +359,63 @@ sqlsrv_close($conn);
                 <div class="chart-container">
                     <canvas id="pieChart"></canvas>
                 </div>
-         </div>
-         <?php elseif ($station === 'list'): ?>
+            </div>
+        <?php elseif ($station === 'list'): ?>
+            <h2>Danh sách kho hàng</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Số chứng từ</th>
+                <th>Ngày chứng từ</th>
+                <th>Mã khách hàng</th>
+                <th>Tên khách hàng</th>
+                <th>Mã sản phẩm</th>
+                <th>Tên sản phẩm</th>
+                <th>Đơn vị</th>
+                <th>Số lượng pallet</th>
+                <th>RFID</th>
+                <th>Trạng thái pallet</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Kết nối đến cơ sở dữ liệu
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            
+            // Kiểm tra kết nối
+            if ($conn->connect_error) {
+                die("Kết nối thất bại: " . $conn->connect_error);
+            }
+
+            // Truy vấn dữ liệu
+            $sql = "SELECT TOP (1000) [SOCT], [NGAYCT], [MAKH], [TENKH], [MASP], [TENSP], [DONVI], [LUONG_PALLET], [RFID], [PALLET_status] FROM [dbo].[stored_warehouse]";
+            $result = $conn->query($sql);
+
+            // Hiển thị dữ liệu
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>
+                            <td>" . htmlspecialchars($row['SOCT']) . "</td>
+                            <td>" . htmlspecialchars($row['NGAYCT']) . "</td>
+                            <td>" . htmlspecialchars($row['MAKH']) . "</td>
+                            <td>" . htmlspecialchars($row['TENKH']) . "</td>
+                            <td>" . htmlspecialchars($row['MASP']) . "</td>
+                            <td>" . htmlspecialchars($row['TENSP']) . "</td>
+                            <td>" . htmlspecialchars($row['DONVI']) . "</td>
+                            <td>" . htmlspecialchars($row['LUONG_PALLET']) . "</td>
+                            <td>" . htmlspecialchars($row['RFID']) . "</td>
+                            <td>" . htmlspecialchars($row['PALLET_status']) . "</td>
+                          </tr>";
+                }
+            } else {
+                echo "<tr><td colspan='10'>Không có dữ liệu</td></tr>";
+            }
+
+            // Đóng kết nối
+            $conn->close();
+            ?>
+        </tbody>
+    </table>
     <?php endif; ?>
 </div>
 
