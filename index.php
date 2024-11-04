@@ -332,20 +332,25 @@ sqlsrv_close($conn);
                 <?php endfor; ?>
             </table>
         </div>
+        
+        <!-- Biểu đồ -->
+        <div class="charts">
+                <!-- Biểu đồ cột -->
+                <div class="chart-container">
+                    <canvas id="barChart"></canvas>
+                </div>
+
+                <!-- Biểu đồ tròn -->
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+
+        <?php elseif ($station === 'list'): ?>
+            <div> 
+
+            </div>
     <?php endif; ?>
-
-    <!-- Biểu đồ -->
-    <div class="charts">
-        <!-- Biểu đồ cột -->
-        <div class="chart-container">
-            <canvas id="barChart"></canvas>
-        </div>
-
-        <!-- Biểu đồ tròn -->
-        <div class="chart-container">
-            <canvas id="pieChart"></canvas>
-        </div>
-    </div>
 </div>
 
 <script>
