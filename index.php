@@ -190,6 +190,8 @@ sqlsrv_close($conn);
         /* Hiệu ứng tooltip */
         .sidebar a, .dropdown-btn {
             position: relative;
+            .sidebar a.dashboard {
+             background-color: transparent; /* Đảm bảo nền của nút Dashboard trong suốt */
         }
         .sidebar a:hover::after, .dropdown-btn:hover::after {
             content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
@@ -208,6 +210,11 @@ sqlsrv_close($conn);
         }
         .sidebar a.dashboard {
             background-color: transparent; /* Đảm bảo nền của nút Dashboard trong suốt */
+        }
+        .sidebar a:hover, .sidebar a:active, .dropdown-btn:hover, .dropdown-btn:active {
+            background-color: #34495e; /* Đảm bảo chỉ có màu nền mong muốn khi hover hoặc active */
+            box-shadow: none; /* Xóa hiệu ứng bóng (nếu có) */
+            color: #00aaff; /* Màu xanh lam tươi */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
