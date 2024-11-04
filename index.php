@@ -95,6 +95,7 @@ sqlsrv_close($conn);
             color: white;
             display: flex;
             align-items: center;
+            background-color: transparent;
         }
         .sidebar a i, .dropdown-btn i {
             margin-right: 10px; /* Khoảng cách giữa icon và chữ */
@@ -204,6 +205,9 @@ sqlsrv_close($conn);
             z-index: 1;
             opacity: 0.8; /* Độ mờ của tooltip */
             margin-left: 10px; /* Khoảng cách giữa tooltip và phần tử */
+        }
+        .sidebar a.dashboard {
+            background-color: transparent; /* Đảm bảo nền của nút Dashboard trong suốt */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
