@@ -300,6 +300,29 @@ sqlsrv_close($conn);
                 </div>
             </div>
         </div>
+        
+    <?php elseif ($station === 'list'): ?>
+    <h2>Danh Sách Khách Hàng</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã Khách</th>
+                <th>Tên Khách</th>
+                <th>Số Pallet</th>
+                <th>RFID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['MAKH']) ?></td>
+                    <td><?= htmlspecialchars($row['TENKH']) ?></td>
+                    <td><?= htmlspecialchars($row['LUONG_PALLET']) ?></td>
+                    <td><?= htmlspecialchars($row['RFID']) ?></td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
 
     <?php elseif ($station !== 'all'): ?>
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
@@ -349,42 +372,20 @@ sqlsrv_close($conn);
                 </div>
          </div>
 
-    <?php elseif ($station === 'all'): ?>
-        <!-- Biểu đồ -->
-        <div class="charts">
-            <!-- Biểu đồ cột -->
-            <div class="chart-container">
-                <canvas id="barChart"></canvas>
-            </div>
+        <?php elseif ($station === 'all'): ?>
+            <!-- Biểu đồ -->
+            <div class="charts">
+                <!-- Biểu đồ cột -->
+                <div class="chart-container">
+                    <canvas id="barChart"></canvas>
+                </div>
 
-            <!-- Biểu đồ tròn -->
-            <div class="chart-container">
-                <canvas id="pieChart"></canvas>
+                <!-- Biểu đồ tròn -->
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
             </div>
-        </div>
-        <?php elseif ($station === 'list'): ?>
-    <h2>Danh Sách Khách Hàng</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Mã Khách</th>
-                <th>Tên Khách</th>
-                <th>Số Pallet</th>
-                <th>RFID</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['MAKH']) ?></td>
-                    <td><?= htmlspecialchars($row['TENKH']) ?></td>
-                    <td><?= htmlspecialchars($row['LUONG_PALLET']) ?></td>
-                    <td><?= htmlspecialchars($row['RFID']) ?></td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
-        <?php endif; ?>
+            <?php endif; ?>
     </div>
 
 <script>
