@@ -193,6 +193,9 @@ sqlsrv_close($conn);
             outline: none; /* Xóa outline khi nhấn */
             box-shadow: none; /* Xóa hiệu ứng bóng */
         }
+        .sidebar ul li a.selected {
+            color: #00BFFF; /* Màu xanh lam khi được chọn */
+        }
         /* Hiệu ứng tooltip */
         .sidebar a:hover::after, .dropdown-btn:hover::after {
             content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
@@ -214,6 +217,45 @@ sqlsrv_close($conn);
         }
         .sidebar a.active, .dropdown-btn.active {
             color: #00aaff; /* Màu xanh lam tươi khi nút được chọn */
+        }
+        .slide-title {
+            font-size: 24px; /* Kích thước chữ cho tiêu đề */
+            color: white; /* Màu chữ */
+            margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
+        }
+        .slide {
+            display: none; /* Ẩn tất cả các slide mặc định */
+            position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
+        }
+        .slide img {
+            width: 650px; /* Chiều rộng cố định */
+            height: 350px; /* Chiều cao cố định */
+            object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
+        }
+        .dots {
+            position: relative; /* Để căn giữa dấu chấm */
+            text-align: center; /* Căn giữa dấu chấm */
+            margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
+        }
+        .dot {
+            height: 10px; /* Kích thước dấu chấm */
+            width: 10px; /* Kích thước dấu chấm */
+            margin: 0 5px; /* Khoảng cách giữa các dấu chấm */
+            background-color: white; /* Màu trắng */
+            border-radius: 50%; /* Đường viền tròn */
+            display: inline-block; /* Hiển thị thành dòng ngang */
+            cursor: pointer; /* Con trỏ khi hover vào */
+            transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
+        }
+        .dot.active {
+            height: 15px; /* Kích thước lớn hơn khi được chọn */
+            width: 15px; /* Kích thước lớn hơn khi được chọn */
+            background-color: #00BFFF; /* Màu xanh lam khi được chọn */
+        }
+        .dot:hover {
+            background-color: #00BFFF; /* Màu nền khi hover */
+            transform: scale(1.2); /* Phóng to một chút */
+            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
