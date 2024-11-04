@@ -300,29 +300,6 @@ sqlsrv_close($conn);
                 </div>
             </div>
         </div>
-        
-    <?php elseif ($station === 'list'): ?>
-    <h2>Danh Sách Khách Hàng</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Mã Khách</th>
-                <th>Tên Khách</th>
-                <th>Số Pallet</th>
-                <th>RFID</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['MAKH']) ?></td>
-                    <td><?= htmlspecialchars($row['TENKH']) ?></td>
-                    <td><?= htmlspecialchars($row['LUONG_PALLET']) ?></td>
-                    <td><?= htmlspecialchars($row['RFID']) ?></td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
 
     <?php elseif ($station !== 'all'): ?>
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
@@ -385,7 +362,30 @@ sqlsrv_close($conn);
                     <canvas id="pieChart"></canvas>
                 </div>
             </div>
-            <?php endif; ?>
+
+        <?php elseif ($station === 'list'): ?>
+            <h2>Danh Sách Khách Hàng</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mã Khách</th>
+                        <th>Tên Khách</th>
+                        <th>Số Pallet</th>
+                        <th>RFID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($row['MAKH']) ?></td>
+                            <td><?= htmlspecialchars($row['TENKH']) ?></td>
+                            <td><?= htmlspecialchars($row['LUONG_PALLET']) ?></td>
+                            <td><?= htmlspecialchars($row['RFID']) ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 
 <script>
@@ -526,4 +526,39 @@ sqlsrv_close($conn);
         showPage('data');
     }
 };
+
+let slideIndex = 0;
+showSlides();
+
+function showSlides() {
+    let slides = document.querySelectorAll('.slide');
+    let dots = document.querySelectorAll('.dot');
+
+    slides.forEach((slide, index) => {
+        slide.style.display = 'none'; // Ẩn tất cả các slide
+        dots[index].classList.remove("active"); // Xóa lớp active khỏi tất cả các dấu chấm
+    });
+
+    slideIndex++;
+    if (slideIndex > slides.length) {
+        slideIndex = 1; // Reset lại chỉ số nếu vượt quá số slide
+    }
+
+    slides[slideIndex - 1].style.display = 'block'; // Hiện slide hiện tại
+    dots[slideIndex - 1].classList.add("active"); // Đánh dấu dấu chấm hiện tại
+
+    setTimeout(showSlides, 5000); // Thay đổi slide mỗi 5 giây
+}
+
+function showSlide(index) {
+    slideIndex = index; // Đặt chỉ số slide hiện tại
+    let slides = document.querySelectorAll('.slide');
+    let dots = document.querySelectorAll('.dot');
+
+    slides.forEach(slide => slide.style.display = 'none'); // Ẩn tất cả các slide
+    dots.forEach(dot => dot.classList.remove("active")); // Xóa lớp active khỏi tất cả các dấu chấm
+
+    slides[slideIndex - 1].style.display = 'block'; // Hiện slide tương ứng
+    dots[slideIndex - 1].classList.add("active"); // Đánh dấu dấu chấm tương ứng
+}
 </script>
