@@ -291,6 +291,7 @@ sqlsrv_close($conn);
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
 <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
@@ -303,7 +304,7 @@ sqlsrv_close($conn);
         </a>
     </li>
 
-    <button class="dropdown-btn" onclick="toggleDropdown()">
+    <button class="dropdown-btn" onclick="toggleDropdown(event)">
         <i class="fas fa-tachometer-alt"></i>
         <span class="link-text">Dashboard</span>
     </button>
@@ -342,11 +343,12 @@ sqlsrv_close($conn);
         </a>
     </div>
 
-    <a href="?station=list" onclick="showPage('list');" data-tooltip="Watch List">
+    <a href="?station=list" onclick="showPage('list'); closeDropdowns();" data-tooltip="Watch List">
         <i class="fas fa-list"></i>
         <span class="link-text">List</span>
     </a>
 </div>
+
 
 <div class="main-content" id="main-content">
 <?php
@@ -555,37 +557,34 @@ sqlsrv_close($conn);
         }
     });
 
-    const toggleBtn = document.getElementById('toggle-btn');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
-
-    toggleBtn.addEventListener('click', () => {
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('collapsed');
-    });
+    }
 
-    // Hiệu ứng cho dropdown
-    const dropdownBtns = document.querySelectorAll('.dropdown-btn');
-    dropdownBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Đóng tất cả dropdown khác
-            dropdownBtns.forEach(otherBtn => {
-                if (otherBtn !== this) {
-                    otherBtn.nextElementSibling.classList.remove('show');
-                }
-            });
-            // Bật tắt dropdown hiện tại
-            this.nextElementSibling.classList.toggle('show');
-        });
-    });
+    function toggleDropdown(event) {
+        event.stopPropagation(); // Ngăn chặn sự kiện lan truyền
+        const dropdown = event.currentTarget.nextElementSibling;
+        const allDropdowns = document.querySelectorAll('.dropdown-container');
 
-    // Đóng dropdown khi nhấn vào các nút khác
-    const sidebarLinks = document.querySelectorAll('.sidebar a');
-    sidebarLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            dropdownBtns.forEach(btn => {
-                btn.nextElementSibling.classList.remove('show'); // Đóng tất cả dropdown
-            });
+        // Đóng tất cả các dropdown khác
+        allDropdowns.forEach(d => {
+            if (d !== dropdown) {
+                d.style.display = 'none';
+            }
         });
-    });
+
+        // Bật/tắt dropdown hiện tại
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function closeDropdowns() {
+        const allDropdowns = document.querySelectorAll('.dropdown-container');
+        allDropdowns.forEach(d => {
+            d.style.display = 'none'; // Đóng tất cả dropdown
+        });
+    }
+
+    // Đóng dropdown khi nhấn vào nơi khác trên trang
+    document.addEventListener('click', closeDropdowns);
 </script>
