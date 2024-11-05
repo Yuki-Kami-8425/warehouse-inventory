@@ -15,8 +15,8 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Lấy trạm từ query string, mặc định là 'home'
-$station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
+/* // Lấy trạm từ query string, mặc định là 'home'
+$station = isset($_GET['station']) ? $_GET['station'] : 'dashboard'; */
 
 // Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
 if ($station === 'all') {
