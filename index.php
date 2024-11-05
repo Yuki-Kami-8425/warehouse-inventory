@@ -320,7 +320,10 @@ sqlsrv_close($conn);
 </div>
 
 <div class="main-content" id="main-content">
-    <?php if ($station === 'home'): ?>
+<?php
+    switch ($station) {
+        case 'home':
+            ?>
         <div id="home" class="page">
             <div class="slideshow-container">
                 <div class="slide">
@@ -342,8 +345,11 @@ sqlsrv_close($conn);
                 </div>
             </div>
         </div>
+        <?php
+            break;
 
-    <?php elseif ($station !== 'all'): ?>
+            default: 
+            ?>
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
@@ -390,8 +396,11 @@ sqlsrv_close($conn);
                     <canvas id="pieChart"></canvas>
                 </div>
          </div>
+         <?php
+            break;
 
-        <?php elseif ($station === 'all'): ?>
+         case 'all':
+            ?>
             <!-- Biểu đồ -->
             <div class="charts">
                 <!-- Biểu đồ cột -->
@@ -404,8 +413,10 @@ sqlsrv_close($conn);
                     <canvas id="pieChart"></canvas>
                 </div>
             </div>
+            <?php
+            break;
 
-        <?php elseif ($station === 'list'): ?>
+            case 'list': ?>
             <h2>Danh Sách Khách Hàng</h2>
             <table>
                 <thead>
@@ -427,59 +438,10 @@ sqlsrv_close($conn);
                     <?php endwhile; ?>
                 </tbody>
             </table>
-        <?php endif; ?>
+        <?php break; } ?>
     </div>
 
 <script>
-    let slideIndex = 1;
-    showSlides(slideIndex);
-
-    function showSlides(n) {
-        let slides = document.getElementsByClassName("slide");
-        let dots = document.getElementsByClassName("dot");
-        if (n > slides.length) { slideIndex = 1 }
-        if (n < 1) { slideIndex = slides.length }
-        for (let i = 0; i < slides.length; i++) {
-            slides[i].style.display = "none";
-        }
-        for (let i = 0; i < dots.length; i++) {
-            dots[i].className = dots[i].className.replace(" active", "");
-        }
-        slides[slideIndex - 1].style.display = "block";
-        dots[slideIndex - 1].className += " active";
-    }
-
-    function currentSlide(n) {
-        showSlides(slideIndex = n);
-    }
-
-    setInterval(function() {
-        showSlides(slideIndex += 1);
-    }, 10000); // Thay đổi slide mỗi 10 giây
-
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('main-content');
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('collapsed');
-    }
-
-    function toggleDropdown() {
-        const dropdown = document.querySelector('.dropdown-container');
-        dropdown.classList.toggle('show');
-    }
-
-    function showPage(page) {
-        // Function to show the selected page
-        const pages = document.querySelectorAll('.page');
-        pages.forEach(p => p.style.display = 'none');
-        document.getElementById(page).style.display = 'block';
-    }
-
-    // Set default page
-    document.addEventListener('DOMContentLoaded', function() {
-        showPage('home'); // Load home page by default
-    });
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
