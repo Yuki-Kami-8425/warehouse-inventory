@@ -16,7 +16,7 @@ if ($conn === false) {
 }
 
 // Lấy trạm từ query string, mặc định là 'home'
-$station = isset($_GET['station']) ? $_GET['station'] : 'home';
+$station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 
 // Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
 if ($station === 'all') {
@@ -529,20 +529,10 @@ sqlsrv_close($conn);
         }
     });
 
+    //Thu gọn thanh sidebar
     function toggleSidebar() {
         let sidebar = document.getElementById('sidebar');
-        let content = document.querySelector('.main-content'); // Đảm bảo có phần tử main-content nếu cần
-
-        // Toggle lớp 'collapsed' cho sidebar
         sidebar.classList.toggle('collapsed');
-        if (content) {
-            content.classList.toggle('collapsed'); // Chỉ thêm nếu bạn muốn nội dung cũng thay đổi vị trí
-        }
-        
-        // Cập nhật footer nếu cần thiết
-        if (typeof updateFooterPosition === 'function') {
-            updateFooterPosition();
-        }
     }
 
     // Lưu trạng thái của dropdown (đã xổ xuống hay chưa)
