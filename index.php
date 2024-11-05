@@ -79,6 +79,35 @@ sqlsrv_close($conn);
             flex-direction: column;
             align-items: flex-start;
         }
+        .sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    position: relative;
+}
+
+.sidebar a,
+.sidebar button {
+    display: flex;
+    align-items: center; /* Canh giữa các biểu tượng và văn bản */
+    padding: 10px;
+    text-decoration: none;
+}
+
+.dropdown-container {
+    padding-left: 20px; /* Thụt lề cho dropdown */
+}
+
+.dropdown-btn.active + .dropdown-container {
+    display: block; /* Đảm bảo dropdown hiện khi button active */
+}
+
+.collapsed .link-text {
+    display: none; /* Ẩn văn bản khi sidebar bị thu gọn */
+}
         .icon {
             width: 24px; /* Đặt kích thước cố định cho icon */
             height: 24px;
@@ -499,51 +528,25 @@ sqlsrv_close($conn);
             }
         }
     });
-    // Dropdown logic for the Dashboard button
-document.querySelector('#dashboard-btn').addEventListener('click', function() {
-    this.classList.toggle('active');
-    const dropdownContent = this.nextElementSibling; // Đảm bảo dropdown là phần tử tiếp theo
-    if (dropdownContent.style.display === 'block') {
-        dropdownContent.style.display = 'none';
-    } else {
-        dropdownContent.style.display = 'block';
-    }
-});
-
-// Logic for other dropdowns if necessary
-document.querySelectorAll('.dropdown-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    // Dropdown logic
+document.querySelectorAll('.dropdown-btn').forEach(button => {
+    button.addEventListener('click', function() {
         const dropdownContent = this.nextElementSibling;
         dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
     });
 });
 
-// Toggle sidebar function
 function toggleSidebar() {
     let sidebar = document.getElementById('sidebar');
-    let content = document.querySelector('.main-content');
-
-    // Toggle class 'collapsed' for sidebar
     sidebar.classList.toggle('collapsed');
+    
+    // Optionally, you can toggle the main content if needed
+    let content = document.querySelector('.main-content');
     if (content) {
         content.classList.toggle('collapsed');
     }
-
-    // Update footer if needed
-    if (typeof updateFooterPosition === 'function') {
-        updateFooterPosition();
-    }
 }
 
-// Hiding dropdowns when clicking on a station
-document.querySelectorAll('.dropdown-container a').forEach(item => {
-    item.addEventListener('click', function() {
-        const dropdown = this.closest('.dropdown-container');
-        dropdown.style.display = 'none'; // Ẩn dropdown khi chọn một trạm
-    });
-});
-
-// Function to show pages based on URL parameters
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
@@ -551,6 +554,17 @@ function showPage(pageId) {
     document.getElementById(pageId).classList.add('active');
 }
 
+// On window load, set the default page
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has('station') || urlParams.get('station') === 'home') {
+        showPage('home');
+    } else if (urlParams.get('station') === 'list') {
+        showPage('list');
+    } else {
+        showPage(urlParams.get('station'));
+    }
+};
 // Load page based on URL parameters
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
