@@ -16,7 +16,7 @@ if ($conn === false) {
 }
 
 // Lấy trạm từ query string, mặc định là 'home'
-$station = isset($_GET['station']) ? $_GET['station'] : 'home';
+$station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 
 // Khởi tạo biến $sql và $params
 $sql = '';
