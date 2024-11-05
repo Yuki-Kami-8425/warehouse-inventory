@@ -298,7 +298,7 @@ sqlsrv_close($conn);
     </button>
 
     <li>
-        <a href="?station=home" onclick="showPage('home');" class="main-link" data-tooltip="Go to Home">
+        <a href="?station=home" onclick="showPage('home'); closeDropdowns();" class="main-link" data-tooltip="Go to Home">
             <i class="fas fa-home"></i>
             <span class="link-text">Home</span>
         </a>
@@ -309,35 +309,35 @@ sqlsrv_close($conn);
         <span class="link-text">Dashboard</span>
     </button>
     <div class="dropdown-container" style="display: none;">
-        <a href="?station=all" onclick="showPage('all'); toggleDropdown();">
+        <a href="?station=all" onclick="showPage('all'); closeDropdowns();">
             <i class="fas fa-th-list"></i>
             <span class="link-text">All</span>
         </a>
-        <a href="?station=A" onclick="showPage('A'); toggleDropdown();">
+        <a href="?station=A" onclick="showPage('A'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station A</span>
         </a>
-        <a href="?station=B" onclick="showPage('B'); toggleDropdown();">
+        <a href="?station=B" onclick="showPage('B'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station B</span>
         </a>
-        <a href="?station=C" onclick="showPage('C'); toggleDropdown();">
+        <a href="?station=C" onclick="showPage('C'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station C</span>
         </a>
-        <a href="?station=D" onclick="showPage('D'); toggleDropdown();">
+        <a href="?station=D" onclick="showPage('D'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station D</span>
         </a>
-        <a href="?station=E" onclick="showPage('E'); toggleDropdown();">
+        <a href="?station=E" onclick="showPage('E'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station E</span>
         </a>
-        <a href="?station=F" onclick="showPage('F'); toggleDropdown();">
+        <a href="?station=F" onclick="showPage('F'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station F</span>
         </a>
-        <a href="?station=G" onclick="showPage('G'); toggleDropdown();">
+        <a href="?station=G" onclick="showPage('G'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station G</span>
         </a>
@@ -348,7 +348,6 @@ sqlsrv_close($conn);
         <span class="link-text">List</span>
     </a>
 </div>
-
 
 <div class="main-content" id="main-content">
 <?php
