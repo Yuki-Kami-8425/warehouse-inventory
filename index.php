@@ -75,6 +75,14 @@ sqlsrv_close($conn);
             background-color: #2c3e50; /* Màu nền thanh bên */
             padding-top: 60px;
             transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .icon {
+            width: 24px; /* Đặt kích thước cố định cho icon */
+            height: 24px;
+            margin-right: 10px; /* Khoảng cách giữa icon và văn bản */
         }
         .sidebar.collapsed {
             width: 60px; /* Kích thước sidebar khi thu gọn */
@@ -215,47 +223,8 @@ sqlsrv_close($conn);
         .sidebar a.dashboard {
             background-color: transparent; /* Đảm bảo nền của nút Dashboard trong suốt */
         }
-        .sidebar a.active, .dropdown-btn.active {
+        .sidebar a.active {
             color: #00aaff; /* Màu xanh lam tươi khi nút được chọn */
-        }
-        .slide-title {
-            font-size: 24px; /* Kích thước chữ cho tiêu đề */
-            color: white; /* Màu chữ */
-            margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
-        }
-        .slide {
-            display: none; /* Ẩn tất cả các slide mặc định */
-            position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
-        }
-        .slide img {
-            width: 650px; /* Chiều rộng cố định */
-            height: 350px; /* Chiều cao cố định */
-            object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
-        }
-        .dots {
-            position: relative; /* Để căn giữa dấu chấm */
-            text-align: center; /* Căn giữa dấu chấm */
-            margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
-        }
-        .dot {
-            height: 10px; /* Kích thước dấu chấm */
-            width: 10px; /* Kích thước dấu chấm */
-            margin: 0 5px; /* Khoảng cách giữa các dấu chấm */
-            background-color: white; /* Màu trắng */
-            border-radius: 50%; /* Đường viền tròn */
-            display: inline-block; /* Hiển thị thành dòng ngang */
-            cursor: pointer; /* Con trỏ khi hover vào */
-            transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
-        }
-        .dot.active {
-            height: 15px; /* Kích thước lớn hơn khi được chọn */
-            width: 15px; /* Kích thước lớn hơn khi được chọn */
-            background-color: #00BFFF; /* Màu xanh lam khi được chọn */
-        }
-        .dot:hover {
-            background-color: #00BFFF; /* Màu nền khi hover */
-            transform: scale(1.2); /* Phóng to một chút */
-            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -438,7 +407,9 @@ sqlsrv_close($conn);
                     <?php endwhile; ?>
                 </tbody>
             </table>
-        <?php break; } ?>
+        <?php
+        break;
+    } ?>
     </div>
 
 <script>
@@ -524,52 +495,60 @@ sqlsrv_close($conn);
         }
     });
 
-    // Dropdown logic
-    document.querySelector('.dropdown-btn').addEventListener('click', function() {
-        this.classList.toggle('active');
+// Dropdown logic for the Dashboard button
+document.querySelector('#dashboard-btn').addEventListener('click', function() {
+    this.classList.toggle('active');
+    const dropdownContent = this.nextElementSibling; // Đảm bảo dropdown là phần tử tiếp theo
+    if (dropdownContent.style.display === 'block') {
+        dropdownContent.style.display = 'none';
+    } else {
+        dropdownContent.style.display = 'block';
+    }
+});
+
+// Logic for other dropdowns if necessary
+document.querySelectorAll('.dropdown-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
         const dropdownContent = this.nextElementSibling;
-        if (dropdownContent.style.display === 'block') {
-            dropdownContent.style.display = 'none';
-        } else {
-            dropdownContent.style.display = 'block';
-        }
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
     });
+});
 
-    function toggleSidebar() {
+// Toggle sidebar function
+function toggleSidebar() {
     let sidebar = document.getElementById('sidebar');
-    let content = document.querySelector('.main-content'); // Đảm bảo có phần tử main-content nếu cần
+    let content = document.querySelector('.main-content');
 
-    // Toggle lớp 'collapsed' cho sidebar
+    // Toggle class 'collapsed' for sidebar
     sidebar.classList.toggle('collapsed');
     if (content) {
-        content.classList.toggle('collapsed'); // Chỉ thêm nếu bạn muốn nội dung cũng thay đổi vị trí
+        content.classList.toggle('collapsed');
     }
-    
-    // Cập nhật footer nếu cần thiết
+
+    // Update footer if needed
     if (typeof updateFooterPosition === 'function') {
         updateFooterPosition();
-    }}   
-
-    function toggleDropdown() {
-    const dropdown = document.querySelector('.dropdown-container');
-    dropdown.classList.toggle('show'); // Toggle class 'show' để hiện/ẩn dropdown
     }
+}
 
-    document.querySelectorAll('.dropdown-container a').forEach(item => {
-        item.addEventListener('click', function() {
-            const dropdown = document.querySelector('.dropdown-container');
-            dropdown.classList.remove('show'); // Ẩn dropdown khi chọn một trạm
-        });
+// Hiding dropdowns when clicking on a station
+document.querySelectorAll('.dropdown-container a').forEach(item => {
+    item.addEventListener('click', function() {
+        const dropdown = this.closest('.dropdown-container');
+        dropdown.style.display = 'none'; // Ẩn dropdown khi chọn một trạm
     });
+});
 
-    function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(page => {
-            page.classList.remove('active');
-        });
-        document.getElementById(pageId).classList.add('active');
-    }
+// Function to show pages based on URL parameters
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+}
 
-    window.onload = function() {
+// Load page based on URL parameters
+window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     if (!urlParams.has('station') || urlParams.get('station') === 'home') {
         showPage('home');
@@ -579,4 +558,5 @@ sqlsrv_close($conn);
         showPage('data');
     }
 };
+
 </script>
