@@ -84,6 +84,17 @@ sqlsrv_close($conn);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        // Kiểm tra xem URL có chứa tham số station không
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.has('station')) {
+                // Nếu không có tham số, chuyển hướng đến Home
+                window.location.href = '?station=home';
+            }
+        };
+    </script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
