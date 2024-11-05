@@ -226,11 +226,16 @@ sqlsrv_close($conn);
         .sidebar a.active {
             color: #00aaff; /* Màu xanh lam tươi khi nút được chọn */
         }
+        .dropdown-container {
+            display: none; /* Ẩn menu theo mặc định */
+        }
+        .dropdown-container.show {
+            display: block; /* Hiển thị menu khi có class 'show' */
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
 <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
@@ -247,36 +252,36 @@ sqlsrv_close($conn);
         <i class="fas fa-tachometer-alt"></i>
         <span class="link-text">Dashboard</span>
     </button>
-    <div class="dropdown-container">
-        <a href="?station=all" onclick="showPage('all');">
+    <div class="dropdown-container" style="display: none;">
+        <a href="?station=all" onclick="showPage('all'); toggleDropdown();">
             <i class="fas fa-th-list"></i>
             <span class="link-text">All</span>
         </a>
-        <a href="?station=A" onclick="showPage('A');">
+        <a href="?station=A" onclick="showPage('A'); toggleDropdown();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station A</span>
         </a>
-        <a href="?station=B" onclick="showPage('B');">
+        <a href="?station=B" onclick="showPage('B'); toggleDropdown();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station B</span>
         </a>
-        <a href="?station=C" onclick="showPage('C');">
+        <a href="?station=C" onclick="showPage('C'); toggleDropdown();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station C</span>
         </a>
-        <a href="?station=D" onclick="showPage('D');">
+        <a href="?station=D" onclick="showPage('D'); toggleDropdown();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station D</span>
         </a>
-        <a href="?station=E" onclick="showPage('E');">
+        <a href="?station=E" onclick="showPage('E'); toggleDropdown();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station E</span>
         </a>
-        <a href="?station=F" onclick="showPage('F');">
+        <a href="?station=F" onclick="showPage('F'); toggleDropdown();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station F</span>
         </a>
-        <a href="?station=G" onclick="showPage('G');">
+        <a href="?station=G" onclick="showPage('G'); toggleDropdown();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station G</span>
         </a>
@@ -494,8 +499,7 @@ sqlsrv_close($conn);
             }
         }
     });
-
-// Dropdown logic for the Dashboard button
+    // Dropdown logic for the Dashboard button
 document.querySelector('#dashboard-btn').addEventListener('click', function() {
     this.classList.toggle('active');
     const dropdownContent = this.nextElementSibling; // Đảm bảo dropdown là phần tử tiếp theo
