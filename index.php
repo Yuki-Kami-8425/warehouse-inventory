@@ -528,44 +528,46 @@ sqlsrv_close($conn);
             }
         }
     });
-    // Dropdown logic
-document.querySelectorAll('.dropdown-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const dropdownContent = this.nextElementSibling;
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+
+    // Lưu trạng thái của dropdown (đã xổ xuống hay chưa)
+let isDashboardExpanded = false;
+
+// Xử lý khi nhấn nút Dashboard
+document.querySelector('.dropdown-btn').addEventListener('click', function() {
+    isDashboardExpanded = !isDashboardExpanded; // Đổi trạng thái
+    this.classList.toggle('active', isDashboardExpanded); // Thêm hoặc bỏ lớp 'active'
+
+    const dropdownContent = this.nextElementSibling;
+    dropdownContent.style.display = isDashboardExpanded ? 'block' : 'none';
+});
+
+// Giữ nguyên trạng thái dropdown khi nhấn các mục trong Dashboard
+document.querySelectorAll('.dropdown-container a').forEach(item => {
+    item.addEventListener('click', function(event) {
+        // Chặn sự kiện để tránh làm mới trang khi nhấn vào các mục
+        event.preventDefault();
+
+        // Đặt trạng thái là mở
+        isDashboardExpanded = true;
+        document.querySelector('.dropdown-btn').classList.add('active');
+        document.querySelector('.dropdown-container').style.display = 'block';
+
+        // Điều hướng đến trang phù hợp mà không làm thay đổi trạng thái
+        const target = this.getAttribute('href');
+        window.location.href = target;
     });
 });
 
-function toggleSidebar() {
-    let sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('collapsed');
-    
-    // Optionally, you can toggle the main content if needed
-    let content = document.querySelector('.main-content');
-    if (content) {
-        content.classList.toggle('collapsed');
-    }
-}
-
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
+// Thu gọn dropdown khi nhấn vào Home hoặc List
+document.querySelectorAll('#home-btn, #list-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        isDashboardExpanded = false;
+        document.querySelector('.dropdown-btn').classList.remove('active');
+        document.querySelector('.dropdown-container').style.display = 'none';
     });
-    document.getElementById(pageId).classList.add('active');
-}
+});
 
-// On window load, set the default page
-window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.has('station') || urlParams.get('station') === 'home') {
-        showPage('home');
-    } else if (urlParams.get('station') === 'list') {
-        showPage('list');
-    } else {
-        showPage(urlParams.get('station'));
-    }
-};
-// Load page based on URL parameters
+// Điều hướng hiển thị trang tương ứng khi tải trang
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     if (!urlParams.has('station') || urlParams.get('station') === 'home') {
@@ -574,7 +576,18 @@ window.onload = function() {
         showPage('list');
     } else {
         showPage('data');
+        isDashboardExpanded = true;
+        document.querySelector('.dropdown-btn').classList.add('active');
+        document.querySelector('.dropdown-container').style.display = 'block';
     }
 };
+
+// Hàm chuyển đổi hiển thị trang
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+}
 
 </script>
