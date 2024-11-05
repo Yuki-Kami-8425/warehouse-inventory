@@ -15,19 +15,45 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-/* // Lấy trạm từ query string, mặc định là 'home'
-$station = isset($_GET['station']) ? $_GET['station'] : 'dashboard'; */
+// Lấy trạm từ query string, mặc định là 'home'
+$station = isset($_GET['station']) ? $_GET['station'] : 'home';
 
-// Lấy dữ liệu từ bảng cho tất cả các trạm nếu là 'all', ngược lại lấy theo trạm
-if ($station === 'all') {
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
-} elseif ($station === 'list') {
-    // Truy vấn tất cả dữ liệu từ bảng nếu là List
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
-    $params = null; // Không cần tham số
-} elseif (in_array($station, ['A', 'B', 'C', 'D', 'E', 'F', 'G'])) {
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
-    $params = array($station . '%');
+// Khởi tạo biến $sql và $params
+$sql = '';
+$params = null;
+
+// Sử dụng switch để xử lý các trường hợp
+switch ($station) {
+    case 'all':
+        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+        break;
+
+    case 'list':
+        // Truy vấn tất cả dữ liệu từ bảng nếu là List
+        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+        $params = null; // Không cần tham số
+        break;
+
+    case 'home':
+        // Không cần truy vấn dữ liệu cho home
+        $sql = null; // Hoặc không cần khởi tạo $sql
+        break;
+
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+    case 'G':
+        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+        $params = array($station . '%');
+        break;
+
+    default:
+        // Xử lý trường hợp không hợp lệ, nếu cần
+        $sql = null; // Hoặc một truy vấn mặc định
+        break;
 }
 
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
