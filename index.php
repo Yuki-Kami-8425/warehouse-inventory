@@ -5,10 +5,11 @@ $connectionOptions = array(
     "Database" => "eiu_warehouse_24",
     "Uid" => "eiuadmin",
     "PWD" => "Khoa123456789"
-);
+); 
 
 // Kết nối đến cơ sở dữ liệu
-$conn = sqlsrv_connect($serverName, $connectionOptions);
+$conn = sqlsrv_connect($serverName, $connectionOptions); 
+
 
 // Kiểm tra kết nối
 if ($conn === false) {
@@ -354,7 +355,7 @@ sqlsrv_close($conn);
         </a>
     </div>
 
-    <a href="?station=list" onclick="showPage('list'); closeDropdowns();" data-tooltip="Watch List">
+    <a href="?station=list" onclick="showPage('list');" data-tooltip="Watch List">
         <i class="fas fa-list"></i>
         <span class="link-text">List</span>
     </a>
@@ -574,20 +575,19 @@ sqlsrv_close($conn);
     }
 
     function toggleDropdown(event) {
-        event.stopPropagation(); // Ngăn chặn sự kiện lan truyền
+        event.stopPropagation();
         const dropdown = event.currentTarget.nextElementSibling;
         const allDropdowns = document.querySelectorAll('.dropdown-container');
 
         // Đóng tất cả các dropdown khác
         allDropdowns.forEach(d => {
-            if (d !== dropdown) {
-                d.style.display = 'none';
-            }
+            d.style.display = 'none';
         });
 
         // Bật/tắt dropdown hiện tại
         dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     }
+
 
     function closeDropdowns() {
         const allDropdowns = document.querySelectorAll('.dropdown-container');
