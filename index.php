@@ -310,7 +310,7 @@ sqlsrv_close($conn);
     </button>
 
     <li>
-        <a href="?station=home" onclick="showPage('home');" class="main-link" data-tooltip="Go to Home">
+        <a href="?station=home" onclick="showPage('home'); closeDropdowns();" class="main-link" data-tooltip="Go to Home">
             <i class="fas fa-home"></i>
             <span class="link-text">Home</span>
         </a>
@@ -321,46 +321,45 @@ sqlsrv_close($conn);
         <span class="link-text">Dashboard</span>
     </button>
     <div class="dropdown-container" style="display: none;">
-        <a href="?station=all" onclick="showPage('all'); toggleDropdown();">
+        <a href="?station=all" onclick="showPage('all'); closeDropdowns();">
             <i class="fas fa-th-list"></i>
             <span class="link-text">All</span>
         </a>
-        <a href="?station=A" onclick="showPage('A'); toggleDropdown();">
+        <a href="?station=A" onclick="showPage('A'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station A</span>
         </a>
-        <a href="?station=B" onclick="showPage('B'); toggleDropdown();">
+        <a href="?station=B" onclick="showPage('B'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station B</span>
         </a>
-        <a href="?station=C" onclick="showPage('C'); toggleDropdown();">
+        <a href="?station=C" onclick="showPage('C'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station C</span>
         </a>
-        <a href="?station=D" onclick="showPage('D'); toggleDropdown();">
+        <a href="?station=D" onclick="showPage('D'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station D</span>
         </a>
-        <a href="?station=E" onclick="showPage('E'); toggleDropdown();">
+        <a href="?station=E" onclick="showPage('E'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station E</span>
         </a>
-        <a href="?station=F" onclick="showPage('F'); toggleDropdown();">
+        <a href="?station=F" onclick="showPage('F'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station F</span>
         </a>
-        <a href="?station=G" onclick="showPage('G'); toggleDropdown();">
+        <a href="?station=G" onclick="showPage('G'); closeDropdowns();">
             <i class="fas fa-industry"></i>
             <span class="link-text">Station G</span>
         </a>
     </div>
 
-    <a href="?station=list" onclick="showPage('list');" data-tooltip="Watch List">
+    <a href="?station=list" onclick="showPage('list'); closeDropdowns(); event.preventDefault();" data-tooltip="Watch List">
         <i class="fas fa-list"></i>
         <span class="link-text">List</span>
     </a>
 </div>
-
 
 <div class="main-content" id="main-content">
 <?php
@@ -569,33 +568,32 @@ sqlsrv_close($conn);
         }
     });
 
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('collapsed');
-    }
+    // Hàm toggleSidebar để thu gọn/mở rộng sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+}
 
-    function toggleDropdown(event) {
-        event.stopPropagation();
-        const dropdown = event.currentTarget.nextElementSibling;
-        const allDropdowns = document.querySelectorAll('.dropdown-container');
+// Hàm toggleDropdown để đóng/mở dropdown hiện tại và đóng tất cả các dropdown khác
+function toggleDropdown(event) {
+    event.stopPropagation();
+    closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
+    const dropdown = event.currentTarget.nextElementSibling;
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
 
-        // Đóng tất cả các dropdown khác
-        allDropdowns.forEach(d => {
-            d.style.display = 'none';
-        });
+// Hàm closeDropdowns để đóng tất cả các dropdown
+function closeDropdowns() {
+    const allDropdowns = document.querySelectorAll('.dropdown-container');
+    allDropdowns.forEach(d => {
+        d.style.display = 'none';
+    });
+}
 
-        // Bật/tắt dropdown hiện tại
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
+// Hàm showPage để chuyển trang
+function showPage(page) {
+    console.log(`Loading page: ${page}`);
+    closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
+}
 
-
-    function closeDropdowns() {
-        const allDropdowns = document.querySelectorAll('.dropdown-container');
-        allDropdowns.forEach(d => {
-            d.style.display = 'none'; // Đóng tất cả dropdown
-        });
-    }
-
-    // Đóng dropdown khi nhấn vào nơi khác trên trang
-    document.addEventListener('click', closeDropdowns);
 </script>
