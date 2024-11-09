@@ -303,7 +303,6 @@ sqlsrv_close($conn);
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
 <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
@@ -355,7 +354,7 @@ sqlsrv_close($conn);
         </a>
     </div>
 
-    <a href="?station=list" onclick="showPage('list'); closeDropdowns(); event.preventDefault();" data-tooltip="Watch List">
+    <a href="?station=list" data-tooltip="Watch List">
         <i class="fas fa-list"></i>
         <span class="link-text">List</span>
     </a>
