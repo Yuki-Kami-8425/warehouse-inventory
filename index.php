@@ -595,4 +595,16 @@ function showPage(page) {
     closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+  const sidebarItems = document.querySelectorAll('.sidebar a');
+  sidebarItems.forEach(item => {
+    item.addEventListener("click", function() {
+      // Bỏ chọn tất cả các nút
+      sidebarItems.forEach(link => link.classList.remove('active'));
+      // Thêm lớp active cho nút hiện tại
+      this.classList.add('active');
+    });
+  });
+});
+
 </script>
