@@ -457,30 +457,35 @@ sqlsrv_close($conn);
             <?php
             break;
 
-            case 'list': ?>
-            <h2>Danh Sách Khách Hàng</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Mã Khách</th>
-                        <th>Tên Khách</th>
-                        <th>Số Pallet</th>
-                        <th>RFID</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)): ?>
+            case 'list':
+                // Truy vấn lại dữ liệu cho List
+                $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+                $stmt = sqlsrv_query($conn, $sql);
+                ?>
+                <h2>Danh Sách Khách Hàng</h2>
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= htmlspecialchars($row['MAKH']) ?></td>
-                            <td><?= htmlspecialchars($row['TENKH']) ?></td>
-                            <td><?= htmlspecialchars($row['LUONG_PALLET']) ?></td>
-                            <td><?= htmlspecialchars($row['RFID']) ?></td>
+                            <th>Mã Khách</th>
+                            <th>Tên Khách</th>
+                            <th>Số Pallet</th>
+                            <th>RFID</th>
                         </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php
-        break;
+                    </thead>
+                    <tbody>
+                        <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($row['MAKH']) ?></td>
+                                <td><?= htmlspecialchars($row['TENKH']) ?></td>
+                                <td><?= htmlspecialchars($row['LUONG_PALLET']) ?></td>
+                                <td><?= htmlspecialchars($row['RFID']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            <?php
+            break;
+        
     } ?>
     </div>
 
@@ -639,6 +644,4 @@ document.addEventListener("DOMContentLoaded", function() {
     console.log(`Button ${target.textContent} clicked`);
   });
 });
-
-
 </script>
