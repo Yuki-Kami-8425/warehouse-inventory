@@ -354,10 +354,12 @@ sqlsrv_close($conn);
         </a>
     </div>
 
-    <a href="?station=list" data-tooltip="Watch List">
-        <i class="fas fa-list"></i>
-        <span class="link-text">List</span>
-    </a>
+    <li>
+        <a href="?station=list" onclick="showPage('list'); closeDropdowns();" data-tooltip="Watch List">
+            <i class="fas fa-lis"></i>
+            <span class="link-text">List</span>
+        </a>
+    </li>
 </div>
 
 <div class="main-content" id="main-content">
