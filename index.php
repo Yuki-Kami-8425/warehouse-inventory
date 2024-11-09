@@ -307,62 +307,57 @@ sqlsrv_close($conn);
     <button class="toggle-btn" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </button>
-
-    <li>
         <a href="?station=home" onclick="showPage('home'); closeDropdowns();" class="main-link" data-tooltip="Go to Home">
             <i class="fas fa-home"></i>
             <span class="link-text">Home</span>
         </a>
-    </li>
 
-    <button class="dropdown-btn" onclick="toggleDropdown(event)">
-        <i class="fas fa-tachometer-alt"></i>
-        <span class="link-text">Dashboard</span>
-    </button>
-    <div class="dropdown-container" style="display: none;">
-        <a href="?station=all" onclick="showPage('all'); closeDropdowns();">
-            <i class="fas fa-th-list"></i>
-            <span class="link-text">All</span>
-        </a>
-        <a href="?station=A" onclick="showPage('A'); closeDropdowns();">
-            <i class="fas fa-industry"></i>
-            <span class="link-text">Station A</span>
-        </a>
-        <a href="?station=B" onclick="showPage('B'); closeDropdowns();">
-            <i class="fas fa-industry"></i>
-            <span class="link-text">Station B</span>
-        </a>
-        <a href="?station=C" onclick="showPage('C'); closeDropdowns();">
-            <i class="fas fa-industry"></i>
-            <span class="link-text">Station C</span>
-        </a>
-        <a href="?station=D" onclick="showPage('D'); closeDropdowns();">
-            <i class="fas fa-industry"></i>
-            <span class="link-text">Station D</span>
-        </a>
-        <a href="?station=E" onclick="showPage('E'); closeDropdowns();">
-            <i class="fas fa-industry"></i>
-            <span class="link-text">Station E</span>
-        </a>
-        <a href="?station=F" onclick="showPage('F'); closeDropdowns();">
-            <i class="fas fa-industry"></i>
-            <span class="link-text">Station F</span>
-        </a>
-        <a href="?station=G" onclick="showPage('G'); closeDropdowns();">
-            <i class="fas fa-industry"></i>
-            <span class="link-text">Station G</span>
-        </a>
-    </div>
+        <button class="dropdown-btn" onclick="toggleDropdown(event)">
+            <i class="fas fa-tachometer-alt"></i>
+            <span class="link-text">Dashboard</span>
+        </button>
+        <div class="dropdown-container" style="display: none;">
+            <a href="?station=all" onclick="showPage('all'); closeDropdowns();">
+                <i class="fas fa-th-list"></i>
+                <span class="link-text">All</span>
+            </a>
+            <a href="?station=A" onclick="showPage('A'); closeDropdowns();">
+                <i class="fas fa-industry"></i>
+                <span class="link-text">Station A</span>
+            </a>
+            <a href="?station=B" onclick="showPage('B'); closeDropdowns();">
+                <i class="fas fa-industry"></i>
+                <span class="link-text">Station B</span>
+            </a>
+            <a href="?station=C" onclick="showPage('C'); closeDropdowns();">
+                <i class="fas fa-industry"></i>
+                <span class="link-text">Station C</span>
+            </a>
+            <a href="?station=D" onclick="showPage('D'); closeDropdowns();">
+                <i class="fas fa-industry"></i>
+                <span class="link-text">Station D</span>
+            </a>
+            <a href="?station=E" onclick="showPage('E'); closeDropdowns();">
+                <i class="fas fa-industry"></i>
+                <span class="link-text">Station E</span>
+            </a>
+            <a href="?station=F" onclick="showPage('F'); closeDropdowns();">
+                <i class="fas fa-industry"></i>
+                <span class="link-text">Station F</span>
+            </a>
+            <a href="?station=G" onclick="showPage('G'); closeDropdowns();">
+                <i class="fas fa-industry"></i>
+                <span class="link-text">Station G</span>
+            </a>
+        </div>
 
-    <li>
-        <a href="?station=list" onclick="showPage('list'); closeDropdowns();" data-tooltip="Watch List">
-            <i class="fas fa-lis"></i>
-            <span class="link-text">List</span>
-        </a>
-    </li>
-</div>
+            <a href="?station=list" onclick="showPage('list'); closeDropdowns();" data-tooltip="Watch List">
+                <i class="fas fa-lis"></i>
+                <span class="link-text">List</span>
+            </a>
+        </div>
 
-<div class="main-content" id="main-content">
+    <div class="main-content" id="main-content">
 <?php
     switch ($station) {
         case 'home':
@@ -601,49 +596,4 @@ function showPage(page) {
     console.log(`Loading page: ${page}`);
     closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
 }
-
-document.addEventListener("DOMContentLoaded", function() {
-  // Lấy tất cả các liên kết trong sidebar
-  const sidebarItems = document.querySelectorAll('.sidebar a');
-
-  sidebarItems.forEach(item => {
-    item.addEventListener("click", function(e) {
-      e.preventDefault(); // Ngăn hành vi mặc định
-
-      // Xóa lớp 'active' từ tất cả các nút
-      sidebarItems.forEach(link => link.classList.remove('active'));
-
-      // Thêm lớp 'active' vào nút được nhấn
-      this.classList.add('active');
-      
-      // Kiểm tra xem nút 'List' có hoạt động đúng không
-      console.log(`Button ${this.textContent} clicked`);
-
-      // Nếu có nội dung cần thay đổi khi nhấn 'List', thực hiện ở đây
-      if (this.textContent.trim() === "List") {
-        // Thêm code cập nhật nội dung hoặc mở menu 'List'
-        console.log("List button was clicked");
-      }
-    });
-  });
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-  const sidebar = document.querySelector('.sidebar');
-  
-  sidebar.addEventListener("click", function(e) {
-    const target = e.target.closest('a'); // Lấy phần tử a gần nhất
-    if (!target) return;
-
-    e.preventDefault(); // Ngăn hành vi mặc định của thẻ a
-
-    // Xóa lớp 'active' từ tất cả các nút
-    sidebar.querySelectorAll('a').forEach(link => link.classList.remove('active'));
-
-    // Thêm lớp 'active' vào nút được nhấn
-    target.classList.add('active');
-
-    console.log(`Button ${target.textContent} clicked`);
-  });
-});
 </script>
