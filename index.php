@@ -596,15 +596,49 @@ function showPage(page) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+  // Lấy tất cả các liên kết trong sidebar
   const sidebarItems = document.querySelectorAll('.sidebar a');
+
   sidebarItems.forEach(item => {
-    item.addEventListener("click", function() {
-      // Bỏ chọn tất cả các nút
+    item.addEventListener("click", function(e) {
+      e.preventDefault(); // Ngăn hành vi mặc định
+
+      // Xóa lớp 'active' từ tất cả các nút
       sidebarItems.forEach(link => link.classList.remove('active'));
-      // Thêm lớp active cho nút hiện tại
+
+      // Thêm lớp 'active' vào nút được nhấn
       this.classList.add('active');
+      
+      // Kiểm tra xem nút 'List' có hoạt động đúng không
+      console.log(`Button ${this.textContent} clicked`);
+
+      // Nếu có nội dung cần thay đổi khi nhấn 'List', thực hiện ở đây
+      if (this.textContent.trim() === "List") {
+        // Thêm code cập nhật nội dung hoặc mở menu 'List'
+        console.log("List button was clicked");
+      }
     });
   });
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+  const sidebar = document.querySelector('.sidebar');
+  
+  sidebar.addEventListener("click", function(e) {
+    const target = e.target.closest('a'); // Lấy phần tử a gần nhất
+    if (!target) return;
+
+    e.preventDefault(); // Ngăn hành vi mặc định của thẻ a
+
+    // Xóa lớp 'active' từ tất cả các nút
+    sidebar.querySelectorAll('a').forEach(link => link.classList.remove('active'));
+
+    // Thêm lớp 'active' vào nút được nhấn
+    target.classList.add('active');
+
+    console.log(`Button ${target.textContent} clicked`);
+  });
+});
+
 
 </script>
