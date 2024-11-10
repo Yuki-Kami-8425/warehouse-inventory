@@ -118,34 +118,34 @@ sqlsrv_close($conn);
             align-items: flex-start;
         }
         .sidebar ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        }
 
-.sidebar li {
-    position: relative;
-}
+        .sidebar li {
+            position: relative;
+        }
 
-.sidebar a,
-.sidebar button {
-    display: flex;
-    align-items: center; /* Canh giữa các biểu tượng và văn bản */
-    padding: 10px;
-    text-decoration: none;
-}
+        .sidebar a,
+        .sidebar button {
+            display: flex;
+            align-items: center; /* Canh giữa các biểu tượng và văn bản */
+            padding: 10px;
+            text-decoration: none;
+        }
 
-.dropdown-container {
-    padding-left: 20px; /* Thụt lề cho dropdown */
-}
+        .dropdown-container {
+            padding-left: 20px; /* Thụt lề cho dropdown */
+        }
 
-.dropdown-btn.active + .dropdown-container {
-    display: block; /* Đảm bảo dropdown hiện khi button active */
-}
+        .dropdown-btn.active + .dropdown-container {
+            display: block; /* Đảm bảo dropdown hiện khi button active */
+        }
 
-.collapsed .link-text {
-    display: none; /* Ẩn văn bản khi sidebar bị thu gọn */
-}
+        .collapsed .link-text {
+            display: none; /* Ẩn văn bản khi sidebar bị thu gọn */
+        }
         .icon {
             width: 24px; /* Đặt kích thước cố định cho icon */
             height: 24px;
@@ -204,9 +204,9 @@ sqlsrv_close($conn);
             margin: 20px;
         }
         table {
-            width: 30%;
+            width: 35%;
             border-collapse: collapse;
-            font-size: 8px;
+            font-size: 10px;
         }
         th, td {
             border: 2px solid white;
@@ -217,7 +217,7 @@ sqlsrv_close($conn);
             background-color: #32CD32;
         }
         .chart-container {
-            width: 40%; 
+            width: 30%; 
             margin: 20px;
         }
         .charts {
@@ -304,7 +304,7 @@ sqlsrv_close($conn);
 </head>
 <body>
 <div class="sidebar" id="sidebar">
-    <button class="toggle-btn" onclick="toggleSidebar()">
+    <button class="toggle-btn" onclick="toggleSidebar()"; >
         <i class="fas fa-bars"></i>
     </button>
 
@@ -317,55 +317,55 @@ sqlsrv_close($conn);
         </li>
 
         <li>
-            <button class="dropdown-btn" onclick="toggleDropdown(event)">
+            <button class="dropdown-btn" onclick="toggleDropdown(event)" data-tooltip="See dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="link-text">Dashboard</span>
             </button>
             <ul class="dropdown-container" style="display: none;">
                 <li>
-                    <a href="?station=all" onclick="showPage('all'); closeDropdowns();">
+                    <a href="?station=all" onclick="showPage('all'); closeDropdowns();" data-tooltip="See all data">
                         <i class="fas fa-th-list"></i>
                         <span class="link-text">All</span>
                     </a>
                 </li>
                 <li>
-                    <a href="?station=A" onclick="showPage('A'); closeDropdowns();">
+                    <a href="?station=A" onclick="showPage('A'); closeDropdowns();" data-tooltip="Go to station A">
                         <i class="fas fa-industry"></i>
                         <span class="link-text">Station A</span>
                     </a>
                 </li>
                 <li>
-                    <a href="?station=B" onclick="showPage('B'); closeDropdowns();">
+                    <a href="?station=B" onclick="showPage('B'); closeDropdowns();" data-tooltip="Go to station B">
                         <i class="fas fa-industry"></i>
                         <span class="link-text">Station B</span>
                     </a>
                 </li>
                 <li>
-                    <a href="?station=C" onclick="showPage('C'); closeDropdowns();">
+                    <a href="?station=C" onclick="showPage('C'); closeDropdowns();" data-tooltip="Go to station C">
                         <i class="fas fa-industry"></i>
                         <span class="link-text">Station C</span>
                     </a>
                 </li>
                 <li>
-                    <a href="?station=D" onclick="showPage('D'); closeDropdowns();">
+                    <a href="?station=D" onclick="showPage('D'); closeDropdowns();" data-tooltip="Go to station D">
                         <i class="fas fa-industry"></i>
                         <span class="link-text">Station D</span>
                     </a>
                 </li>
                 <li>
-                    <a href="?station=E" onclick="showPage('E'); closeDropdowns();">
+                    <a href="?station=E" onclick="showPage('E'); closeDropdowns();" data-tooltip="Go to station E">
                         <i class="fas fa-industry"></i>
                         <span class="link-text">Station E</span>
                     </a>
                 </li>
                 <li>
-                    <a href="?station=F" onclick="showPage('F'); closeDropdowns();">
+                    <a href="?station=F" onclick="showPage('F'); closeDropdowns();" data-tooltip="Go to station F">
                         <i class="fas fa-industry"></i>
                         <span class="link-text">Station F</span>
                     </a>
                 </li>
                 <li>
-                    <a href="?station=G" onclick="showPage('G'); closeDropdowns();">
+                    <a href="?station=G" onclick="showPage('G'); closeDropdowns();" data-tooltip="Go to station G">
                         <i class="fas fa-industry"></i>
                         <span class="link-text">Station G</span>
                     </a>
