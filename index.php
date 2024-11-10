@@ -307,55 +307,80 @@ sqlsrv_close($conn);
     <button class="toggle-btn" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </button>
-        <a href="?station=home" onclick="showPage('home'); closeDropdowns();" class="main-link" data-tooltip="Go to Home">
-            <i class="fas fa-home"></i>
-            <span class="link-text">Home</span>
-        </a>
 
-        <button class="dropdown-btn" onclick="toggleDropdown(event)">
-            <i class="fas fa-tachometer-alt"></i>
-            <span class="link-text">Dashboard</span>
-        </button>
-        <div class="dropdown-container" style="display: none;">
-            <a href="?station=all" onclick="showPage('all'); closeDropdowns();">
-                <i class="fas fa-th-list"></i>
-                <span class="link-text">All</span>
+    <ul>
+        <li>
+            <a href="?station=home" onclick="showPage('home'); closeDropdowns();" class="main-link" data-tooltip="Go to Home">
+                <i class="fas fa-home"></i>
+                <span class="link-text">Home</span>
             </a>
-            <a href="?station=A" onclick="showPage('A'); closeDropdowns();">
-                <i class="fas fa-industry"></i>
-                <span class="link-text">Station A</span>
-            </a>
-            <a href="?station=B" onclick="showPage('B'); closeDropdowns();">
-                <i class="fas fa-industry"></i>
-                <span class="link-text">Station B</span>
-            </a>
-            <a href="?station=C" onclick="showPage('C'); closeDropdowns();">
-                <i class="fas fa-industry"></i>
-                <span class="link-text">Station C</span>
-            </a>
-            <a href="?station=D" onclick="showPage('D'); closeDropdowns();">
-                <i class="fas fa-industry"></i>
-                <span class="link-text">Station D</span>
-            </a>
-            <a href="?station=E" onclick="showPage('E'); closeDropdowns();">
-                <i class="fas fa-industry"></i>
-                <span class="link-text">Station E</span>
-            </a>
-            <a href="?station=F" onclick="showPage('F'); closeDropdowns();">
-                <i class="fas fa-industry"></i>
-                <span class="link-text">Station F</span>
-            </a>
-            <a href="?station=G" onclick="showPage('G'); closeDropdowns();">
-                <i class="fas fa-industry"></i>
-                <span class="link-text">Station G</span>
-            </a>
-        </div>
+        </li>
 
+        <li>
+            <button class="dropdown-btn" onclick="toggleDropdown(event)">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="link-text">Dashboard</span>
+            </button>
+            <ul class="dropdown-container" style="display: none;">
+                <li>
+                    <a href="?station=all" onclick="showPage('all'); closeDropdowns();">
+                        <i class="fas fa-th-list"></i>
+                        <span class="link-text">All</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?station=A" onclick="showPage('A'); closeDropdowns();">
+                        <i class="fas fa-industry"></i>
+                        <span class="link-text">Station A</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?station=B" onclick="showPage('B'); closeDropdowns();">
+                        <i class="fas fa-industry"></i>
+                        <span class="link-text">Station B</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?station=C" onclick="showPage('C'); closeDropdowns();">
+                        <i class="fas fa-industry"></i>
+                        <span class="link-text">Station C</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?station=D" onclick="showPage('D'); closeDropdowns();">
+                        <i class="fas fa-industry"></i>
+                        <span class="link-text">Station D</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?station=E" onclick="showPage('E'); closeDropdowns();">
+                        <i class="fas fa-industry"></i>
+                        <span class="link-text">Station E</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?station=F" onclick="showPage('F'); closeDropdowns();">
+                        <i class="fas fa-industry"></i>
+                        <span class="link-text">Station F</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="?station=G" onclick="showPage('G'); closeDropdowns();">
+                        <i class="fas fa-industry"></i>
+                        <span class="link-text">Station G</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li>
             <a href="?station=list" onclick="showPage('list'); closeDropdowns();" data-tooltip="Watch List">
-                <i class="fas fa-lis"></i>
+                <i class="fas fa-list"></i>
                 <span class="link-text">List</span>
             </a>
-        </div>
+        </li>
+    </ul>
+</div>
 
     <div class="main-content" id="main-content">
 <?php
