@@ -105,13 +105,18 @@ sqlsrv_close($conn);
             justify-content: center;
             align-items: center;
         }
+        .content {
+            flex: 1; /* Chiếm phần còn lại của màn hình */
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
         /* Sidebar styling */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100%;
-            width: 180px;
+            width: 150px;
             background-color: #2c3e50; /* Màu nền thanh bên */
             padding-top: 60px;
             transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
