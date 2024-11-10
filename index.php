@@ -102,6 +102,8 @@ sqlsrv_close($conn);
             background-color: #001F3F; /* Xanh đậm */
             color: white; /* Màu chữ trắng */
             display: flex;
+            justify-content: center;
+            align-items: center;
         }
         /* Sidebar styling */
         .sidebar {
@@ -109,7 +111,7 @@ sqlsrv_close($conn);
             top: 0;
             left: 0;
             height: 100%;
-            width: 200px;
+            width: 180px;
             background-color: #2c3e50; /* Màu nền thanh bên */
             padding-top: 60px;
             transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
