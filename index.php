@@ -122,11 +122,9 @@ sqlsrv_close($conn);
         padding: 0;
         margin: 0;
         }
-
         .sidebar li {
             position: relative;
         }
-
         .sidebar a,
         .sidebar button {
             display: flex;
@@ -134,15 +132,12 @@ sqlsrv_close($conn);
             padding: 10px;
             text-decoration: none;
         }
-
         .dropdown-container {
             padding-left: 20px; /* Thụt lề cho dropdown */
         }
-
         .dropdown-btn.active + .dropdown-container {
             display: block; /* Đảm bảo dropdown hiện khi button active */
         }
-
         .collapsed .link-text {
             display: none; /* Ẩn văn bản khi sidebar bị thu gọn */
         }
@@ -207,6 +202,11 @@ sqlsrv_close($conn);
             width: 35%;
             border-collapse: collapse;
             font-size: 10px;
+        }
+        .container table caption {
+            font-size: 1.5em; /* Kích thước của tiêu đề bảng */
+            font-weight: bold;
+            margin-bottom: 10px;
         }
         th, td {
             border: 2px solid white;
