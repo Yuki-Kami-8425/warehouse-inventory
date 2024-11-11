@@ -29,12 +29,6 @@ switch ($station) {
         $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
         break;
 
-    case 'list':
-        // Truy vấn tất cả dữ liệu từ bảng nếu là List
-        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
-        $params = null; // Không cần tham số
-        break;
-
     case 'home':
         // Không cần truy vấn dữ liệu cho home
         $sql = null; // Hoặc không cần khởi tạo $sql
@@ -379,16 +373,8 @@ sqlsrv_close($conn);
                 </li>
             </ul>
         </li>
-
-        <li>
-            <a href="?station=list" onclick="showPage('list'); closeDropdowns();" data-tooltip="Watch List">
-                <i class="fas fa-list"></i>
-                <span class="link-text">List</span>
-            </a>
-        </li>
     </ul>
 </div>
-
     <div class="main-content" id="main-content">
 <?php
     switch ($station) {
@@ -484,37 +470,7 @@ sqlsrv_close($conn);
                 </div>
             </div>
             <?php
-            break;
-
-            case 'list':
-                // Truy vấn lại dữ liệu cho List
-                $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
-                $stmt = sqlsrv_query($conn, $sql);
-                ?>
-                <h2>Danh Sách Khách Hàng</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Mã Khách</th>
-                            <th>Tên Khách</th>
-                            <th>Số Pallet</th>
-                            <th>RFID</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($row['MAKH']) ?></td>
-                                <td><?= htmlspecialchars($row['TENKH']) ?></td>
-                                <td><?= htmlspecialchars($row['LUONG_PALLET']) ?></td>
-                                <td><?= htmlspecialchars($row['RFID']) ?></td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            <?php
-            break;
-        
+            break;        
     } ?>
     </div>
 
@@ -596,7 +552,17 @@ sqlsrv_close($conn);
                     labels: {
                         color: 'white'
                     }
+                },
+                tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const data = tooltipItem.dataset.data;
+                        const currentValue = data[tooltipItem.dataIndex];
+                        const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
+                        return tooltipItem.label + ': ' + percentage + '%';
+                    }
                 }
+            }
             }
         }
     });
