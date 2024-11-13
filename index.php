@@ -233,8 +233,9 @@ sqlsrv_close($conn);
             outline: none; /* Xóa outline khi nhấn */
             box-shadow: none; /* Xóa hiệu ứng bóng */
         }
-        .sidebar a.selected {
-            color: #00BFFF; /* Màu xanh lam khi được chọn */
+        .sidebar a.active {
+            color: #ADD8E6; /* Màu xanh lam nhạt */
+            font-weight: bold; /* Thêm font-weight cho nổi bật */
         }
         .sidebar a:hover::after, .dropdown-btn:hover::after {  /* Hiệu ứng tooltip */
             content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
@@ -265,6 +266,45 @@ sqlsrv_close($conn);
         }
         .dropdown-container.show {
             display: block; /* Hiển thị menu khi có class 'show' */
+        }
+        .slide-title {
+            font-size: 24px; /* Kích thước chữ cho tiêu đề */
+            color: white; /* Màu chữ */
+            margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
+        }
+        .slide {
+            display: none; /* Ẩn tất cả các slide mặc định */
+            position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
+        }
+        .slide img {
+            width: 650px; /* Chiều rộng cố định */
+            height: 350px; /* Chiều cao cố định */
+            object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
+        }
+        .dots {
+            position: relative; /* Để căn giữa dấu chấm */
+            text-align: center; /* Căn giữa dấu chấm */
+            margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
+        }
+        .dot {
+            height: 10px; /* Kích thước dấu chấm */
+            width: 10px; /* Kích thước dấu chấm */
+            margin: 0 5px; /* Khoảng cách giữa các dấu chấm */
+            background-color: white; /* Màu trắng */
+            border-radius: 50%; /* Đường viền tròn */
+            display: inline-block; /* Hiển thị thành dòng ngang */
+            cursor: pointer; /* Con trỏ khi hover vào */
+            transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
+        }
+        .dot.active {
+            height: 15px; /* Kích thước lớn hơn khi được chọn */
+            width: 15px; /* Kích thước lớn hơn khi được chọn */
+            background-color: #00BFFF; /* Màu xanh lam khi được chọn */
+        }
+        .dot:hover {
+            background-color: #00BFFF; /* Màu nền khi hover */
+            transform: scale(1.2); /* Phóng to một chút */
+            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -426,18 +466,30 @@ sqlsrv_close($conn);
         <div class="charts"> <!-- Biểu đồ -->
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        Figure: Distribution of Used and Remaining Slots
+                    </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        Figure: Distribution of Used and Remaining Slots
+                    </div>
                 </div>
          </div>
          <?php break; case 'all': ?>
             <div class="charts"> <!-- Biểu đồ -->
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        Figure: Distribution of Used and Remaining Slots
+                    </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        Figure: Distribution of Used and Remaining Slots
+                    </div>
                 </div>
             </div>
             <?php break; } ?>
@@ -482,11 +534,6 @@ sqlsrv_close($conn);
                             font: {
                                 size: 16
                             }
-                        },
-                        grid: {
-                            display: true,
-                            color: 'rgba(255, 255, 255, 0.3)', // Màu vạch ngang
-                            lineWidth: 1
                         },
                         ticks: {
                             color: 'white',
@@ -594,10 +641,13 @@ sqlsrv_close($conn);
             console.log(`Loading page: ${page}`);
             closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
         }
-        document.querySelectorAll('.sidebar a').forEach(link => {
-            link.addEventListener('click', function () {
-                document.querySelectorAll('.sidebar a').forEach(item => item.classList.remove('selected')); // Xóa tất cả lớp 'selected'
-                this.classList.add('selected'); // Thêm lớp 'selected' cho liên kết được nhấp
+        const urlParams = new URLSearchParams(window.location.search);
+        const station = urlParams.get('station');
+        if (station) {
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                if (link.getAttribute('href').includes(`station=${station}`)) {
+                    link.classList.add('active');
+                }
             });
-        });
+        }
 </script>
