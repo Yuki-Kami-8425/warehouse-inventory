@@ -280,42 +280,55 @@ sqlsrv_close($conn);
             width: 100%;
             height: 100%;
         }
-        /* Đảm bảo toàn bộ slide là một cột và các dấu chấm nằm ngay bên dưới hình */
-        .slide {
-            display: flex; /* Đảm bảo các phần tử trong slide được căn chỉnh bằng flex */
-            flex-direction: column; /* Đặt các phần tử con (tiêu đề, hình ảnh, và dấu chấm) theo cột */
-            align-items: center; /* Căn giữa các phần tử theo chiều ngang */
-            text-align: center; /* Căn giữa văn bản */
-            gap: 10px; /* Khoảng cách giữa tiêu đề, hình ảnh và dấu chấm */
+        .slide:hover {
+            transform: scale(1.02); /* Phóng to một chút */
+            transition: transform 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
-
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            margin: auto;
+            padding: 20px 0;
+            text-align: center;
+        }
         .slide-title {
-            font-size: 24px;
-            color: white;
+            font-size: 24px; /* Kích thước chữ cho tiêu đề */
+            color: white; /* Màu chữ */
+            margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
         }
-
+        .slide {
+            display: none; /* Ẩn tất cả các slide mặc định */
+            position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
+        }
         .slide img {
-            width: 650px;
-            height: 350px;
-            object-fit: fill;
+            width: 650px; /* Chiều rộng cố định */
+            height: 350px; /* Chiều cao cố định */
+            object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
         }
-
-        /* Đảm bảo rằng các dấu chấm nằm ngay dưới hình ảnh và ở giữa */
         .dots {
-            display: flex;
-            justify-content: center; /* Căn giữa các dấu chấm */
-            gap: 5px; /* Khoảng cách giữa các dấu chấm */
-            margin-top: 10px; /* Khoảng cách giữa hình ảnh và dấu chấm */
+            position: relative; /* Để căn giữa dấu chấm */
+            text-align: center; /* Căn giữa dấu chấm */
+            margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
+        }
+        .dot {
+            height: 10px; /* Kích thước dấu chấm */
+            width: 10px; /* Kích thước dấu chấm */
+            margin: 0 5px; /* Khoảng cách giữa các dấu chấm */
+            background-color: white; /* Màu trắng */
+            border-radius: 50%; /* Đường viền tròn */
+            display: inline-block; /* Hiển thị thành dòng ngang */
+            cursor: pointer; /* Con trỏ khi hover vào */
+            transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
         }
         .dot.active {
-            height: 15px;
-            width: 15px;
-            background-color: #00BFFF;
+            height: 15px; /* Kích thước lớn hơn khi được chọn */
+            width: 15px; /* Kích thước lớn hơn khi được chọn */
+            background-color: #00BFFF; /* Màu xanh lam khi được chọn */
         }
-
         .dot:hover {
-            background-color: #00BFFF;
-            transform: scale(1.2);
+            background-color: #00BFFF; /* Màu nền khi hover */
+            transform: scale(1.2); /* Phóng to một chút */
+            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
