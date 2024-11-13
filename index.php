@@ -280,55 +280,43 @@ sqlsrv_close($conn);
             width: 100%;
             height: 100%;
         }
-/* Đảm bảo toàn bộ slide là một cột và các dấu chấm nằm ngay bên dưới hình */
-.slide {
-    display: none; /* Ẩn tất cả các slide mặc định */
-    position: relative;
-    display: flex;
-    flex-direction: column; /* Đặt các phần tử con (tiêu đề, hình ảnh, và dấu chấm) theo cột */
-    align-items: center; /* Căn giữa các phần tử theo chiều ngang */
-    text-align: center; /* Căn giữa văn bản */
-    gap: 10px; /* Khoảng cách giữa tiêu đề, hình ảnh và dấu chấm */
-}
+        /* Đảm bảo toàn bộ slide là một cột và các dấu chấm nằm ngay bên dưới hình */
+        .slide {
+            display: flex; /* Đảm bảo các phần tử trong slide được căn chỉnh bằng flex */
+            flex-direction: column; /* Đặt các phần tử con (tiêu đề, hình ảnh, và dấu chấm) theo cột */
+            align-items: center; /* Căn giữa các phần tử theo chiều ngang */
+            text-align: center; /* Căn giữa văn bản */
+            gap: 10px; /* Khoảng cách giữa tiêu đề, hình ảnh và dấu chấm */
+        }
 
-.slide-title {
-    font-size: 24px;
-    color: white;
-}
+        .slide-title {
+            font-size: 24px;
+            color: white;
+        }
 
-.slide img {
-    width: 650px;
-    height: 350px;
-    object-fit: fill;
-}
+        .slide img {
+            width: 650px;
+            height: 350px;
+            object-fit: fill;
+        }
 
-/* Đảm bảo rằng các dấu chấm nằm ngay dưới hình ảnh và ở giữa */
-.dots {
-    display: flex;
-    justify-content: center; /* Căn giữa các dấu chấm */
-    gap: 5px; /* Khoảng cách giữa các dấu chấm */
-    margin-top: 10px; /* Khoảng cách giữa hình ảnh và dấu chấm */
-}
+        /* Đảm bảo rằng các dấu chấm nằm ngay dưới hình ảnh và ở giữa */
+        .dots {
+            display: flex;
+            justify-content: center; /* Căn giữa các dấu chấm */
+            gap: 5px; /* Khoảng cách giữa các dấu chấm */
+            margin-top: 10px; /* Khoảng cách giữa hình ảnh và dấu chấm */
+        }
+        .dot.active {
+            height: 15px;
+            width: 15px;
+            background-color: #00BFFF;
+        }
 
-.dot {
-    height: 10px;
-    width: 10px;
-    background-color: white;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.dot.active {
-    height: 15px;
-    width: 15px;
-    background-color: #00BFFF;
-}
-
-.dot:hover {
-    background-color: #00BFFF;
-    transform: scale(1.2);
-}
+        .dot:hover {
+            background-color: #00BFFF;
+            transform: scale(1.2);
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
