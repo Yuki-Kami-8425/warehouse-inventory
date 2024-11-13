@@ -183,13 +183,28 @@ sqlsrv_close($conn);
         td.highlight {
             background-color: #32CD32;
         }
-        .chart-container {
-            width: 30%; 
-            margin: 20px;
-        }
         .charts {
             display: flex; 
-            justify-content: space-around; 
+            justify-content: space-between; /* Evenly distribute space between charts */
+             gap: 20px; 
+        }
+        .chart-container {
+            flex: 1; /* Make both charts take equal space */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Align items (chart + caption) horizontally */
+            width: 30%; 
+            margin: 20%;
+        }
+        #barChart, #pieChart {
+            width: 30% !important; /* Make the charts take up the full width of the container */
+            height: 20% !important; /* Make the charts take up the full height of the container */
+        }
+        #barChartCaption, #pieChartCaption {
+            text-align: center;
+            color: white;
+            margin-top: 5px;
+            margin-bottom: 0; /* Remove any extra margin */
         }
         .toggle-btn {
             position: absolute;
@@ -271,14 +286,6 @@ sqlsrv_close($conn);
             font-size: 24px; /* Kích thước chữ cho tiêu đề */
             color: white; /* Màu chữ */
             margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
-        }
-        .slideshow-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            width: 100%;
-            height: 100%;
         }
         .slide:hover {
             transform: scale(1.02); /* Phóng to một chút */
@@ -526,8 +533,8 @@ sqlsrv_close($conn);
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
     // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
+    var ctxBar = document.getElementById('barChart').getContext('2d');
+    var barChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
                 labels: customerLabels,
@@ -541,6 +548,7 @@ sqlsrv_close($conn);
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false // Ẩn legend
@@ -594,8 +602,8 @@ sqlsrv_close($conn);
                 });
             };
     // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
+    var ctxPie = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
             labels: ['Used', 'Remaining'],
@@ -607,6 +615,8 @@ sqlsrv_close($conn);
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     labels: {
