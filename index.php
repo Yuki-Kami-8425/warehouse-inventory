@@ -193,8 +193,9 @@ sqlsrv_close($conn);
             display: flex;
             flex-direction: column;
             align-items: center; /* Align items (chart + caption) horizontally */
-            width: 30%; 
-            margin: 20%;
+            width: 50%; 
+            margin: 400px;
+            margin: 0 auto;
         }
         #barChart, #pieChart {
             width: 100% !important; /* Make the charts take up the full width of the container */
