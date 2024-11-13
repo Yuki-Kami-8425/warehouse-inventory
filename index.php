@@ -1,63 +1,37 @@
 <?php 
-// Thông tin kết nối cơ sở dữ liệu Azure SQL
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
     "Database" => "eiu_warehouse_24",
     "Uid" => "eiuadmin",
     "PWD" => "Khoa123456789"
 ); 
-
-// Kết nối đến cơ sở dữ liệu
 $conn = sqlsrv_connect($serverName, $connectionOptions); 
-
-
-// Kiểm tra kết nối
 if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
-
-// Lấy trạm từ query string, mặc định là 'home'
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
-
-// Khởi tạo biến $sql và $params
 $sql = '';
 $params = null;
-
-// Sử dụng switch để xử lý các trường hợp
 switch ($station) {
     case 'all':
         $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
         break;
 
     case 'home':
-        // Không cần truy vấn dữ liệu cho home
         $sql = null; // Hoặc không cần khởi tạo $sql
         break;
-
-    case 'A':
-    case 'B':
-    case 'C':
-    case 'D':
-    case 'E':
-    case 'F':
-    case 'G':
+        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
         $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
         $params = array($station . '%');
         break;
-
     default:
-        // Xử lý trường hợp không hợp lệ, nếu cần
-        $sql = null; // Hoặc một truy vấn mặc định
+        $sql = null; // Một truy vấn mặc định
         break;
 }
-
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
-
-// Kiểm tra lỗi khi truy vấn
 if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
-
 // Tạo mảng để lưu dữ liệu
 $data = [];
 $customers = [];
@@ -67,11 +41,8 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
-
-// Đóng kết nối
 sqlsrv_close($conn);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,16 +51,13 @@ sqlsrv_close($conn);
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script>
-        // Kiểm tra xem URL có chứa tham số station không
-        window.onload = function() {
+        window.onload = function() { // Kiểm tra xem URL có chứa tham số station không
             const urlParams = new URLSearchParams(window.location.search);
             if (!urlParams.has('station')) {
-                // Nếu không có tham số, chuyển hướng đến Home
-                window.location.href = '?station=home';
+                window.location.href = '?station=home'; // Nếu không có tham số, chuyển hướng đến Home
             }
         };
     </script>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -104,7 +72,6 @@ sqlsrv_close($conn);
             padding: 20px;
             transition: margin-left 0.3s ease;
         }
-        /* Sidebar styling */
         .sidebar {
             position: fixed;
             top: 0;
@@ -181,7 +148,6 @@ sqlsrv_close($conn);
         .dropdown-container.show {
             display: block; /* Hiển thị dropdown khi có class 'show' */
         }
-        /* Main content styling */
         .main-content {
             margin-left: 250px;
             padding: 20px;
@@ -254,12 +220,10 @@ sqlsrv_close($conn);
             transition: background-color 0.3s ease;
             background-color: none;
         }
-        /* Hiệu ứng hover cho toàn bộ chữ và icon trong sidebar */
         .sidebar a:hover, .dropdown-btn:hover {
             color: #32CD32; /* Màu chữ khi hover */
             background-color: rgba(255, 255, 255, 0.1); /* Nền khi hover */
         }
-        /* Đảm bảo icon cũng thay đổi màu sắc khi hover */
         .sidebar a:hover i, .dropdown-btn:hover i {
             color: #32CD32; /* Màu icon khi hover */
         }
@@ -272,8 +236,7 @@ sqlsrv_close($conn);
         .sidebar a.selected {
             color: #00BFFF; /* Màu xanh lam khi được chọn */
         }
-        /* Hiệu ứng tooltip */
-        .sidebar a:hover::after, .dropdown-btn:hover::after {
+        .sidebar a:hover::after, .dropdown-btn:hover::after {  /* Hiệu ứng tooltip */
             content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
             position: absolute;
             left: 100%; /* Hiển thị tooltip bên phải của phần tử */
@@ -294,6 +257,9 @@ sqlsrv_close($conn);
         .sidebar a.active {
             color: #00aaff; /* Màu xanh lam tươi khi nút được chọn */
         }
+        .sidebar a.selected {
+            color: #ADD8E6; /* Màu xanh lam nhạt */
+        }
         .dropdown-container {
             display: none; /* Ẩn menu theo mặc định */
         }
@@ -308,7 +274,6 @@ sqlsrv_close($conn);
     <button class="toggle-btn" onclick="toggleSidebar()"; >
         <i class="fas fa-bars"></i>
     </button>
-
     <ul>
         <li>
             <a href="?station=home" onclick="showPage('home'); closeDropdowns();" class="main-link" data-tooltip="Go to Home">
@@ -316,7 +281,6 @@ sqlsrv_close($conn);
                 <span class="link-text">Home</span>
             </a>
         </li>
-
         <li>
             <button class="dropdown-btn" onclick="toggleDropdown(event)" data-tooltip="See dashboard">
                 <i class="fas fa-tachometer-alt"></i>
@@ -378,39 +342,61 @@ sqlsrv_close($conn);
     <div class="main-content" id="main-content">
 <?php
     switch ($station) {
-        case 'home':
-            ?>
-        <div id="home" class="page">
-            <div class="slideshow-container">
-                <div class="slide">
-                    <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
-                    <img class="slide-image" src="Picture1.png" alt="Slide 1">
-                </div>
-                <div class="slide">
-                    <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
-                    <img class="slide-image" src="Picture2.png" alt="Slide 2">
-                </div>
-                <div class="slide">
-                    <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
-                    <img class="slide-image" src="Picture3.png" alt="Slide 3">
-                </div>
-                <div class="dots">
-                    <span class="dot" onclick="showSlide(1)"></span>
-                    <span class="dot" onclick="showSlide(2)"></span>
-                    <span class="dot" onclick="showSlide(3)"></span>
+        case 'home': ?>
+            <div id="home" class="page">
+                <div class="slideshow-container">
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                        <img class="slide-image" src="Picture1.png" alt="Slide 1">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                        <img class="slide-image" src="Picture2.png" alt="Slide 2">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                        <img class="slide-image" src="Picture3.png" alt="Slide 3">
+                    </div>
+                    <div class="dots">
+                        <span class="dot" onclick="showSlide(1)"></span>
+                        <span class="dot" onclick="showSlide(2)"></span>
+                        <span class="dot" onclick="showSlide(3)"></span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <?php
-            break;
-
-            default: 
-            ?>
+            <script>
+                let slideIndex = 0;
+                showSlides();
+                function showSlides() {
+                    let slides = document.querySelectorAll('.slide');
+                    let dots = document.querySelectorAll('.dot');
+                    slides.forEach((slide, index) => {
+                        slide.style.display = 'none'; // Ẩn tất cả các slide
+                        dots[index].classList.remove("active"); // Xóa lớp active khỏi tất cả các dấu chấm
+                    });
+                    slideIndex++;
+                    if (slideIndex > slides.length) {
+                        slideIndex = 1; // Reset lại chỉ số nếu vượt quá số slide
+                    }
+                    slides[slideIndex - 1].style.display = 'block'; // Hiện slide hiện tại
+                    dots[slideIndex - 1].classList.add("active"); // Đánh dấu dấu chấm hiện tại
+                    setTimeout(showSlides, 5000); // Thay đổi slide mỗi 5 giây
+                }
+                function showSlide(index) {
+                    slideIndex = index; // Đặt chỉ số slide hiện tại
+                    let slides = document.querySelectorAll('.slide');
+                    let dots = document.querySelectorAll('.dot');
+                    slides.forEach(slide => slide.style.display = 'none'); // Ẩn tất cả các slide
+                    dots.forEach(dot => dot.classList.remove("active")); // Xóa lớp active khỏi tất cả các dấu chấm
+                    slides[slideIndex - 1].style.display = 'block'; // Hiện slide tương ứng
+                    dots[slideIndex - 1].classList.add("active"); // Đánh dấu dấu chấm tương ứng
+                }
+            </script>
+        <?php break; default: ?>
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
-            <!-- Bảng Left Rack -->
-            <table>
+            <table> <!-- Bảng Left Rack -->
                 <caption>Left Rack</caption>
                 <?php for ($row = 7; $row >= 1; $row--): ?>
                     <tr>
@@ -423,9 +409,7 @@ sqlsrv_close($conn);
                     </tr>
                 <?php endfor; ?>
             </table>
-
-            <!-- Bảng Right Rack -->
-            <table>
+            <table> <!-- Bảng Right Rack -->
                 <caption>Right Rack</caption>
                 <?php for ($row = 7; $row >= 1; $row--): ?>
                     <tr>
@@ -439,41 +423,25 @@ sqlsrv_close($conn);
                 <?php endfor; ?>
             </table>
         </div>
-        
-        <!-- Biểu đồ -->
-        <div class="charts">
-                <!-- Biểu đồ cột -->
-                <div class="chart-container">
+        <div class="charts"> <!-- Biểu đồ -->
+                <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                 </div>
-
-                <!-- Biểu đồ tròn -->
-                <div class="chart-container">
+                <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
                 </div>
          </div>
-         <?php
-            break;
-
-         case 'all':
-            ?>
-            <!-- Biểu đồ -->
-            <div class="charts">
-                <!-- Biểu đồ cột -->
-                <div class="chart-container">
+         <?php break; case 'all': ?>
+            <div class="charts"> <!-- Biểu đồ -->
+                <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                 </div>
-
-                <!-- Biểu đồ tròn -->
-                <div class="chart-container">
+                <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
                 </div>
             </div>
-            <?php
-            break;        
-    } ?>
+            <?php break; } ?>
     </div>
-
 <script>
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
@@ -481,58 +449,79 @@ sqlsrv_close($conn);
     const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
-
     // Biểu đồ cột
     const ctxBar = document.getElementById('barChart').getContext('2d');
     const barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: customerLabels,
-            datasets: [{
-                label: 'Used Slots',
-                data: customerData,
-                backgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
+            type: 'bar',
+            data: {
+                labels: customerLabels,
+                datasets: [{
+                    label: 'Slots per Customer',
+                    data: customerData,
+                    backgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Used Slots',
-                        color: 'white'
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false // Ẩn legend
                     },
-                    grid: {
-                        color: 'white'
-                    },
-                    ticks: {
-                        color: 'white',
-                        stepSize: 1
-                    }
                 },
-                x: {
-                    grid: {
-                        color: 'white'
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100, // Thang đo từ 0 đến 100
+                        stepSize: 10, // Độ chia là 10
+                        title: {
+                            display: true,
+                            text: 'Percentage of Total Slots (%)',
+                            color: 'white',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(255, 255, 255, 0.3)', // Màu vạch ngang
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            color: 'white',
+                            stepSize: 10
+                        }
                     },
-                    ticks: {
-                        color: 'white'
+                    x: {
+                        grid: {
+                            display: false // Không hiển thị vạch dọc
+                        },
+                        ticks: {
+                            color: 'white', // Màu chữ trục X
+                            font: {
+                                size: 14
+                            }
+                        }
                     }
                 }
             }
-        }
-    });
-
+        });
+        barChart.options.animation.onComplete = function () {
+                const ctx = barChart.ctx;
+                const chartArea = barChart.chartArea;
+                const xScale = barChart.scales.x;
+                const yScale = barChart.scales.y;
+                barChart.data.datasets[0].data.forEach(function (value, index) {
+                    const percentage = ((value / totalSlots) * 100).toFixed(2);
+                    const x = xScale.getPixelForValue(index);
+                    const y = yScale.getPixelForValue(value);
+                    ctx.fillStyle = 'white';
+                    ctx.textAlign = 'center';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.fillText(percentage + '%', x, y - 10);
+                });
+            };
     // Biểu đồ tròn
     const ctxPie = document.getElementById('pieChart').getContext('2d');
     const pieChart = new Chart(ctxPie, {
@@ -566,32 +555,49 @@ sqlsrv_close($conn);
             }
         }
     });
-
-    // Hàm toggleSidebar để thu gọn/mở rộng sidebar
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('collapsed');
-}
-
-// Hàm toggleDropdown để đóng/mở dropdown hiện tại và đóng tất cả các dropdown khác
-function toggleDropdown(event) {
-    event.stopPropagation();
-    closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
-    const dropdown = event.currentTarget.nextElementSibling;
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-}
-
-// Hàm closeDropdowns để đóng tất cả các dropdown
-function closeDropdowns() {
-    const allDropdowns = document.querySelectorAll('.dropdown-container');
-    allDropdowns.forEach(d => {
-        d.style.display = 'none';
-    });
-}
-
-// Hàm showPage để chuyển trang
-function showPage(page) {
-    console.log(`Loading page: ${page}`);
-    closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
-}
+        let lastUpdateTime = Date.now();
+        let watchdogTimer;
+        function startWatchdog() {
+            watchdogTimer = setInterval(function() {
+                const currentTime = Date.now();
+                if (currentTime - lastUpdateTime > 5000) {  // Nếu không có cập nhật trong 5 giây
+                    console.warn("Watchdog Timer: No update received for 5 seconds. Reloading...");
+                    location.reload();
+                }
+            }, 1000);  // Kiểm tra mỗi giây
+        }
+        function resetWatchdog() {
+            lastUpdateTime = Date.now();  // Đặt lại thời gian khi có cập nhật
+        }
+        startWatchdog();
+        function updateCharts() {
+            resetWatchdog();
+        }
+        updateCharts();
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
+            const dropdown = event.currentTarget.nextElementSibling;
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+        function closeDropdowns() {
+            const allDropdowns = document.querySelectorAll('.dropdown-container');
+            allDropdowns.forEach(d => {
+                d.style.display = 'none';
+            });
+        }
+        function showPage(page) {
+            console.log(`Loading page: ${page}`);
+            closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
+        }
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', function () {
+                document.querySelectorAll('.sidebar a').forEach(item => item.classList.remove('selected')); // Xóa tất cả lớp 'selected'
+                this.classList.add('selected'); // Thêm lớp 'selected' cho liên kết được nhấp
+            });
+        });
 </script>
