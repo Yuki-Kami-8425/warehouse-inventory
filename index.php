@@ -193,9 +193,12 @@ sqlsrv_close($conn);
             display: flex;
             flex-direction: column;
             align-items: center; /* Align items (chart + caption) horizontally */
-            width: 50%; 
-            margin: 400px;
+            width: 300px; 
             margin: 0 auto;
+        }
+        #barChart, #pieChart {
+            width: 300px !important;
+            height: 300px !important; /* Adjust height as needed */
         }
         #barChartCaption, #pieChartCaption {
             text-align: center;
