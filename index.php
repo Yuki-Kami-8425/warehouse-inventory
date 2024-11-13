@@ -272,14 +272,27 @@ sqlsrv_close($conn);
             color: white; /* Màu chữ */
             margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
         }
+        .slideshow-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
         .slide {
             display: none; /* Ẩn tất cả các slide mặc định */
-            position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
+            position: relative;
+            display: flex;
+            flex-direction: column; /* Đặt các phần tử con (tiêu đề và hình ảnh) theo cột */
+            justify-content: center; /* Căn giữa các phần tử theo chiều dọc */
+            align-items: center; /* Căn giữa các phần tử theo chiều ngang */
         }
         .slide img {
             width: 650px; /* Chiều rộng cố định */
             height: 350px; /* Chiều cao cố định */
             object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
+            margin: 0 auto; /* Đảm bảo ảnh ở giữa */
         }
         .dots {
             position: relative; /* Để căn giữa dấu chấm */
@@ -641,13 +654,16 @@ sqlsrv_close($conn);
             console.log(`Loading page: ${page}`);
             closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
         }
+        document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
         const station = urlParams.get('station');
-        if (station) {
-            document.querySelectorAll('.sidebar a').forEach(link => {
-                if (link.getAttribute('href').includes(`station=${station}`)) {
-                    link.classList.add('active');
-                }
-            });
-        }
+        const links = document.querySelectorAll('.sidebar a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            // Nếu liên kết chứa đúng station, thêm lớp active
+            if (href && href.includes(`station=${station}`)) {
+                link.classList.add('active');
+            }
+        });
+    });
 </script>
