@@ -196,9 +196,16 @@ sqlsrv_close($conn);
             width: 300px; 
             margin: 0 auto;
         }
+        .charts-center {
+            display: flex;
+            flex: 1;
+            justify-content: center; /* Centers the charts horizontally */
+            gap: 20px; /* Optional: space between the charts */
+            margin: 0 auto; /* Center within its parent container */
+        }
         #barChart, #pieChart {
-            width: 300px !important;
-            height: 300px !important; /* Adjust height as needed */
+            width: 400px !important;
+            height: 400px !important; /* Adjust height as needed */
         }
         #barChartCaption, #pieChartCaption {
             text-align: center;
@@ -509,7 +516,7 @@ sqlsrv_close($conn);
                 </div>
          </div>
          <?php break; case 'all': ?>
-            <div class="charts"> <!-- Biểu đồ -->
+            <div class="charts charts-center"> <!-- Biểu đồ -->
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
@@ -677,7 +684,6 @@ sqlsrv_close($conn);
         const links = document.querySelectorAll('.sidebar a');
         links.forEach(link => {
             const href = link.getAttribute('href');
-            // Nếu liên kết chứa đúng station, thêm lớp active
             if (href && href.includes(`station=${station}`)) {
                 link.classList.add('active');
             }
