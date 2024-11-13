@@ -544,8 +544,6 @@ sqlsrv_close($conn);
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false // Ẩn legend
@@ -612,8 +610,6 @@ sqlsrv_close($conn);
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     labels: {
