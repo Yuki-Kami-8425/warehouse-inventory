@@ -197,8 +197,8 @@ sqlsrv_close($conn);
             margin: 20%;
         }
         #barChart, #pieChart {
-            width: 30% !important; /* Make the charts take up the full width of the container */
-            height: 20% !important; /* Make the charts take up the full height of the container */
+            width: 100% !important; /* Make the charts take up the full width of the container */
+            height: 100% !important; /* Make the charts take up the full height of the container */
         }
         #barChartCaption, #pieChartCaption {
             text-align: center;
