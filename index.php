@@ -197,10 +197,6 @@ sqlsrv_close($conn);
             margin: 400px;
             margin: 0 auto;
         }
-        #barChart, #pieChart {
-            width: 100% !important; /* Make the charts take up the full width of the container */
-            height: 100% !important; /* Make the charts take up the full height of the container */
-        }
         #barChartCaption, #pieChartCaption {
             text-align: center;
             color: white;
