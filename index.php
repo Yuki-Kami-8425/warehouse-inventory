@@ -23,10 +23,6 @@ switch ($station) {
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
         $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
         $params = array($station . '%');
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            $productCode = $row['RFID']; // Mã sản phẩm (hoặc bất kỳ giá trị nào từ cơ sở dữ liệu)
-            $productName = $row['LUONG_PALLET']; // Tên sản phẩm (hoặc giá trị khác)
-            $customerName = $row['TENKH']; }// Tên khách hàng
         break;
     default:
         $sql = null; // Một truy vấn mặc định
@@ -40,6 +36,14 @@ $data = []; // Tạo mảng để lưu dữ liệu
 $customers = [];
 $highlighted = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $productCode = $row['RFID']; // Mã sản phẩm (hoặc bất kỳ giá trị nào từ cơ sở dữ liệu)
+    $productName = $row['LUONG_PALLET']; // Tên sản phẩm (hoặc giá trị khác)
+    $customerName = $row['TENKH']; // Tên khách hàng
+    $productData[] = [
+        'product_code' => $productCode,
+        'product_name' => $productName,
+        'customer_name' => $customerName
+    ];
     $data[] = $row;
     $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
