@@ -481,8 +481,6 @@ sqlsrv_close($conn);
                         <?php for ($col = 1; $col <= 14; $col++): ?>
                             <?php $index = ($row - 1) * 14 + $col; ?>
                             <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                title="<?= htmlspecialchars($customerName) ?>">
-                                <?= $rfid ?>
                                 <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                             </td>
                         <?php endfor; ?>
@@ -496,8 +494,6 @@ sqlsrv_close($conn);
                         <?php for ($col = 1; $col <= 14; $col++): ?>
                             <?php $index = ($row - 1) * 14 + $col; ?>
                             <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
-                                title="<?= htmlspecialchars($customerName) ?>">
-                                <?= $rfid ?>
                                 <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                             </td>
                         <?php endfor; ?>
