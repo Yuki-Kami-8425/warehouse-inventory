@@ -488,39 +488,54 @@ sqlsrv_close($conn);
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
-        <table> <!-- Bảng Left Rack -->
-            <caption>Left Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
-                                data-product-code="<?= $productCode ?>"
-                                data-product-name="<?= $productName ?>"
-                                data-customer-name="<?= $customerName ?>">
-                                <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
+    <table> <!-- Bảng Left Rack -->
+        <caption>Left Rack</caption>
+        <?php 
+        for ($row = 7; $row >= 1; $row--): ?>
+            <tr>
+                <?php for ($col = 1; $col <= 14; $col++): ?>
+                    <?php 
+                    $index = ($row - 1) * 14 + $col;
+                    // Giả sử lấy thông tin sản phẩm và khách hàng từ cơ sở dữ liệu
+                    $productCode = 'P' . str_pad($index, 4, '0', STR_PAD_LEFT);  // Ví dụ mã sản phẩm
+                    $productName = 'Product ' . $index;  // Ví dụ tên sản phẩm
+                    $customerName = 'Customer ' . ($index % 10);  // Ví dụ tên khách hàng
+                    ?>
+                    <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
+                        data-product-code="<?= $productCode ?>"
+                        data-product-name="<?= $productName ?>"
+                        data-customer-name="<?= $customerName ?>">
+                        <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                    </td>
                 <?php endfor; ?>
-            </table>
-            <table> <!-- Bảng Right Rack -->
-                <caption>Right Rack</caption>
-                <?php for ($row = 7; $row >= 1; $row--): ?>
-                    <tr>
-                        <?php for ($col = 1; $col <= 14; $col++): ?>
-                            <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
-                                data-product-code="<?= $productCode ?>"
-                                data-product-name="<?= $productName ?>"
-                                data-customer-name="<?= $customerName ?>">
-                                <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
-                            </td>
-                        <?php endfor; ?>
-                    </tr>
+            </tr>
+        <?php endfor; ?>
+    </table>
+    
+    <table> <!-- Bảng Right Rack -->
+        <caption>Right Rack</caption>
+        <?php 
+        for ($row = 7; $row >= 1; $row--): ?>
+            <tr>
+                <?php for ($col = 1; $col <= 14; $col++): ?>
+                    <?php 
+                    $index = ($row - 1) * 14 + $col;
+                    // Giả sử lấy thông tin sản phẩm và khách hàng từ cơ sở dữ liệu
+                    $productCode = 'P' . str_pad($index, 4, '0', STR_PAD_LEFT);  // Ví dụ mã sản phẩm
+                    $productName = 'Product ' . $index;  // Ví dụ tên sản phẩm
+                    $customerName = 'Customer ' . ($index % 10);  // Ví dụ tên khách hàng
+                    ?>
+                    <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
+                        data-product-code="<?= $productCode ?>"
+                        data-product-name="<?= $productName ?>"
+                        data-customer-name="<?= $customerName ?>">
+                        <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
+                    </td>
                 <?php endfor; ?>
-            </table>
-        </div>
+            </tr>
+        <?php endfor; ?>
+    </table>
+</div>
         <div class="charts"> <!-- Biểu đồ -->
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
