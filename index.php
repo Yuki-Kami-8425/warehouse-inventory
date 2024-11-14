@@ -28,18 +28,6 @@ switch ($station) {
         $sql = null; // Một truy vấn mặc định
         break;
 }
-if ($sql) {
-    $stmt = $db->prepare($sql); // Giả định bạn đã kết nối cơ sở dữ liệu bằng $db
-    if (isset($params)) {
-        $stmt->execute($params);
-    } else {
-        $stmt->execute();
-    }
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($result as $row) { // Lưu trữ dữ liệu khách hàng theo vị trí RFID
-        $customerData[$row['RFID']] = $row['TENKH'];
-    }
-}
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
 if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
