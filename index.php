@@ -344,6 +344,20 @@ sqlsrv_close($conn);
             transform: scale(1.2); /* Phóng to một chút */
             transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            display: none;
+            pointer-events: none;
+            font-size: 14px;
+            z-index: 9999;
+            white-space: nowrap;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -474,13 +488,16 @@ sqlsrv_close($conn);
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
-            <table> <!-- Bảng Left Rack -->
-                <caption>Left Rack</caption>
+        <table> <!-- Bảng Left Rack -->
+            <caption>Left Rack</caption>
                 <?php for ($row = 7; $row >= 1; $row--): ?>
                     <tr>
                         <?php for ($col = 1; $col <= 14; $col++): ?>
                             <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                            <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
+                                data-product-code="<?= $productCode ?>"
+                                data-product-name="<?= $productName ?>"
+                                data-customer-name="<?= $customerName ?>">
                                 <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                             </td>
                         <?php endfor; ?>
@@ -493,7 +510,10 @@ sqlsrv_close($conn);
                     <tr>
                         <?php for ($col = 1; $col <= 14; $col++): ?>
                             <?php $index = ($row - 1) * 14 + $col; ?>
-                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                            <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
+                                data-product-code="<?= $productCode ?>"
+                                data-product-name="<?= $productName ?>"
+                                data-customer-name="<?= $customerName ?>">
                                 <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                             </td>
                         <?php endfor; ?>
@@ -505,7 +525,7 @@ sqlsrv_close($conn);
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station . ': ' ?>
+                        <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
@@ -644,11 +664,11 @@ sqlsrv_close($conn);
         function startWatchdog() {
             watchdogTimer = setInterval(function() {
                 const currentTime = Date.now();
-                if (currentTime - lastUpdateTime > 5000) {  // Nếu không có cập nhật trong 5 giây
-                    console.warn("Watchdog Timer: No update received for 5 seconds. Reloading...");
+                if (currentTime - lastUpdateTime > 10000) {  // Nếu không có cập nhật trong 10 giây
+                    console.warn("Watchdog Timer: No update received for 10 seconds. Reloading...");
                     location.reload();
                 }
-            }, 1000);  // Kiểm tra mỗi giây
+            }, 10000);  // Kiểm tra mỗi 10 giây
         }
         function resetWatchdog() {
             lastUpdateTime = Date.now();  // Đặt lại thời gian khi có cập nhật
@@ -689,4 +709,31 @@ sqlsrv_close($conn);
             }
         });
     });
+    document.querySelectorAll('.highlight').forEach(function(cell) {
+    cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
+        const tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
+        const productName = e.target.getAttribute('data-product-name');
+        const customerName = e.target.getAttribute('data-customer-name');
+        tooltip.innerHTML = ` // Nội dung tooltip
+            <strong>Product Code:</strong> ${productCode}<br>
+            <strong>Product Name:</strong> ${productName}<br>
+            <strong>Customer Name:</strong> ${customerName}
+        `;
+        document.body.appendChild(tooltip); // Thêm tooltip vào body
+        const rect = e.target.getBoundingClientRect(); // Định vị tooltip
+        tooltip.style.left = rect.left + window.scrollX + 'px';
+        tooltip.style.top = rect.top + window.scrollY - tooltip.offsetHeight - 10 + 'px';
+        tooltip.style.display = 'block';    // Hiển thị tooltip     
+        e.target._tooltip = tooltip; // Lưu trữ tooltip để xóa khi rời chuột
+    });
+    cell.addEventListener('mouseleave', function(e) { // Xóa tooltip khi chuột rời khỏi ô
+        if (e.target._tooltip) {
+            document.body.removeChild(e.target._tooltip);
+            e.target._tooltip = null;
+        }
+    });
+});
+
 </script>
