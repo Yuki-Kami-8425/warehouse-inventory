@@ -28,6 +28,18 @@ switch ($station) {
         $sql = null; // Một truy vấn mặc định
         break;
 }
+if ($sql) {
+    $stmt = $db->prepare($sql); // Giả định bạn đã kết nối cơ sở dữ liệu bằng $db
+    if (isset($params)) {
+        $stmt->execute($params);
+    } else {
+        $stmt->execute();
+    }
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($result as $row) { // Lưu trữ dữ liệu khách hàng theo vị trí RFID
+        $customerData[$row['RFID']] = $row['TENKH'];
+    }
+}
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
 if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
@@ -481,6 +493,8 @@ sqlsrv_close($conn);
                         <?php for ($col = 1; $col <= 14; $col++): ?>
                             <?php $index = ($row - 1) * 14 + $col; ?>
                             <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                                title="<?= htmlspecialchars($customerName) ?>">
+                                <?= $rfid ?>
                                 <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                             </td>
                         <?php endfor; ?>
@@ -494,6 +508,8 @@ sqlsrv_close($conn);
                         <?php for ($col = 1; $col <= 14; $col++): ?>
                             <?php $index = ($row - 1) * 14 + $col; ?>
                             <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>">
+                                title="<?= htmlspecialchars($customerName) ?>">
+                                <?= $rfid ?>
                                 <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                             </td>
                         <?php endfor; ?>
@@ -505,13 +521,13 @@ sqlsrv_close($conn);
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Figure: Distribution of Used and Remaining Slots
+                        <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station . ': ' ?>
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Figure: Distribution of Used and Remaining Slots
+                        <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
                     </div>
                 </div>
          </div>
@@ -520,13 +536,13 @@ sqlsrv_close($conn);
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Figure: Distribution of Used and Remaining Slots
+                        Slot Usage Across All Stations
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Figure: Distribution of Used and Remaining Slots
+                        Distribution of Storage Slots 
                     </div>
                 </div>
             </div>
