@@ -32,6 +32,13 @@ $stmt = sqlsrv_query($conn, $sql, $params ?? null);
 if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
+$sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+$stmt = sqlsrv_query($conn, $sql);
+
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $productCode = $row['RFID']; // Mã sản phẩm (hoặc bất kỳ giá trị nào từ cơ sở dữ liệu)
+    $productName = $row['LUONG_PALLET']; // Tên sản phẩm (hoặc giá trị khác)
+    $customerName = $row['TENKH']; // Tên khách hàng
 // Tạo mảng để lưu dữ liệu
 $data = [];
 $customers = [];
@@ -731,7 +738,7 @@ sqlsrv_close($conn);
         const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
         const productName = e.target.getAttribute('data-product-name');
         const customerName = e.target.getAttribute('data-customer-name');
-        tooltip.innerHTML = ` // Nội dung tooltip
+        /* Nội dung tooltip*/ tooltip.innerHTML = `
             <strong>Product Code:</strong> ${productCode}<br>
             <strong>Product Name:</strong> ${productName}<br>
             <strong>Customer Name:</strong> ${customerName}
