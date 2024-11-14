@@ -21,7 +21,7 @@ switch ($station) {
         $sql = null; // Hoặc không cần khởi tạo $sql
         break;
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-        $sql = "SELECT SOCT, NGAYCT, MAKH, TENKH, MASP, TENSP, DONVI, LUONG_PALLET, PALLET_status FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
         $params = array($station . '%');
         break;
     default:
@@ -41,15 +41,9 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $productName = $row['TENSP']; // Tên sản phẩm (hoặc giá trị khác)
     $customerName = $row['TENKH']; // Tên khách hàng
     $productData[] = [
-        'soct' => $row['SOCT'],
-        'ngayct' => $row['NGAYCT'],
-        'makh' => $row['MAKH'],
-        'tenkh' => $row['TENKH'],
-        'masp' => $row['MASP'],
-        'tensp' => $row['TENSP'],
-        'donvi' => $row['DONVI'],
-        'luong_pallet' => $row['LUONG_PALLET'],
-        'pallet_status' => $row['PALLET_status']
+        'product_code' => $productCode,
+        'product_name' => $productName,
+        'customer_name' => $customerName
     ];
     $data[] = $row;
     $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
@@ -516,17 +510,9 @@ sqlsrv_close($conn);
                     $customerName = 'Customer ' . ($index % 10);  // Ví dụ tên khách hàng
                     ?>
                     <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
-                        data-soct="<?= $productData[$index]['soct'] ?>"
-                        data-ngayct="<?= $productData[$index]['ngayct'] ?>"
-                        data-makh="<?= $productData[$index]['makh'] ?>"
-                        data-tenkh="<?= $productData[$index]['tenkh'] ?>"
-                        data-masp="<?= $productData[$index]['masp'] ?>"
-                        data-tensp="<?= $productData[$index]['tensp'] ?>"
-                        data-donvi="<?= $productData[$index]['donvi'] ?>"
-                        data-luong-pallet="<?= $productData[$index]['luong_pallet'] ?>"
-                        data-pallet-status="<?= $productData[$index]['pallet_status'] ?>"
-                        onmouseover="showTooltip(event)"
-                        onmouseout="hideTooltip()">
+                        data-product-code="<?= $productCode ?>"
+                        data-product-name="<?= $productName ?>"
+                        data-customer-name="<?= $customerName ?>">
                         <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                     </td>
                 <?php endfor; ?>
@@ -548,17 +534,9 @@ sqlsrv_close($conn);
                     $customerName = 'Customer ' . ($index % 10);  // Ví dụ tên khách hàng
                     ?>
                     <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
-                        data-soct="<?= $productData[$index]['soct'] ?>"
-                        data-ngayct="<?= $productData[$index]['ngayct'] ?>"
-                        data-makh="<?= $productData[$index]['makh'] ?>"
-                        data-tenkh="<?= $productData[$index]['tenkh'] ?>"
-                        data-masp="<?= $productData[$index]['masp'] ?>"
-                        data-tensp="<?= $productData[$index]['tensp'] ?>"
-                        data-donvi="<?= $productData[$index]['donvi'] ?>"
-                        data-luong-pallet="<?= $productData[$index]['luong_pallet'] ?>"
-                        data-pallet-status="<?= $productData[$index]['pallet_status'] ?>"
-                        onmouseover="showTooltip(event)"
-                        onmouseout="hideTooltip()">
+                        data-product-code="<?= $productCode ?>"
+                        data-product-name="<?= $productName ?>"
+                        data-customer-name="<?= $customerName ?>">
                         <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                     </td>
                 <?php endfor; ?>
@@ -756,16 +734,11 @@ sqlsrv_close($conn);
     });
     document.querySelectorAll('.highlight').forEach(function(cell) {
     cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
-        const tooltip = document.getElementById('tooltip');
-        const soct = event.target.getAttribute('data-soct');
-        const ngayct = event.target.getAttribute('data-ngayct');
-        const makh = event.target.getAttribute('data-makh');
-        const tenkh = event.target.getAttribute('data-tenkh');
-        const masp = event.target.getAttribute('data-masp');
-        const tensp = event.target.getAttribute('data-tensp');
-        const donvi = event.target.getAttribute('data-donvi');
-        const luongPallet = event.target.getAttribute('data-luong-pallet');
-        const palletStatus = event.target.getAttribute('data-pallet-status');
+        const tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
+        const productName = e.target.getAttribute('data-product-name');
+        const customerName = e.target.getAttribute('data-customer-name');
         /* Nội dung tooltip*/ tooltip.innerHTML = `
             <strong>Product Code:</strong> ${productCode}<br>
             <strong>Product Name:</strong> ${productName}<br>
