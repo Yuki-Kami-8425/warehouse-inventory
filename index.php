@@ -36,6 +36,7 @@ if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
+/*
 $data = []; // Tạo mảng để lưu dữ liệu
 $customers = [];
 $highlighted = [];
@@ -48,11 +49,17 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $productName = $row['TENSP']; // Tên sản phẩm
     $customerName = $row['TENKH']; // Tên khách hàng
     $rfid = $row['RFID']; // RFID    
-    
+    // Thêm dữ liệu vào các mảng
+    $productData[] = [
+        'MASP' => $productCode,
+        'TENSP' => $productName,
+        'TENKH' => $customerName
+    ];
     $data[] = $row;
     $customers[$row['MAKH']][] = $rfid; // Lưu danh sách RFID cho mỗi khách hàng
     $highlighted[] = trim($rfid); // Dùng trim để loại bỏ khoảng trắng
 }
+    */
 
 sqlsrv_close($conn);
 ?>
@@ -727,7 +734,6 @@ sqlsrv_close($conn);
     });
 
     document.querySelectorAll('.highlight').forEach(function(cell) {
-
     cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
         const tooltip = document.createElement('div');
         tooltip.classList.add('tooltip');
@@ -737,9 +743,9 @@ sqlsrv_close($conn);
 
         /* Nội dung tooltip*/
         tooltip.innerHTML = `
-            <strong>Product Code:</strong> ${productCode}<br>
-            <strong>Product Name:</strong> ${productName}<br>
-            <strong>Customer Name:</strong> ${customerName}
+            <strong>Product Code:</strong> ${product.MAKH}<br>
+            <strong>Product Name:</strong> ${product.TENSP}<br>
+            <strong>Customer Name:</strong> ${product.TENKH}
         `;
         
         document.body.appendChild(tooltip); // Thêm tooltip vào body
