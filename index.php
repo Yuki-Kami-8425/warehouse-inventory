@@ -371,6 +371,13 @@ sqlsrv_close($conn);
             max-width: 300px;
             word-wrap: break-word;
         }
+        .chartCaption {
+            font-size: 16px; /* Thay đổi cỡ chữ theo ý bạn */
+            font-weight: bold; /* Làm chữ in đậm */
+            color: white; /* Đảm bảo chữ vẫn màu trắng */
+            text-align: center;
+            margin-top: 5px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -617,7 +624,7 @@ sqlsrv_close($conn);
                             text: 'Percentage of Total Slots (%)',
                             color: 'white',
                             font: {
-                                size: 16
+                                size: 20
                             }
                         },
                         ticks: {
@@ -632,7 +639,7 @@ sqlsrv_close($conn);
                         ticks: {
                             color: 'white', // Màu chữ trục X
                             font: {
-                                size: 14
+                                size: 20
                             }
                         }
                     }
@@ -650,7 +657,7 @@ sqlsrv_close($conn);
                     const y = yScale.getPixelForValue(value);
                     ctx.fillStyle = 'white';
                     ctx.textAlign = 'center';
-                    ctx.font = 'bold 14px Arial';
+                    ctx.font = 'bold 20px Arial';
                     ctx.fillText(percentage + '%', x, y - 10);
                 });
             };
