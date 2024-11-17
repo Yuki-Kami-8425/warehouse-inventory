@@ -730,7 +730,6 @@ sqlsrv_close($conn);
         });
     });
 
-    console.log(productCode, productName, customerName);
     document.querySelectorAll('.highlight').forEach(function (cell) {
     cell.addEventListener('mouseenter', function (e) {
         // Kiểm tra nếu tooltip đã tồn tại, tránh tạo lại
@@ -753,7 +752,7 @@ sqlsrv_close($conn);
         // Thêm tooltip vào body
         document.body.appendChild(tooltip);
 
-        // Định vị tooltip
+        // Định vị tooltip (đặt vị trí của tooltip dựa trên vị trí của cell)
         const rect = e.target.getBoundingClientRect();
         tooltip.style.left = rect.left + window.scrollX + 'px';
         tooltip.style.top = rect.top + window.scrollY - tooltip.offsetHeight - 10 + 'px';
