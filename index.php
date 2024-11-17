@@ -45,9 +45,9 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $productName = $row['TENSP']; // Tên sản phẩm (hoặc giá trị khác)
     $customerName = $row['TENKH']; // Tên khách hàng
     $productData[] = [
-        'product_code' => $productCode,
-        'product_name' => $productName,
-        'customer_name' => $customerName
+        'MASP' => $productCode,
+        'TENSP' => $productName,
+        'TENKH' => $customerName
     ];
     $data[] = $row;
     $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
@@ -217,7 +217,7 @@ sqlsrv_close($conn);
             margin: 0 auto; /* Center within its parent container */
         }
         #barChart {
-            width: 350px !important;
+            width: 400px !important;
             height: 350px !important; /* Adjust height as needed */
         }
         #pieChart {
@@ -376,11 +376,11 @@ sqlsrv_close($conn);
             word-wrap: break-word;
         }
         .chartCaption {
-            font-size: 16px; /* Thay đổi cỡ chữ theo ý bạn */
+            font-size: 20px; /* Thay đổi cỡ chữ theo ý bạn */
             font-weight: bold; /* Làm chữ in đậm */
             color: white; /* Đảm bảo chữ vẫn màu trắng */
             text-align: center;
-            margin-top: 5px;
+            margin-top: 10px;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -734,7 +734,7 @@ sqlsrv_close($conn);
         const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
         const productName = e.target.getAttribute('data-product-name');
         const customerName = e.target.getAttribute('data-customer-name');
-        
+
         /* Nội dung tooltip*/
         tooltip.innerHTML = `
             <strong>Product Code:</strong> ${productCode}<br>
