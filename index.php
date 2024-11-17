@@ -35,6 +35,7 @@ $stmt = sqlsrv_query($conn, $sql, $params ?? null);
 if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
+
 $data = []; // Tạo mảng để lưu dữ liệu
 $customers = [];
 $highlighted = [];
@@ -52,6 +53,7 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
+
 sqlsrv_close($conn);
 ?>
 <!DOCTYPE html>
@@ -696,22 +698,26 @@ sqlsrv_close($conn);
             }
         }
     });
+
         function toggleDropdown(event) {
             event.stopPropagation();
             closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
             const dropdown = event.currentTarget.nextElementSibling;
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         }
+
         function closeDropdowns() {
             const allDropdowns = document.querySelectorAll('.dropdown-container');
             allDropdowns.forEach(d => {
                 d.style.display = 'none';
             });
         }
+        
         function showPage(page) {
             console.log(`Loading page: ${page}`);
             closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
         }
+
         document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
         const station = urlParams.get('station');
@@ -723,26 +729,41 @@ sqlsrv_close($conn);
             }
         });
     });
-    document.querySelectorAll('.highlight').forEach(function(cell) {
-    cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
+
+    console.log(productCode, productName, customerName);
+    document.querySelectorAll('.highlight').forEach(function (cell) {
+    cell.addEventListener('mouseenter', function (e) {
+        // Kiểm tra nếu tooltip đã tồn tại, tránh tạo lại
+        if (e.target._tooltip) return;
+
+        // Lấy dữ liệu từ data-attributes
+        const productCode = e.target.getAttribute('data-product-code') || 'N/A';
+        const productName = e.target.getAttribute('data-product-name') || 'N/A';
+        const customerName = e.target.getAttribute('data-customer-name') || 'N/A';
+
+        // Tạo nội dung tooltip
         const tooltip = document.createElement('div');
         tooltip.classList.add('tooltip');
-        const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
-        const productName = e.target.getAttribute('data-product-name');
-        const customerName = e.target.getAttribute('data-customer-name');
-        /* Nội dung tooltip*/ tooltip.innerHTML = `
+        tooltip.innerHTML = `
             <strong>Product Code:</strong> ${productCode}<br>
             <strong>Product Name:</strong> ${productName}<br>
             <strong>Customer Name:</strong> ${customerName}
         `;
-        document.body.appendChild(tooltip); // Thêm tooltip vào body
-        const rect = e.target.getBoundingClientRect(); // Định vị tooltip
+
+        // Thêm tooltip vào body
+        document.body.appendChild(tooltip);
+
+        // Định vị tooltip
+        const rect = e.target.getBoundingClientRect();
         tooltip.style.left = rect.left + window.scrollX + 'px';
         tooltip.style.top = rect.top + window.scrollY - tooltip.offsetHeight - 10 + 'px';
-        tooltip.style.display = 'block';    // Hiển thị tooltip     
-        e.target._tooltip = tooltip; // Lưu trữ tooltip để xóa khi rời chuột
+
+        // Lưu trữ tooltip vào phần tử
+        e.target._tooltip = tooltip;
     });
-    cell.addEventListener('mouseleave', function(e) { // Xóa tooltip khi chuột rời khỏi ô
+
+    cell.addEventListener('mouseleave', function (e) {
+        // Xóa tooltip khi chuột rời
         if (e.target._tooltip) {
             document.body.removeChild(e.target._tooltip);
             e.target._tooltip = null;
