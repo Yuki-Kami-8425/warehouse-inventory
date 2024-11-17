@@ -5,10 +5,12 @@ $connectionOptions = array(
     "Uid" => "eiuadmin",
     "PWD" => "Khoa123456789"
 ); 
-$conn = sqlsrv_connect($serverName, $connectionOptions); 
+$conn = sqlsrv_connect($serverName, $connectionOptions);
+
 if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
+
 $query = "SELECT MAX(LastUpdated) AS last_update_time FROM warehouse_data"; // Giả sử bạn có cột LastUpdated trong bảng
 $stmt = sqlsrv_query($conn, $query);
 $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
@@ -17,21 +19,22 @@ echo json_encode(['last_update_time' => $lastUpdateTime]);
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
-switch ($station) {
-    case 'all':
-        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
-        break;
 
-    case 'home':
-        $sql = null; // Hoặc không cần khởi tạo $sql
-        break;
-    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-        $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
-        $params = array($station . '%');
-        break;
-    default:
-        $sql = null; // Một truy vấn mặc định
-        break;
+switch ($station) {
+case 'all':
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+    break;
+
+case 'home':
+    $sql = null; // Hoặc không cần khởi tạo $sql
+    break;
+case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $params = array($station . '%');
+    break;
+default:
+    $sql = null; // Một truy vấn mặc định
+    break;
 }
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
 if ($stmt === false) {
@@ -695,35 +698,31 @@ sqlsrv_close($conn);
         }
     });
     let lastUpdateTime = Date.now();
-let watchdogTimer;
+    let watchdogTimer;
+    function startWatchdog() {
+        watchdogTimer = setInterval(function() {
+            // Gọi API để kiểm tra thời gian cập nhật mới nhất
+            fetch('check_update.php')  // API trên backend (PHP)
+                .then(response => response.json())
+                .then(data => {
+                    const currentTime = Date.now();
+                    const lastDbUpdate = new Date(data.last_update_time).getTime();
 
-function startWatchdog() {
-    watchdogTimer = setInterval(function() {
-        // Gọi API để kiểm tra thời gian cập nhật mới nhất
-        fetch('check_update.php')  // API trên backend (PHP)
-            .then(response => response.json())
-            .then(data => {
-                const currentTime = Date.now();
-                const lastDbUpdate = new Date(data.last_update_time).getTime();
+                    if (lastDbUpdate > lastUpdateTime) {
+                        console.warn("Watchdog Timer: Data updated in the database. Reloading...");
+                        location.reload();  // Tải lại trang khi có thay đổi
+                    }
 
-                if (lastDbUpdate > lastUpdateTime) {
-                    console.warn("Watchdog Timer: Data updated in the database. Reloading...");
-                    location.reload();  // Tải lại trang khi có thay đổi
-                }
-
-                lastUpdateTime = currentTime;  // Cập nhật thời gian kiểm tra mới nhất
-            })
-            .catch(error => console.error("Error checking database update:", error));
-    }, 10000);  // Kiểm tra mỗi 10 giây
-}
-
-function resetWatchdog() {
-    lastUpdateTime = Date.now();  // Đặt lại thời gian khi có cập nhật
-}
-
-// Khởi động Watchdog Timer
-startWatchdog();
-
+                    lastUpdateTime = currentTime;  // Cập nhật thời gian kiểm tra mới nhất
+                })
+                .catch(error => console.error("Error checking database update:", error));
+        }, 10000);  // Kiểm tra mỗi 10 giây
+        }
+        function resetWatchdog() {
+            lastUpdateTime = Date.now();  // Đặt lại thời gian khi có cập nhật
+        }
+        // Khởi động Watchdog Timer
+        startWatchdog();
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
