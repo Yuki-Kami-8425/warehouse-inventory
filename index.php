@@ -40,27 +40,28 @@ $data = []; // Tạo mảng để lưu dữ liệu
 $customers = [];
 $highlighted = [];
 $productData = [];
-$sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, MASP FROM dbo.stored_warehouse"; // Thêm MASP vào câu truy vấn để sử dụng trong data-attributes
+$sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, MASP FROM dbo.stored_warehouse";
 $stmt = sqlsrv_query($conn, $sql); // Giả sử $conn là kết nối của bạn
 
+// Sử dụng vòng lặp để lấy dữ liệu và tạo phần tử HTML
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $productCode = $row['MASP']; // Mã sản phẩm
     $productName = $row['TENSP']; // Tên sản phẩm
     $customerName = $row['TENKH']; // Tên khách hàng
     $rfid = $row['RFID']; // RFID
 
-    // Tạo phần tử HTML cho mỗi dòng trong bảng và gán các data-attributes
-    echo '<tr class="highlight" data-product-code="' . $productCode . '" 
-            data-product-name="' . $productName . '" 
-            data-customer-name="' . $customerName . '" 
-            data-rfid="' . $rfid . '">
-            <td>' . $productCode . '</td>
-            <td>' . $productName . '</td>
-            <td>' . $customerName . '</td>
-            <td>' . $row['LUONG_PALLET'] . '</td>
-            <td>' . $rfid . '</td>
+    // Hiển thị các thông tin trong bảng mà không cần chèn data-* trực tiếp trong echo
+    echo '<tr class="highlight" data-product-code="' . htmlspecialchars($productCode) . '" 
+            data-product-name="' . htmlspecialchars($productName) . '" 
+            data-customer-name="' . htmlspecialchars($customerName) . '" 
+            data-rfid="' . htmlspecialchars($rfid) . '">
+            <td>' . htmlspecialchars($productCode) . '</td>
+            <td>' . htmlspecialchars($productName) . '</td>
+            <td>' . htmlspecialchars($customerName) . '</td>
+            <td>' . htmlspecialchars($row['LUONG_PALLET']) . '</td>
+            <td>' . htmlspecialchars($rfid) . '</td>
         </tr>';
-    
+
     // Thêm dữ liệu vào các mảng
     $productData[] = [
         'MASP' => $productCode,
@@ -745,29 +746,32 @@ sqlsrv_close($conn);
     });
 
     document.querySelectorAll('.highlight').forEach(function(cell) {
-
-    cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
+    cell.addEventListener('mouseenter', function(e) { // Tạo tooltip khi di chuột vào
         const tooltip = document.createElement('div');
         tooltip.classList.add('tooltip');
-        const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
+
+        // Lấy dữ liệu từ các data-attributes của phần tử bảng
+        const productCode = e.target.getAttribute('data-product-code');
         const productName = e.target.getAttribute('data-product-name');
         const customerName = e.target.getAttribute('data-customer-name');
 
-        /* Nội dung tooltip*/
+        // Nội dung tooltip
         tooltip.innerHTML = `
             <strong>Product Code:</strong> ${productCode}<br>
             <strong>Product Name:</strong> ${productName}<br>
             <strong>Customer Name:</strong> ${customerName}
         `;
-        
+
         document.body.appendChild(tooltip); // Thêm tooltip vào body
 
-        const rect = e.target.getBoundingClientRect(); // Định vị tooltip
+        // Định vị vị trí của tooltip
+        const rect = e.target.getBoundingClientRect();
         tooltip.style.left = rect.left + window.scrollX + 'px';
         tooltip.style.top = rect.top + window.scrollY - tooltip.offsetHeight - 10 + 'px';
-        tooltip.style.display = 'block';    // Hiển thị tooltip     
+        tooltip.style.display = 'block';    // Hiển thị tooltip
         e.target._tooltip = tooltip; // Lưu trữ tooltip để xóa khi rời chuột
     });
+
     cell.addEventListener('mouseleave', function(e) { // Xóa tooltip khi chuột rời khỏi ô
         if (e.target._tooltip) {
             document.body.removeChild(e.target._tooltip);
@@ -775,4 +779,5 @@ sqlsrv_close($conn);
         }
     });
 });
+
 </script>
