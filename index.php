@@ -40,6 +40,7 @@ $data = []; // Tạo mảng để lưu dữ liệu
 $customers = [];
 $highlighted = [];
 $productData = [];
+$sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $productCode = $row['MASP']; // Mã sản phẩm (hoặc bất kỳ giá trị nào từ cơ sở dữ liệu)
     $productName = $row['TENSP']; // Tên sản phẩm (hoặc giá trị khác)
