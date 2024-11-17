@@ -745,40 +745,34 @@ sqlsrv_close($conn);
     });
 
     document.querySelectorAll('.highlight').forEach(function(cell) {
-        cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
-            const tooltip = document.createElement('div');
-            tooltip.classList.add('tooltip');
-            
-            // Lấy dữ liệu từ các thuộc tính data-attributes
-            const productCode = e.target.getAttribute('data-product-code');
-            const productName = e.target.getAttribute('data-product-name');
-            const customerName = e.target.getAttribute('data-customer-name');
 
-            // Nội dung tooltip
-            tooltip.innerHTML = `
-                <strong>Product Code:</strong> ${productCode}<br>
-                <strong>Product Name:</strong> ${productName}<br>
-                <strong>Customer Name:</strong> ${customerName}
-            `;
-            
-            // Thêm tooltip vào body
-            document.body.appendChild(tooltip);
+    cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
+        const tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
+        const productName = e.target.getAttribute('data-product-name');
+        const customerName = e.target.getAttribute('data-customer-name');
 
-            // Định vị tooltip
-            const rect = e.target.getBoundingClientRect();
-            tooltip.style.left = rect.left + window.scrollX + 'px';
-            tooltip.style.top = rect.top + window.scrollY - tooltip.offsetHeight - 10 + 'px';
-            tooltip.style.display = 'block';  // Hiển thị tooltip
+        /* Nội dung tooltip*/
+        tooltip.innerHTML = `
+            <strong>Product Code:</strong> ${productCode}<br>
+            <strong>Product Name:</strong> ${productName}<br>
+            <strong>Customer Name:</strong> ${customerName}
+        `;
+        
+        document.body.appendChild(tooltip); // Thêm tooltip vào body
 
-            e.target._tooltip = tooltip; // Lưu trữ tooltip để xóa khi rời chuột
-        });
-
-        cell.addEventListener('mouseleave', function(e) { // Xóa tooltip khi chuột rời khỏi ô
-            if (e.target._tooltip) {
-                document.body.removeChild(e.target._tooltip);
-                e.target._tooltip = null;
-            }
-        });
+        const rect = e.target.getBoundingClientRect(); // Định vị tooltip
+        tooltip.style.left = rect.left + window.scrollX + 'px';
+        tooltip.style.top = rect.top + window.scrollY - tooltip.offsetHeight - 10 + 'px';
+        tooltip.style.display = 'block';    // Hiển thị tooltip     
+        e.target._tooltip = tooltip; // Lưu trữ tooltip để xóa khi rời chuột
     });
-
+    cell.addEventListener('mouseleave', function(e) { // Xóa tooltip khi chuột rời khỏi ô
+        if (e.target._tooltip) {
+            document.body.removeChild(e.target._tooltip);
+            e.target._tooltip = null;
+        }
+    });
+});
 </script>
