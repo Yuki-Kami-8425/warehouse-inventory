@@ -698,26 +698,22 @@ sqlsrv_close($conn);
             }
         }
     });
-
         function toggleDropdown(event) {
             event.stopPropagation();
             closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
             const dropdown = event.currentTarget.nextElementSibling;
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         }
-
         function closeDropdowns() {
             const allDropdowns = document.querySelectorAll('.dropdown-container');
             allDropdowns.forEach(d => {
                 d.style.display = 'none';
             });
         }
-        
         function showPage(page) {
             console.log(`Loading page: ${page}`);
             closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
         }
-
         document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
         const station = urlParams.get('station');
@@ -730,44 +726,35 @@ sqlsrv_close($conn);
         });
     });
 
-    document.querySelectorAll('.highlight').forEach(function (cell) {
-    cell.addEventListener('mouseenter', function (e) {
-        // Kiểm tra nếu tooltip đã tồn tại, tránh tạo lại
-        if (e.target._tooltip) return;
+    document.querySelectorAll('.highlight').forEach(function(cell) {
 
-        // Lấy dữ liệu từ data-attributes
-        const productCode = e.target.getAttribute('data-product-code') || 'N/A';
-        const productName = e.target.getAttribute('data-product-name') || 'N/A';
-        const customerName = e.target.getAttribute('data-customer-name') || 'N/A';
-
-        // Tạo nội dung tooltip
+    cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
         const tooltip = document.createElement('div');
         tooltip.classList.add('tooltip');
+        const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
+        const productName = e.target.getAttribute('data-product-name');
+        const customerName = e.target.getAttribute('data-customer-name');
+        
+        /* Nội dung tooltip*/
         tooltip.innerHTML = `
             <strong>Product Code:</strong> ${productCode}<br>
             <strong>Product Name:</strong> ${productName}<br>
             <strong>Customer Name:</strong> ${customerName}
         `;
+        
+        document.body.appendChild(tooltip); // Thêm tooltip vào body
 
-        // Thêm tooltip vào body
-        document.body.appendChild(tooltip);
-
-        // Định vị tooltip (đặt vị trí của tooltip dựa trên vị trí của cell)
-        const rect = e.target.getBoundingClientRect();
+        const rect = e.target.getBoundingClientRect(); // Định vị tooltip
         tooltip.style.left = rect.left + window.scrollX + 'px';
         tooltip.style.top = rect.top + window.scrollY - tooltip.offsetHeight - 10 + 'px';
-
-        // Lưu trữ tooltip vào phần tử
-        e.target._tooltip = tooltip;
+        tooltip.style.display = 'block';    // Hiển thị tooltip     
+        e.target._tooltip = tooltip; // Lưu trữ tooltip để xóa khi rời chuột
     });
-
-    cell.addEventListener('mouseleave', function (e) {
-        // Xóa tooltip khi chuột rời
+    cell.addEventListener('mouseleave', function(e) { // Xóa tooltip khi chuột rời khỏi ô
         if (e.target._tooltip) {
             document.body.removeChild(e.target._tooltip);
             e.target._tooltip = null;
         }
     });
 });
-
 </script>
