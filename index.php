@@ -214,9 +214,13 @@ sqlsrv_close($conn);
             gap: 20px; /* Optional: space between the charts */
             margin: 0 auto; /* Center within its parent container */
         }
-        #barChart, #pieChart {
-            width: 400px !important;
-            height: 400px !important; /* Adjust height as needed */
+        #barChart {
+            width: 350px !important;
+            height: 350px !important; /* Adjust height as needed */
+        }
+        #pieChart {
+            width: 350px !important;
+            height: 350px !important;
         }
         #barChartCaption, #pieChartCaption {
             text-align: center;
