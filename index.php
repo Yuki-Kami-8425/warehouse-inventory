@@ -5,28 +5,31 @@ $connectionOptions = array(
     "Uid" => "eiuadmin",
     "PWD" => "Khoa123456789"
 ); 
-$conn = sqlsrv_connect($serverName, $connectionOptions); 
+$conn = sqlsrv_connect($serverName, $connectionOptions);
+
 if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
+
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
-switch ($station) {
-    case 'all':
-        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
-        break;
 
-    case 'home':
-        $sql = null; // Hoặc không cần khởi tạo $sql
-        break;
-        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
-        $params = array($station . '%');
-        break;
-    default:
-        $sql = null; // Một truy vấn mặc định
-        break;
+switch ($station) {
+case 'all':
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+    break;
+
+case 'home':
+    $sql = null; // Hoặc không cần khởi tạo $sql
+    break;
+case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $params = array($station . '%');
+    break;
+default:
+    $sql = null; // Một truy vấn mặc định
+    break;
 }
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
 if ($stmt === false) {
@@ -41,6 +44,7 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
+
 sqlsrv_close($conn);
 ?>
 <!DOCTYPE html>
@@ -183,13 +187,39 @@ sqlsrv_close($conn);
         td.highlight {
             background-color: #32CD32;
         }
-        .chart-container {
-            width: 30%; 
-            margin: 20px;
-        }
         .charts {
             display: flex; 
-            justify-content: space-around; 
+            justify-content: space-between; /* Evenly distribute space between charts */
+             gap: 20px; 
+        }
+        .chart-container {
+            flex: 1; /* Make both charts take equal space */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Align items (chart + caption) horizontally */
+            width: 300px; 
+            margin: 0 auto;
+        }
+        .charts-center {
+            display: flex;
+            flex: 1;
+            justify-content: center; /* Centers the charts horizontally */
+            gap: 20px; /* Optional: space between the charts */
+            margin: 0 auto; /* Center within its parent container */
+        }
+        #barChart {
+            width: 400px !important;
+            height: 350px !important; /* Adjust height as needed */
+        }
+        #pieChart {
+            width: 350px !important;
+            height: 350px !important;
+        }
+        #barChartCaption, #pieChartCaption {
+            text-align: center;
+            color: white;
+            margin-top: 5px;
+            margin-bottom: 0; /* Remove any extra margin */
         }
         .toggle-btn {
             position: absolute;
@@ -272,63 +302,77 @@ sqlsrv_close($conn);
             color: white; /* Màu chữ */
             margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
         }
-        .slideshow-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            width: 100%;
-            height: 100%;
+        .slide:hover {
+            transform: scale(1.02); /* Phóng to một chút */
+            transition: transform 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
-/* Đảm bảo toàn bộ slide là một cột và các dấu chấm nằm ngay bên dưới hình */
-.slide {
-    display: none; /* Ẩn tất cả các slide mặc định */
-    position: relative;
-    display: flex;
-    flex-direction: column; /* Đặt các phần tử con (tiêu đề, hình ảnh, và dấu chấm) theo cột */
-    align-items: center; /* Căn giữa các phần tử theo chiều ngang */
-    text-align: center; /* Căn giữa văn bản */
-    gap: 10px; /* Khoảng cách giữa tiêu đề, hình ảnh và dấu chấm */
-}
-
-.slide-title {
-    font-size: 24px;
-    color: white;
-}
-
-.slide img {
-    width: 650px;
-    height: 350px;
-    object-fit: fill;
-}
-
-/* Đảm bảo rằng các dấu chấm nằm ngay dưới hình ảnh và ở giữa */
-.dots {
-    display: flex;
-    justify-content: center; /* Căn giữa các dấu chấm */
-    gap: 5px; /* Khoảng cách giữa các dấu chấm */
-    margin-top: 10px; /* Khoảng cách giữa hình ảnh và dấu chấm */
-}
-
-.dot {
-    height: 10px;
-    width: 10px;
-    background-color: white;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.dot.active {
-    height: 15px;
-    width: 15px;
-    background-color: #00BFFF;
-}
-
-.dot:hover {
-    background-color: #00BFFF;
-    transform: scale(1.2);
-}
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            margin: auto;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .slide-title {
+            font-size: 24px; /* Kích thước chữ cho tiêu đề */
+            color: white; /* Màu chữ */
+            margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
+        }
+        .slide {
+            display: none; /* Ẩn tất cả các slide mặc định */
+            position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
+        }
+        .slide img {
+            width: 650px; /* Chiều rộng cố định */
+            height: 350px; /* Chiều cao cố định */
+            object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
+        }
+        .dots {
+            position: relative; /* Để căn giữa dấu chấm */
+            text-align: center; /* Căn giữa dấu chấm */
+            margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
+        }
+        .dot {
+            height: 10px; /* Kích thước dấu chấm */
+            width: 10px; /* Kích thước dấu chấm */
+            margin: 0 5px; /* Khoảng cách giữa các dấu chấm */
+            background-color: white; /* Màu trắng */
+            border-radius: 50%; /* Đường viền tròn */
+            display: inline-block; /* Hiển thị thành dòng ngang */
+            cursor: pointer; /* Con trỏ khi hover vào */
+            transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
+        }
+        .dot.active {
+            height: 15px; /* Kích thước lớn hơn khi được chọn */
+            width: 15px; /* Kích thước lớn hơn khi được chọn */
+            background-color: #00BFFF; /* Màu xanh lam khi được chọn */
+        }
+        .dot:hover {
+            background-color: #00BFFF; /* Màu nền khi hover */
+            transform: scale(1.2); /* Phóng to một chút */
+            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            display: none;
+            pointer-events: none;
+            font-size: 14px;
+            z-index: 9999;
+            white-space: nowrap;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        .chartCaption {
+            font-size: 20px; /* Thay đổi cỡ chữ theo ý bạn */
+            font-weight: bold; /* Làm chữ in đậm */
+            color: white; /* Đảm bảo chữ vẫn màu trắng */
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -485,33 +529,33 @@ sqlsrv_close($conn);
                     </tr>
                 <?php endfor; ?>
             </table>
-        </div>
+</div>
         <div class="charts"> <!-- Biểu đồ -->
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Figure: Distribution of Used and Remaining Slots
+                        <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Figure: Distribution of Used and Remaining Slots
+                        <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
                     </div>
                 </div>
          </div>
          <?php break; case 'all': ?>
-            <div class="charts"> <!-- Biểu đồ -->
+            <div class="charts charts-center"> <!-- Biểu đồ -->
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Figure: Distribution of Used and Remaining Slots
+                        Slot Usage Across All Stations
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Figure: Distribution of Used and Remaining Slots
+                        Distribution of Storage Slots 
                     </div>
                 </div>
             </div>
@@ -525,8 +569,8 @@ sqlsrv_close($conn);
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
     // Biểu đồ cột
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
+    var ctxBar = document.getElementById('barChart').getContext('2d');
+    var barChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
                 labels: customerLabels,
@@ -539,7 +583,6 @@ sqlsrv_close($conn);
                 }]
             },
             options: {
-                responsive: true,
                 plugins: {
                     legend: {
                         display: false // Ẩn legend
@@ -555,7 +598,7 @@ sqlsrv_close($conn);
                             text: 'Percentage of Total Slots (%)',
                             color: 'white',
                             font: {
-                                size: 16
+                                size: 20
                             }
                         },
                         ticks: {
@@ -570,7 +613,7 @@ sqlsrv_close($conn);
                         ticks: {
                             color: 'white', // Màu chữ trục X
                             font: {
-                                size: 14
+                                size: 20
                             }
                         }
                     }
@@ -588,13 +631,13 @@ sqlsrv_close($conn);
                     const y = yScale.getPixelForValue(value);
                     ctx.fillStyle = 'white';
                     ctx.textAlign = 'center';
-                    ctx.font = 'bold 14px Arial';
+                    ctx.font = 'bold 20px Arial';
                     ctx.fillText(percentage + '%', x, y - 10);
                 });
             };
     // Biểu đồ tròn
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
+    var ctxPie = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
             labels: ['Used', 'Remaining'],
@@ -625,29 +668,6 @@ sqlsrv_close($conn);
             }
         }
     });
-        let lastUpdateTime = Date.now();
-        let watchdogTimer;
-        function startWatchdog() {
-            watchdogTimer = setInterval(function() {
-                const currentTime = Date.now();
-                if (currentTime - lastUpdateTime > 5000) {  // Nếu không có cập nhật trong 5 giây
-                    console.warn("Watchdog Timer: No update received for 5 seconds. Reloading...");
-                    location.reload();
-                }
-            }, 1000);  // Kiểm tra mỗi giây
-        }
-        function resetWatchdog() {
-            lastUpdateTime = Date.now();  // Đặt lại thời gian khi có cập nhật
-        }
-        startWatchdog();
-        function updateCharts() {
-            resetWatchdog();
-        }
-        updateCharts();
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('collapsed');
-        }
         function toggleDropdown(event) {
             event.stopPropagation();
             closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
@@ -670,7 +690,6 @@ sqlsrv_close($conn);
         const links = document.querySelectorAll('.sidebar a');
         links.forEach(link => {
             const href = link.getAttribute('href');
-            // Nếu liên kết chứa đúng station, thêm lớp active
             if (href && href.includes(`station=${station}`)) {
                 link.classList.add('active');
             }
