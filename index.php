@@ -11,16 +11,6 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-$sql = "SELECT COUNT(*) as total_rows FROM dbo.stored_warehouse";
-$stmt = sqlsrv_query($conn, $sql);
-
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    echo json_encode(['total_rows' => $row['total_rows']]);
-} else {
-    echo json_encode(['total_rows' => 0]);
-}
-
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
@@ -542,10 +532,6 @@ sqlsrv_close($conn);
                     $customerName = 'Customer ' . ($index % 10);  // Ví dụ tên khách hàng
                     ?>
                     <td class="<?= in_array($station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
-                        data-product-code="<?= $productCode ?>"
-                        data-product-name="<?= $productName ?>"
-                        data-customer-name="<?= $customerName ?>">
-
                         <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                     </td>
                 <?php endfor; ?>
@@ -567,9 +553,6 @@ sqlsrv_close($conn);
                     $customerName = 'Customer ' . ($index % 10);  // Ví dụ tên khách hàng
                     ?>
                     <td class="<?= in_array($station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT), $highlighted) ? 'highlight' : '' ?>"
-                        data-product-code="<?= $productCode ?>"
-                        data-product-name="<?= $productName ?>"
-                        data-customer-name="<?= $customerName ?>">
                         <?= $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                     </td>
                 <?php endfor; ?>
@@ -742,38 +725,6 @@ sqlsrv_close($conn);
             }
         });
     });
-
-    document.querySelectorAll('.highlight').forEach(function(cell) {
-
-    cell.addEventListener('mouseenter', function(e) { // Tạo tooltip
-        const tooltip = document.createElement('div');
-        tooltip.classList.add('tooltip');
-        const productCode = e.target.getAttribute('data-product-code'); // Lấy dữ liệu từ data-attributes
-        const productName = e.target.getAttribute('data-product-name');
-        const customerName = e.target.getAttribute('data-customer-name');
-
-        /* Nội dung tooltip*/
-        tooltip.innerHTML = `
-            <strong>Product Code:</strong> ${productCode}<br>
-            <strong>Product Name:</strong> ${productName}<br>
-            <strong>Customer Name:</strong> ${customerName}
-        `;
-        
-        document.body.appendChild(tooltip); // Thêm tooltip vào body
-
-        const rect = e.target.getBoundingClientRect(); // Định vị tooltip
-        tooltip.style.left = rect.left + window.scrollX + 'px';
-        tooltip.style.top = rect.top + window.scrollY - tooltip.offsetHeight - 10 + 'px';
-        tooltip.style.display = 'block';    // Hiển thị tooltip     
-        e.target._tooltip = tooltip; // Lưu trữ tooltip để xóa khi rời chuột
-    });
-    cell.addEventListener('mouseleave', function(e) { // Xóa tooltip khi chuột rời khỏi ô
-        if (e.target._tooltip) {
-            document.body.removeChild(e.target._tooltip);
-            e.target._tooltip = null;
-        }
-    });
-});
 
 let lastUpdateTime = null;
 
