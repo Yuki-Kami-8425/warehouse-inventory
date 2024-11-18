@@ -44,20 +44,18 @@ $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, MASP FROM dbo.stored_ware
 $stmt = sqlsrv_query($conn, $sql); // Giả sử $conn là kết nối của bạn
 
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $productCode = $row['MASP']; // Mã sản phẩm
+    $rfid = $row['RFID'];
+    $productCode = $row['MASP']; // Giả sử 'MASP' là mã sản phẩm
     $productName = $row['TENSP']; // Tên sản phẩm
     $customerName = $row['TENKH']; // Tên khách hàng
-    $rfid = $row['RFID']; // RFID
-    
-    // Thêm dữ liệu vào các mảng
-    $productData[] = [
-        'MASP' => $productCode,
-        'TENSP' => $productName,
-        'TENKH' => $customerName
-    ];
-    $data[] = $row;
-    $customers[$row['MAKH']][] = $rfid; // Lưu danh sách RFID cho mỗi khách hàng
-    $highlighted[] = trim($rfid); // Dùng trim để loại bỏ khoảng trắng
+
+    // Duyệt từng ô và điền dữ liệu vào các ô tương ứng
+    echo "<td 
+        data-product-code='{$productCode}'
+        data-product-name='{$productName}'
+        data-customer-name='{$customerName}'>
+        {$rfid}
+    </td>";
 }
 
 sqlsrv_close($conn);
