@@ -46,6 +46,9 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
 }
 
 sqlsrv_close($conn);
+
+// Trả về dữ liệu dưới dạng JSON để client có thể kiểm tra sự thay đổi
+echo json_encode($data);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -730,4 +733,25 @@ function updateFooterPosition() {
 
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
+
+let previousData = [];
+
+// Hàm kiểm tra dữ liệu có thay đổi không
+function checkForChanges() {
+    fetch('index.php?station=all')  // Gửi yêu cầu kiểm tra dữ liệu
+        .then(response => response.json())
+        .then(data => {
+            // So sánh dữ liệu mới và cũ
+            if (JSON.stringify(previousData) !== JSON.stringify(data)) {
+                // Nếu có sự thay đổi, tải lại trang
+                location.reload();
+            }
+            // Cập nhật dữ liệu cũ với dữ liệu mới
+            previousData = data;
+        })
+        .catch(error => console.log('Error checking data:', error));
+}
+
+// Kiểm tra sự thay đổi mỗi 5 giây
+setInterval(checkForChanges, 5000); // Kiểm tra mỗi 5 giây
 </script>
