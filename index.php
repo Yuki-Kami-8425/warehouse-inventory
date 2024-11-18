@@ -738,34 +738,4 @@ function updateFooterPosition() {
 
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
-
-let lastChecksum = null; // Lưu giá trị checksum cuối cùng
-
-function checkForChanges() {
-    // Gửi yêu cầu AJAX để kiểm tra xem có thay đổi dữ liệu không
-    fetch('index.php')  // URL của file PHP đã xử lý
-        .then(response => response.json())
-        .then(data => {
-            // Nếu lần đầu tiên, lưu lại checksum
-            if (lastChecksum === null) {
-                lastChecksum = data.checksum;
-            }
-
-            // Kiểm tra nếu checksum thay đổi (dữ liệu thay đổi)
-            if (data.checksum !== lastChecksum) {
-                console.log('Dữ liệu đã thay đổi!');
-                lastChecksum = data.checksum;
-
-                // Thực hiện hành động khi có thay đổi (ví dụ: tải lại trang)
-                location.reload();  // Tải lại trang
-            }
-        })
-        .catch(error => {
-            console.error('Lỗi:', error);
-        });
-}
-
-// Cài đặt watchdog timer (kiểm tra thay đổi mỗi 5 giây)
-setInterval(checkForChanges, 5000);
-
 </script>
