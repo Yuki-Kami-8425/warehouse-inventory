@@ -11,14 +11,6 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Tính giá trị checksum của toàn bộ bảng
-$sql = "SELECT CHECKSUM_AGG(CHECKSUM(SOCT, NGAYCT, MAKH, TENKH, MASP, TENSP, DONVI, LUONG_PALLET, RFID, PALLET_status)) AS checksumValue FROM dbo.stored_warehouse";
-$query = sqlsrv_query($conn, $sql);
-$row = sqlsrv_fetch_array($query, SQLSRV_FETCH_ASSOC);
-$currentChecksum = $row['checksumValue'];
-
-echo json_encode(array("checksum" => $currentChecksum));
-
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
