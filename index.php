@@ -11,6 +11,16 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
+$sql = "SELECT COUNT(*) as total_rows FROM dbo.stored_warehouse";
+$stmt = sqlsrv_query($conn, $sql);
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    echo json_encode(['total_rows' => $row['total_rows']]);
+} else {
+    echo json_encode(['total_rows' => 0]);
+}
+
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
@@ -44,18 +54,20 @@ $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, MASP FROM dbo.stored_ware
 $stmt = sqlsrv_query($conn, $sql); // Giả sử $conn là kết nối của bạn
 
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $rfid = $row['RFID'];
-    $productCode = $row['MASP']; // Giả sử 'MASP' là mã sản phẩm
+    $productCode = $row['MASP']; // Mã sản phẩm
     $productName = $row['TENSP']; // Tên sản phẩm
     $customerName = $row['TENKH']; // Tên khách hàng
-
-    // Duyệt từng ô và điền dữ liệu vào các ô tương ứng
-    echo "<td 
-        data-product-code='{$productCode}'
-        data-product-name='{$productName}'
-        data-customer-name='{$customerName}'>
-        {$rfid}
-    </td>";
+    $rfid = $row['RFID']; // RFID
+    
+    // Thêm dữ liệu vào các mảng
+    $productData[] = [
+        'MASP' => $productCode,
+        'TENSP' => $productName,
+        'TENKH' => $customerName
+    ];
+    $data[] = $row;
+    $customers[$row['MAKH']][] = $rfid; // Lưu danh sách RFID cho mỗi khách hàng
+    $highlighted[] = trim($rfid); // Dùng trim để loại bỏ khoảng trắng
 }
 
 sqlsrv_close($conn);
@@ -533,6 +545,7 @@ sqlsrv_close($conn);
                         data-product-code="<?= $productCode ?>"
                         data-product-name="<?= $productName ?>"
                         data-customer-name="<?= $customerName ?>">
+
                         <?= $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT) ?>
                     </td>
                 <?php endfor; ?>
@@ -761,4 +774,26 @@ sqlsrv_close($conn);
         }
     });
 });
+
+let lastUpdateTime = null;
+
+        async function checkForUpdates() {
+            try {
+                const response = await fetch('index.php?check_update=true');
+                const data = await response.json();
+
+                if (data.last_update) {
+                    if (!lastUpdateTime) {
+                        lastUpdateTime = data.last_update;
+                    } else if (lastUpdateTime !== data.last_update) {
+                        location.reload(); // Tải lại trang nếu có thay đổi
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking updates:", error);
+            }
+        }
+
+        // Kiểm tra mỗi 5 giây
+        setInterval(checkForUpdates, 5000);
 </script>
