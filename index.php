@@ -529,8 +529,9 @@ sqlsrv_close($conn);
                     </tr>
                 <?php endfor; ?>
             </table>
-</div>
-        <div class="charts"> <!-- Biểu đồ -->
+    </div>
+    <!-- Biểu đồ -->
+        <div class="charts">
                 <div class="chart-container"> <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
@@ -668,22 +669,26 @@ sqlsrv_close($conn);
             }
         }
     });
+
         function toggleDropdown(event) {
             event.stopPropagation();
             closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
             const dropdown = event.currentTarget.nextElementSibling;
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         }
+
         function closeDropdowns() {
             const allDropdowns = document.querySelectorAll('.dropdown-container');
             allDropdowns.forEach(d => {
                 d.style.display = 'none';
             });
         }
+
         function showPage(page) {
             console.log(`Loading page: ${page}`);
             closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
         }
+
         document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
         const station = urlParams.get('station');
@@ -695,4 +700,35 @@ sqlsrv_close($conn);
             }
         });
     });
+    
+    function toggleSidebar() {
+    let sidebar = document.getElementById('sidebar');
+    let content = document.querySelector('.content');
+
+    if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        content.classList.remove('collapsed');
+    } else {
+        sidebar.classList.add('collapsed');
+        content.classList.add('collapsed');
+    }
+
+    updateFooterPosition(); // Cập nhật vị trí của footer sau khi thay đổi thanh công cụ
+}
+
+function updateFooterPosition() {
+    const sidebar = document.getElementById('sidebar');
+    const footer = document.getElementById('datetime');
+
+    // Tính toán chiều rộng thanh công cụ
+    const sidebarWidth = sidebar.offsetWidth;
+
+    // Đặt lề trái của footer để căn giữa
+    footer.style.left = `calc(${sidebarWidth}px / 2)`; // Căn giữa
+    footer.style.transform = 'translateX(-50%)'; // Đẩy về phía bên trái để căn giữa chính xác
+}
+
+
+// Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
+updateFooterPosition();
 </script>
