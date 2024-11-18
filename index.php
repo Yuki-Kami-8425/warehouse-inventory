@@ -11,6 +11,14 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
+// Tính giá trị checksum của toàn bộ bảng
+$sql = "SELECT CHECKSUM_AGG(CHECKSUM(SOCT, NGAYCT, MAKH, TENKH, MASP, TENSP, DONVI, LUONG_PALLET, RFID, PALLET_status)) AS checksumValue FROM dbo.stored_warehouse";
+$query = sqlsrv_query($conn, $sql);
+$row = sqlsrv_fetch_array($query, SQLSRV_FETCH_ASSOC);
+$currentChecksum = $row['checksumValue'];
+
+echo json_encode(array("checksum" => $currentChecksum));
+
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
@@ -728,7 +736,36 @@ function updateFooterPosition() {
     footer.style.transform = 'translateX(-50%)'; // Đẩy về phía bên trái để căn giữa chính xác
 }
 
-
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
+
+let lastChecksum = null; // Lưu giá trị checksum cuối cùng
+
+function checkForChanges() {
+    // Gửi yêu cầu AJAX để kiểm tra xem có thay đổi dữ liệu không
+    fetch('index.php')  // URL của file PHP đã xử lý
+        .then(response => response.json())
+        .then(data => {
+            // Nếu lần đầu tiên, lưu lại checksum
+            if (lastChecksum === null) {
+                lastChecksum = data.checksum;
+            }
+
+            // Kiểm tra nếu checksum thay đổi (dữ liệu thay đổi)
+            if (data.checksum !== lastChecksum) {
+                console.log('Dữ liệu đã thay đổi!');
+                lastChecksum = data.checksum;
+
+                // Thực hiện hành động khi có thay đổi (ví dụ: tải lại trang)
+                location.reload();  // Tải lại trang
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+        });
+}
+
+// Cài đặt watchdog timer (kiểm tra thay đổi mỗi 5 giây)
+setInterval(checkForChanges, 5000);
+
 </script>
