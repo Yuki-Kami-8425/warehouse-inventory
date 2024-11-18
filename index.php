@@ -730,16 +730,19 @@ function updateFooterPosition() {
 
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
-let lastChecksum = null;
+
+let lastRecord = null; // Lưu bản ghi mới nhất để so sánh
 
 function checkForUpdates() {
     fetch('realtime_check.php')
         .then(response => response.json())
         .then(data => {
-            if (!lastChecksum) {
-                lastChecksum = data.checksum; // Lưu giá trị ban đầu
-            } else if (lastChecksum !== data.checksum) {
-                // Nếu checksum thay đổi, reload trang
+            if (!lastRecord) {
+                // Lưu bản ghi lần đầu tiên
+                lastRecord = data.lastRecord;
+            } else if (JSON.stringify(lastRecord) !== JSON.stringify(data.lastRecord)) {
+                // Nếu bản ghi mới khác bản ghi hiện tại, reload trang
+                console.log('Detected database change:', data.lastRecord);
                 location.reload();
             }
         })
@@ -748,5 +751,4 @@ function checkForUpdates() {
 
 // Gọi checkForUpdates mỗi 5 giây
 setInterval(checkForUpdates, 5000);
-
 </script>

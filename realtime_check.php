@@ -11,18 +11,20 @@ if ($conn === false) {
     die(json_encode(['error' => sqlsrv_errors()]));
 }
 
-// Truy vấn tổng hợp để tính checksum
-$sql = "SELECT COUNT(*) AS record_count, SUM(CHECKSUM(MAKH, TENKH, LUONG_PALLET, RFID)) AS checksum FROM dbo.stored_warehouse";
+// Truy vấn lấy bản ghi mới nhất
+$sql = "SELECT TOP 1 SOCT, NGAYCT, MAKH, TENKH, MASP, TENSP, DONVI, LUONG_PALLET, RFID, PALLET_status
+        FROM dbo.stored_warehouse
+        ORDER BY NGAYCT DESC, SOCT DESC";
+
 $stmt = sqlsrv_query($conn, $sql);
 if ($stmt === false) {
     die(json_encode(['error' => sqlsrv_errors()]));
 }
 
-$result = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+$row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
 sqlsrv_close($conn);
 
-// Trả về checksum dưới dạng JSON
+// Trả về JSON chứa thông tin bản ghi mới nhất
 echo json_encode([
-    'record_count' => $result['record_count'],
-    'checksum' => $result['checksum']
+    'lastRecord' => $row
 ]);
