@@ -11,23 +11,6 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Tính toán hash cho toàn bộ cột
-$sql = "SELECT HASHBYTES('SHA256', (
-    SELECT SOCT, NGAYCT, MAKH, TENKH, MASP, TENSP, DONVI, LUONG_PALLET, RFID, PALLET_status
-    FROM dbo.stored_warehouse
-    FOR JSON PATH
-)) AS checksum";
-$stmt = sqlsrv_query($conn, $sql);
-
-if ($stmt === false) {
-    die(json_encode(["error" => sqlsrv_errors()]));
-}
-
-$row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-sqlsrv_close($conn);
-
-echo json_encode(["checksum" => bin2hex($row['checksum'])]); // Chuyển giá trị hash sang dạng hex
-
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
