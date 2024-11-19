@@ -11,6 +11,23 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
+// Tính toán hash cho toàn bộ cột
+$sql = "SELECT HASHBYTES('SHA256', (
+    SELECT SOCT, NGAYCT, MAKH, TENKH, MASP, TENSP, DONVI, LUONG_PALLET, RFID, PALLET_status
+    FROM dbo.stored_warehouse
+    FOR JSON PATH
+)) AS checksum";
+$stmt = sqlsrv_query($conn, $sql);
+
+if ($stmt === false) {
+    die(json_encode(["error" => sqlsrv_errors()]));
+}
+
+$row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+sqlsrv_close($conn);
+
+echo json_encode(["checksum" => bin2hex($row['checksum'])]); // Chuyển giá trị hash sang dạng hex
+
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
@@ -731,18 +748,18 @@ function updateFooterPosition() {
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
 
-let lastRecord = null; // Lưu bản ghi mới nhất để so sánh
+let lastChecksum = null;
 
 function checkForUpdates() {
     fetch('realtime_check.php')
         .then(response => response.json())
         .then(data => {
-            if (!lastRecord) {
-                // Lưu bản ghi lần đầu tiên
-                lastRecord = data.lastRecord;
-            } else if (JSON.stringify(lastRecord) !== JSON.stringify(data.lastRecord)) {
-                // Nếu bản ghi mới khác bản ghi hiện tại, reload trang
-                console.log('Detected database change:', data.lastRecord);
+            if (!lastChecksum) {
+                // Lưu checksum lần đầu tiên
+                lastChecksum = data.checksum;
+            } else if (lastChecksum !== data.checksum) {
+                // Nếu checksum mới khác checksum hiện tại, reload trang
+                console.log('Database change detected:', data.checksum);
                 location.reload();
             }
         })
@@ -751,4 +768,5 @@ function checkForUpdates() {
 
 // Gọi checkForUpdates mỗi 5 giây
 setInterval(checkForUpdates, 5000);
+
 </script>
