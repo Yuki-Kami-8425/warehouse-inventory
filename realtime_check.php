@@ -5,15 +5,14 @@ $connectionOptions = array(
     "Uid" => "eiuadmin",
     "PWD" => "Khoa123456789"
 );
+
 $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 if ($conn === false) {
     die(json_encode(["error" => sqlsrv_errors()]));
 }
 
-// Tính toán checksum cho toàn bộ cột
-$sql = "SELECT CHECKSUM_AGG(BINARY_CHECKSUM(SOCT, NGAYCT, MAKH, TENKH, MASP, TENSP, DONVI, LUONG_PALLET, RFID, PALLET_status)) AS checksum
-        FROM dbo.stored_warehouse";
+$sql = "SELECT last_modified FROM dbo.change_status";
 $stmt = sqlsrv_query($conn, $sql);
 
 if ($stmt === false) {
@@ -21,7 +20,8 @@ if ($stmt === false) {
 }
 
 $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-sqlsrv_close($conn);
 
-echo json_encode(["checksum" => $row['checksum']]);
+echo json_encode(["last_modified" => $row['last_modified']]);
+
+sqlsrv_close($conn);
 ?>
