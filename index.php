@@ -11,6 +11,13 @@ if ($conn === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
+// Truy vấn SQL để lấy dữ liệu từ dbo.stored_warehouse
+$sql = "SELECT SOCT, NGAYCT, MAKH, TENKH, MASP, TENSP, DONVI, LUONG_PALLET, RFID, PALLET_status FROM dbo.stored_warehouse";
+$stmt = sqlsrv_query($conn, $sql);
+if ($stmt === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
+
 $station = isset($_GET['station']) ? $_GET['station'] : 'dashboard';
 $sql = '';
 $params = null;
@@ -730,43 +737,34 @@ function updateFooterPosition() {
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
 
-    // Dữ liệu ban đầu từ PHP
-    let oldData = <?= json_encode($data) ?>;
+// Chuyển dữ liệu PHP sang JavaScript
+let previousData = <?php echo json_encode($_SESSION['previousData'] ?? []); ?>;
+let currentData = <?php echo json_encode($data); ?>;
 
-    // Hàm kiểm tra sự thay đổi
-    function checkDataChange() {
-        fetch(location.href) // Gửi yêu cầu GET đến chính trang này
-            .then(response => response.text()) // Nhận toàn bộ nội dung trang
-            .then(html => {
-                // Sử dụng regex để lấy lại dữ liệu JSON từ trang (nếu có)
-                const match = html.match(/let oldData = (.*?);/);
-                if (match) {
-                    const newData = JSON.parse(match[1]); // Lấy dữ liệu mới
+function checkDataChange() {
+    let hasChanged = false;
 
-                    // So sánh từng dòng
-                    let hasChanged = false;
-
-                    if (oldData.length !== newData.length) {
-                        hasChanged = true; // Số lượng dữ liệu thay đổi
-                    } else {
-                        for (let i = 0; i < newData.length; i++) {
-                            if (JSON.stringify(oldData[i]) !== JSON.stringify(newData[i])) {
-                                hasChanged = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (hasChanged) {
-                        location.reload(); // Reload trang nếu phát hiện thay đổi
-                    }
-
-                    oldData = newData; // Cập nhật dữ liệu cũ
-                }
-            })
-            .catch(error => console.error('Error checking data:', error));
+    // Kiểm tra nếu số lượng dữ liệu không giống nhau
+    if (previousData.length !== currentData.length) {
+        hasChanged = true;
+    } else {
+        // Vòng lặp for để so sánh từng phần tử
+        for (let i = 0; i < currentData.length; i++) {
+            if (JSON.stringify(previousData[i]) !== JSON.stringify(currentData[i])) {
+                hasChanged = true;
+                break;  // Dừng vòng lặp khi phát hiện sự thay đổi
+            }
+        }
     }
 
-    // Kiểm tra thay đổi mỗi 5 giây
-    setInterval(checkDataChange, 5000);
+    // Nếu có sự thay đổi, reload trang
+    if (hasChanged) {
+        console.log("Data changed! Reloading page...");
+        location.reload(); // Tải lại trang
+    }
+}
+
+// Kiểm tra sự thay đổi khi trang được tải
+window.onload = checkDataChange;
+
 </script>
