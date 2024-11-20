@@ -1,4 +1,6 @@
 <?php 
+session_start();
+
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
     "Database" => "eiu_warehouse_24",
@@ -52,6 +54,9 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
 }
 
 sqlsrv_close($conn);
+
+// Lưu dữ liệu vào session
+$_SESSION['previousData'] = $data;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,6 +71,40 @@ sqlsrv_close($conn);
             if (!urlParams.has('station')) {
                 window.location.href = '?station=home'; // Nếu không có tham số, chuyển hướng đến Home
             }
+        };
+
+        // Chuyển dữ liệu PHP sang JavaScript
+        let previousData = <?php echo json_encode($_SESSION['previousData'] ?? []); ?>;
+        let currentData = <?php echo json_encode($data); ?>;
+
+        // Kiểm tra sự thay đổi dữ liệu
+        function checkDataChange() {
+            let hasChanged = false;
+
+            // Kiểm tra nếu số lượng dữ liệu không giống nhau
+            if (previousData.length !== currentData.length) {
+                hasChanged = true;
+            } else {
+                // Vòng lặp for để so sánh từng phần tử
+                for (let i = 0; i < currentData.length; i++) {
+                    if (JSON.stringify(previousData[i]) !== JSON.stringify(currentData[i])) {
+                        hasChanged = true;
+                        break;  // Dừng vòng lặp khi phát hiện sự thay đổi
+                    }
+                }
+            }
+
+            console.log("Has Changed:", hasChanged);  // Kiểm tra trong console
+            // Nếu có sự thay đổi, reload trang
+            if (hasChanged) {
+                console.log("Data changed! Reloading page...");
+                location.reload(); // Tải lại trang
+            }
+        }
+
+        // Kiểm tra sự thay đổi khi trang được tải
+        window.onload = function() {
+            checkDataChange();
         };
     </script>
     <style>
@@ -736,35 +775,5 @@ function updateFooterPosition() {
 
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
-
-// Chuyển dữ liệu PHP sang JavaScript
-let previousData = <?php echo json_encode($_SESSION['previousData'] ?? []); ?>;
-let currentData = <?php echo json_encode($data); ?>;
-
-function checkDataChange() {
-    let hasChanged = false;
-
-    // Kiểm tra nếu số lượng dữ liệu không giống nhau
-    if (previousData.length !== currentData.length) {
-        hasChanged = true;
-    } else {
-        // Vòng lặp for để so sánh từng phần tử
-        for (let i = 0; i < currentData.length; i++) {
-            if (JSON.stringify(previousData[i]) !== JSON.stringify(currentData[i])) {
-                hasChanged = true;
-                break;  // Dừng vòng lặp khi phát hiện sự thay đổi
-            }
-        }
-    }
-
-    // Nếu có sự thay đổi, reload trang
-    if (hasChanged) {
-        console.log("Data changed! Reloading page...");
-        location.reload(); // Tải lại trang
-    }
-}
-
-// Kiểm tra sự thay đổi khi trang được tải
-window.onload = checkDataChange;
 
 </script>
