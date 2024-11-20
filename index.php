@@ -19,7 +19,6 @@ switch ($station) {
 case 'all':
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
     break;
-
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
@@ -731,24 +730,43 @@ function updateFooterPosition() {
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
 
-let lastModified = null;
+    // Dữ liệu ban đầu từ PHP
+    let oldData = <?= json_encode($data) ?>;
 
-function checkForUpdates() {
-    fetch('realtime_check.php')
-        .then(response => response.json())
-        .then(data => {
-            if (!lastModified) {
-                lastModified = data.last_modified;
-            } else if (lastModified !== data.last_modified) {
-                console.log('Detected data change, reloading...');
-                location.reload();
-            }
-        })
-        .catch(error => console.error('Error checking for updates:', error));
-}
+    // Hàm kiểm tra sự thay đổi
+    function checkDataChange() {
+        fetch(location.href) // Gửi yêu cầu GET đến chính trang này
+            .then(response => response.text()) // Nhận toàn bộ nội dung trang
+            .then(html => {
+                // Sử dụng regex để lấy lại dữ liệu JSON từ trang (nếu có)
+                const match = html.match(/let oldData = (.*?);/);
+                if (match) {
+                    const newData = JSON.parse(match[1]); // Lấy dữ liệu mới
 
-// Kiểm tra trạng thái mỗi 5 giây
-setInterval(checkForUpdates, 5000);
+                    // So sánh từng dòng
+                    let hasChanged = false;
 
+                    if (oldData.length !== newData.length) {
+                        hasChanged = true; // Số lượng dữ liệu thay đổi
+                    } else {
+                        for (let i = 0; i < newData.length; i++) {
+                            if (JSON.stringify(oldData[i]) !== JSON.stringify(newData[i])) {
+                                hasChanged = true;
+                                break;
+                            }
+                        }
+                    }
 
+                    if (hasChanged) {
+                        location.reload(); // Reload trang nếu phát hiện thay đổi
+                    }
+
+                    oldData = newData; // Cập nhật dữ liệu cũ
+                }
+            })
+            .catch(error => console.error('Error checking data:', error));
+    }
+
+    // Kiểm tra thay đổi mỗi 5 giây
+    setInterval(checkDataChange, 5000);
 </script>
