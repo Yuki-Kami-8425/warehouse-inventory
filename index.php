@@ -377,37 +377,38 @@ sqlsrv_close($conn);
             display: none; /* Xung đột nếu không được gán đúng */
         }
         .highlight {
-            position: relative; /* Đảm bảo tooltip căn chỉnh đúng */
-            background-color: #32CD32; /* Màu ô highlight */
+            position: relative;
+            background-color: #32CD32; /* Màu nền ô highlight */
             cursor: pointer;
         }
         .highlight:hover::after {
             content: attr(data-tooltip); /* Lấy nội dung từ data-tooltip */
             position: absolute;
-            top: -80px; /* Vị trí tooltip bên trên */
-            left: 50%; /* Căn giữa tooltip */
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9); /* Nền nhạt như textbox */
-            color: #000; /* Màu chữ đen */
-            padding: 10px;
-            border-radius: 8px; /* Bo tròn giống textbox */
-            font-size: 14px; /* Kích thước chữ */
+            top: 50%; /* Hiển thị ở giữa chiều dọc của ô */
+            left: 110%; /* Cách ô một khoảng nhỏ */
+            transform: translateY(-50%); /* Canh giữa theo chiều dọc */
+            background: rgba(0, 0, 0, 0.8); /* Nền đen nhạt */
+            color: #fff; /* Chữ màu trắng */
+            padding: 10px 15px;
+            border-radius: 5px; /* Bo tròn góc */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hiệu ứng bóng */
             white-space: pre-line; /* Hiển thị xuống dòng */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Tạo bóng như textbox */
-            z-index: 9999; /* Hiển thị tooltip trên cùng */
-            pointer-events: none; /* Đảm bảo tooltip không bị ảnh hưởng bởi chuột */
-            min-width: 200px; /* Đặt chiều rộng tối thiểu */
-            max-width: 300px; /* Giới hạn chiều rộng tối đa */
+            z-index: 9999; /* Hiển thị trên cùng */
+            font-size: 14px; /* Kích thước chữ */
+            min-width: 180px; /* Chiều rộng tối thiểu */
+            max-width: 250px; /* Chiều rộng tối đa */
+            text-align: left;
+            pointer-events: none; /* Không bị ảnh hưởng bởi chuột */
         }
         .highlight:hover::before {
-            content: ''; /* Mũi tên nhỏ bên dưới tooltip */
+            content: ''; /* Mũi tên nhỏ chỉ vào ô */
             position: absolute;
-            top: -10px; /* Vị trí ngay dưới tooltip */
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%; /* Ở giữa chiều dọc của ô */
+            left: 100%; /* Nằm ngay bên cạnh tooltip */
+            transform: translate(-50%, -50%);
             border-width: 5px;
             border-style: solid;
-            border-color: transparent transparent rgba(255, 255, 255, 0.9) transparent; /* Mũi tên cùng màu tooltip */
+            border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent; /* Màu nền đen nhạt cho mũi tên */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
