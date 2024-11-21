@@ -384,17 +384,30 @@ sqlsrv_close($conn);
         .highlight:hover::after {
             content: attr(data-tooltip); /* Lấy nội dung từ data-tooltip */
             position: absolute;
-            top: -40px; /* Đặt tooltip ở trên */
-            left: 50%; /* Căn giữa theo chiều ngang */
+            top: -80px; /* Vị trí tooltip bên trên */
+            left: 50%; /* Căn giữa tooltip */
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8); /* Nền tooltip */
-            color: #fff; /* Màu chữ tooltip */
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            white-space: nowrap; /* Không xuống dòng */
-            z-index: 9999; /* Đảm bảo tooltip hiển thị trên cùng */
-            pointer-events: none; /* Để tooltip không bị ảnh hưởng bởi chuột */
+            background: rgba(255, 255, 255, 0.9); /* Nền nhạt như textbox */
+            color: #000; /* Màu chữ đen */
+            padding: 10px;
+            border-radius: 8px; /* Bo tròn giống textbox */
+            font-size: 14px; /* Kích thước chữ */
+            white-space: pre-line; /* Hiển thị xuống dòng */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Tạo bóng như textbox */
+            z-index: 9999; /* Hiển thị tooltip trên cùng */
+            pointer-events: none; /* Đảm bảo tooltip không bị ảnh hưởng bởi chuột */
+            min-width: 200px; /* Đặt chiều rộng tối thiểu */
+            max-width: 300px; /* Giới hạn chiều rộng tối đa */
+        }
+        .highlight:hover::before {
+            content: ''; /* Mũi tên nhỏ bên dưới tooltip */
+            position: absolute;
+            top: -10px; /* Vị trí ngay dưới tooltip */
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent rgba(255, 255, 255, 0.9) transparent; /* Mũi tên cùng màu tooltip */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -526,7 +539,8 @@ sqlsrv_close($conn);
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
-    <table> <!-- Bảng Left Rack -->
+    <table> 
+        <!-- Bảng Left Rack -->
         <caption>Left Rack</caption>
         <?php for ($row = 7; $row >= 1; $row--): ?>
             <tr>
@@ -545,7 +559,7 @@ sqlsrv_close($conn);
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 'MASP: ' . $info['MAKH'] . ', TENSP: ' . $info['TENSP'] . ', TENKH: ' . $info['TENKH'] : '' ?>"
+                        data-tooltip="<?= $info ? "MASP: {$info['MAKH']}\nTENSP: {$info['TENSP']}\nTENKH: {$info['TENKH']}" : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -554,7 +568,8 @@ sqlsrv_close($conn);
         <?php endfor; ?>
     </table>
 
-    <table> <!-- Bảng Right Rack -->
+    <table> 
+        <!-- Bảng Right Rack -->
         <caption>Right Rack</caption>
         <?php for ($row = 7; $row >= 1; $row--): ?>
             <tr>
@@ -573,7 +588,7 @@ sqlsrv_close($conn);
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 'MASP: ' . $info['MAKH'] . ', TENSP: ' . $info['TENSP'] . ', TENKH: ' . $info['TENKH'] : '' ?>"
+                        data-tooltip="<?= $info ? "MASP: {$info['MAKH']}\nTENSP: {$info['TENSP']}\nTENKH: {$info['TENKH']}" : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -582,7 +597,6 @@ sqlsrv_close($conn);
         <?php endfor; ?>
     </table>
 </div>
-
     <!-- Biểu đồ -->
         <div class="charts">
                 <div class="chart-container"> <!-- Biểu đồ cột -->
