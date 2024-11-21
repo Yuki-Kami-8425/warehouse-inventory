@@ -373,20 +373,28 @@ sqlsrv_close($conn);
             text-align: center;
             margin-top: 10px;
         }
+        .tooltip {
+            display: none; /* Xung đột nếu không được gán đúng */
+        }
+        .highlight {
+            position: relative; /* Đảm bảo tooltip căn chỉnh đúng */
+            background-color: #32CD32; /* Màu ô highlight */
+            cursor: pointer;
+        }
         .highlight:hover::after {
-            content: attr(data-tooltip);
+            content: attr(data-tooltip); /* Lấy nội dung từ data-tooltip */
             position: absolute;
-            top: -30px; /* Vị trí tooltip */
-            left: 50%;
+            top: -40px; /* Đặt tooltip ở trên */
+            left: 50%; /* Căn giữa theo chiều ngang */
             transform: translateX(-50%);
-            background: #333;
-            color: #fff;
+            background: rgba(0, 0, 0, 0.8); /* Nền tooltip */
+            color: #fff; /* Màu chữ tooltip */
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 12px;
-            white-space: nowrap;
-            z-index: 10;
-            pointer-events: none;
+            white-space: nowrap; /* Không xuống dòng */
+            z-index: 9999; /* Đảm bảo tooltip hiển thị trên cùng */
+            pointer-events: none; /* Để tooltip không bị ảnh hưởng bởi chuột */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
