@@ -373,6 +373,21 @@ sqlsrv_close($conn);
             text-align: center;
             margin-top: 10px;
         }
+        .highlight:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: -30px; /* Vị trí tooltip */
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+            pointer-events: none;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -530,6 +545,21 @@ sqlsrv_close($conn);
                 <?php endfor; ?>
             </table>
     </div>
+
+    <?php foreach ($highlighted as $rfid): ?>
+        <?php 
+            // Tìm dữ liệu chi tiết cho RFID
+            $info = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+            $info = reset($info); // Lấy dòng dữ liệu đầu tiên
+        ?>
+        <td 
+            class="highlight"
+            data-tooltip="MASP: <?= $info['MAKH'] ?>, TENSP: <?= $info['TENSP'] ?>, TENKH: <?= $info['TENKH'] ?>"
+        >
+            <?= $rfid ?>
+        </td>
+    <?php endforeach; ?>
+
     <!-- Biểu đồ -->
         <div class="charts">
                 <div class="chart-container"> <!-- Biểu đồ cột -->
@@ -730,5 +760,22 @@ function updateFooterPosition() {
 
 // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
 updateFooterPosition();
+
+document.querySelectorAll('.highlight').forEach(cell => {
+    cell.addEventListener('mouseover', function() {
+        const tooltip = document.createElement('div');
+        tooltip.textContent = this.getAttribute('data-tooltip');
+        tooltip.className = 'tooltip';
+        document.body.appendChild(tooltip);
+
+        const rect = this.getBoundingClientRect();
+        tooltip.style.left = `${rect.left + window.scrollX}px`;
+        tooltip.style.top = `${rect.top - tooltip.offsetHeight + window.scrollY}px`;
+
+        this.addEventListener('mouseout', () => {
+            tooltip.remove();
+        });
+    });
+});
 
 </script>
