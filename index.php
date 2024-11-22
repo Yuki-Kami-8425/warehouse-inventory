@@ -433,7 +433,7 @@ sqlsrv_close($conn);
             pointer-events: none;
             font-size: 14px;
             z-index: 9999;
-            white-space: nowrap;
+            white-space: pre-line;
             max-width: 300px;
             word-wrap: break-word;
         }
@@ -445,7 +445,7 @@ sqlsrv_close($conn);
             text-align: center;
             margin-top: 10px;
         }
-
+        
         .highlight {
             position: relative;
             background-color: #32CD32; /* Màu nền ô highlight */
@@ -633,10 +633,10 @@ sqlsrv_close($conn);
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
                         data-tooltip="<?= $info ?
-                        'Product code: ' . htmlspecialchars($info['MAKH']) . '<br>' .
-                        'Customer code: ' . htmlspecialchars($info['TENSP']) . '<br>' .
-                        'Customer name: ' . htmlspecialchars($info['TENKH']) . '<br>' .
-                        'Document Date: ' . htmlspecialchars($info['NGAYCT']->format('Y-m-d')) : '' ?>"
+                        'Product code: ' . $info['MAKH'] .  '\n'. 
+                        'Customer code: ' . $info['TENSP'] .    '\n'.
+                        'Customer name: ' . $info['TENKH'] .    '\n'.
+                        'Document Date: ' . $info['NGAYCT'] : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -666,10 +666,10 @@ sqlsrv_close($conn);
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
                         data-tooltip="<?= $info ?
-                        'Product code: ' . htmlspecialchars($info['MAKH']) . '<br>' .
-                        'Customer code: ' . htmlspecialchars($info['TENSP']) . '<br>' .
-                        'Customer name: ' . htmlspecialchars($info['TENKH']) . '<br>' .
-                        'Document Date: ' . htmlspecialchars($info['NGAYCT']->format('Y-m-d')) : '' ?>"
+                        'Product code: ' . $info['MAKH'] .  '\n'. 
+                        'Customer code: ' . $info['TENSP'] .    '\n'.
+                        'Customer name: ' . $info['TENKH'] .    '\n'.
+                        'Document Date: ' . $info['NGAYCT'] : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
