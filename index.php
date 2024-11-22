@@ -18,13 +18,13 @@ $params = null;
 
 switch ($station) {
 case 'all':
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+    $sql = "SELECT NGAYCT, MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
     break;
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    $sql = "SELECT MAKH, TENSP, TENKH, NGAYCT, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
     break;
 default:
@@ -636,14 +636,9 @@ sqlsrv_close($conn);
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 
-                            'Product code: ' . $info['MAKH'] . '<br>' .
-                            'Customer code: ' . $info['TENSP'] . '<br>' .
-                            'Customer name: ' . $info['TENKH'] . '<br>' .
-                            'Document Date: ' . $info['NGAYCT'] 
-                        : '' ?>"
+                        data-tooltip="<?= $info ? 'Product code: ' . $info['MAKH'] . '\n Customer code: ' . $info['TENSP'] . '\n Customer name: ' . $info['TENKH'] . '\n Document Date: ' . $info['NGAYCT'] : '' ?>"
                     >
-                    <?= $rfid ?>
+                        <?= $rfid ?>
                     </td>
                 <?php endfor; ?>
             </tr>
@@ -670,14 +665,9 @@ sqlsrv_close($conn);
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 
-                            'Product code: ' . $info['MAKH'] . '<br>' .
-                            'Customer code: ' . $info['TENSP'] . '<br>' .
-                            'Customer name: ' . $info['TENKH'] . '<br>' .
-                            'Document Date: ' . $info['NGAYCT'] 
-                        : '' ?>"
+                        data-tooltip="<?= $info ? 'Product code: ' . $info['MAKH'] . '\n Customer code: ' . $info['TENSP'] . '\n Customer name: ' . $info['TENKH'] . '\n Document Date: ' . $info['NGAYCT'] : '' ?>"
                     >
-                    <?= $rfid ?>
+                        <?= $rfid ?>
                     </td>
                 <?php endfor; ?>
             </tr>
