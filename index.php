@@ -809,26 +809,36 @@ sqlsrv_close($conn);
         }
     });
 
-        function toggleDropdown(event) {
-            event.stopPropagation();
-            closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
-            const dropdown = event.currentTarget.nextElementSibling;
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        }
+    function toggleDropdown(event) {
+        const dropdown = event.currentTarget.nextElementSibling;
 
-        function closeDropdowns() {
-            const allDropdowns = document.querySelectorAll('.dropdown-container');
-            allDropdowns.forEach(d => {
-                d.style.display = 'none';
-            });
+        // Toggle hiển thị các mục con
+        if (dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        } else {
+            dropdown.classList.add('show');
         }
+    }
 
-        function showPage(page) {
-            console.log(`Loading page: ${page}`);
-            closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
-        }
+    function closeDropdowns() {
+        // Đóng tất cả các dropdown
+        const dropdowns = document.querySelectorAll('.dropdown-container');
+        dropdowns.forEach((dropdown) => dropdown.classList.remove('show'));
+    }
 
-        document.addEventListener("DOMContentLoaded", function () {
+    function closeDropdowns() {
+        const allDropdowns = document.querySelectorAll('.dropdown-container');
+        allDropdowns.forEach(d => {
+            d.style.display = 'none';
+        });
+    }
+
+    function showPage(page) {
+        console.log(`Loading page: ${page}`);
+        closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
         const station = urlParams.get('station');
         const links = document.querySelectorAll('.sidebar a');
@@ -839,22 +849,19 @@ sqlsrv_close($conn);
             }
         });
     });
-    
+
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const content = document.querySelector('.content');
-
-        // Kiểm tra trạng thái sidebar
+        
+        // Toggle class "collapsed" trên sidebar
+        sidebar.classList.toggle('collapsed');
+        
+        // Điều chỉnh margin cho nội dung chính
         if (sidebar.classList.contains('collapsed')) {
-            // Mở rộng sidebar
-            sidebar.classList.remove('collapsed');
-            content.style.marginLeft = '250px'; // Cập nhật lề cho nội dung chính
-            content.style.transform = ''; // Reset căn giữa
+            content.style.marginLeft = '60px'; // Cập nhật khoảng cách khi sidebar thu gọn
         } else {
-            // Thu gọn sidebar
-            sidebar.classList.add('collapsed');
-            content.style.marginLeft = '60px'; // Lề khi sidebar thu gọn
-            content.style.transform = `translateX(calc((100vw - 60px - ${content.offsetWidth}px) / 2))`; // Căn giữa nội dung
+            content.style.marginLeft = '250px'; // Khoảng cách khi sidebar mở rộng
         }
     }
 
