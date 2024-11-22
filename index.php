@@ -633,16 +633,15 @@ sqlsrv_close($conn);
                         }
                     ?>
                     <td 
-    class="<?= $info ? 'highlight' : '' ?>" 
-    data-tooltip="<?= $info ?
-    'Product code: ' . htmlspecialchars($info['MAKH']) . "\n" .
-    'Customer code: ' . htmlspecialchars($info['TENSP']) . "\n" .
-    'Customer name: ' . htmlspecialchars($info['TENKH']) . "\n" .
-    'Document Date: ' . htmlspecialchars($info['NGAYCT']->format('Y-m-d')) : '' ?>"
->
-    <?= $rfid ?>
-</td>
-
+                        class="<?= $info ? 'highlight' : '' ?>" 
+                        data-tooltip="<?= $info ?
+                        'Product code: ' . $info['MAKH'] . "\n" .
+                        'Customer code: ' . $info['TENSP'] . "\n" .
+                        'Customer name: ' . $info['TENKH'] . "\n" .
+                        'Document Date: ' . $info['NGAYCT'] : '' ?>"
+                    >
+                        <?= $rfid ?>
+                    </td>
                 <?php endfor; ?>
             </tr>
         <?php endfor; ?>
@@ -666,17 +665,16 @@ sqlsrv_close($conn);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
                     ?>
-                    <td 
-    class="<?= $info ? 'highlight' : '' ?>" 
-    data-tooltip="<?= $info ?
-    'Product code: ' . htmlspecialchars($info['MAKH']) . "\n" .
-    'Customer code: ' . htmlspecialchars($info['TENSP']) . "\n" .
-    'Customer name: ' . htmlspecialchars($info['TENKH']) . "\n" .
-    'Document Date: ' . htmlspecialchars($info['NGAYCT']->format('Y-m-d')) : '' ?>"
->
-    <?= $rfid ?>
-</td>
-
+                     <td 
+                        class="<?= $info ? 'highlight' : '' ?>" 
+                        data-tooltip="<?= $info ?
+                        'Product code: ' . $info['MAKH'] . "\n" .
+                        'Customer code: ' . $info['TENSP'] . "\n" .
+                        'Customer name: ' . $info['TENKH'] . "\n" .
+                        'Document Date: ' . $info['NGAYCT'] : '' ?>"
+                    >
+                        <?= $rfid ?>
+                    </td>
                 <?php endfor; ?>
             </tr>
         <?php endfor; ?>
