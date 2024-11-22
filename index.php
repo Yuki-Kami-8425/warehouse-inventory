@@ -74,32 +74,32 @@ sqlsrv_close($conn);
             align-items: center;
         }
 
-        .content {
-            flex: 1;
-            padding: 20px;
-            transition: margin-left 0.3s ease, transform 0.3s ease;
-            display: flex; /* Để căn giữa nội dung */
-            justify-content: center;
-            align-items: center;
-        }
-
-        .sidebar.collapsed + .content {
-            margin-left: 60px; /* Kích thước sidebar thu gọn */
-            transform: translateX(calc((100vw - 60px - 100%) / 2)); /* Căn giữa nội dung */
-        }
-
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100%;
-            width: 150px;
-            background-color: #2c3e50; /* Màu nền thanh bên */
+            width: 250px; /* Kích thước mặc định */
+            background-color: #2c3e50;
             padding-top: 60px;
-            transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
+            transition: width 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 60px; /* Kích thước thu gọn */
+        }
+
+        .content {
+            margin-left: 250px; /* Vị trí khi sidebar mở rộng */
+            transition: margin-left 0.3s ease, transform 0.3s ease;
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sidebar.collapsed + .content {
+            margin-left: 60px; /* Khi sidebar thu gọn */
+            transform: translateX(calc((100vw - 60px - 100%) / 2)); /* Căn giữa */
         }
 
         .sidebar ul {
@@ -107,6 +107,7 @@ sqlsrv_close($conn);
         padding: 0;
         margin: 0;
         }
+
         .sidebar li {
             position: relative;
         }
@@ -840,18 +841,21 @@ sqlsrv_close($conn);
     });
     
     function toggleSidebar() {
-        let sidebar = document.getElementById('sidebar');
-        let content = document.querySelector('.content');
+        const sidebar = document.getElementById('sidebar');
+        const content = document.querySelector('.content');
 
+        // Kiểm tra trạng thái sidebar
         if (sidebar.classList.contains('collapsed')) {
+            // Mở rộng sidebar
             sidebar.classList.remove('collapsed');
-            content.style.transform = ''; // Reset vị trí khi sidebar mở rộng
+            content.style.marginLeft = '250px'; // Cập nhật lề cho nội dung chính
+            content.style.transform = ''; // Reset căn giữa
         } else {
+            // Thu gọn sidebar
             sidebar.classList.add('collapsed');
-            content.style.transform = `translateX(calc((100vw - 60px - ${content.offsetWidth}px) / 2))`; // Căn giữa lại khi sidebar thu gọn
+            content.style.marginLeft = '60px'; // Lề khi sidebar thu gọn
+            content.style.transform = `translateX(calc((100vw - 60px - ${content.offsetWidth}px) / 2))`; // Căn giữa nội dung
         }
-
-        updateFooterPosition(); // Cập nhật vị trí footer
     }
 
     function updateFooterPosition() {
