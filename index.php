@@ -18,7 +18,7 @@ $params = null;
 
 switch ($station) {
 case 'all':
-    $sql = "SELECT NGAYCT, MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
     break;
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
