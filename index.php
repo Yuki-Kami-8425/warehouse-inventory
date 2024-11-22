@@ -427,15 +427,17 @@ sqlsrv_close($conn);
             position: absolute;
             background-color: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 8px;
-            border-radius: 5px;
+            padding: 10px 15px;
+            border-radius: 8px;
             display: none;
             pointer-events: none;
             font-size: 14px;
             z-index: 9999;
             white-space: pre-line;
-            max-width: 300px;
+            max-width: 400px; /* Tăng chiều rộng tối đa */
+            min-width: 200px; /* Tăng chiều rộng tối thiểu */
             word-wrap: break-word;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hiệu ứng đổ bóng */
         }
 
         .chartCaption {
