@@ -73,11 +73,21 @@ sqlsrv_close($conn);
             justify-content: center;
             align-items: center;
         }
+
         .content {
-            flex: 1; /* Chiếm phần còn lại của màn hình */
+            flex: 1;
             padding: 20px;
-            transition: margin-left 0.3s ease;
+            transition: margin-left 0.3s ease, transform 0.3s ease;
+            display: flex; /* Để căn giữa nội dung */
+            justify-content: center;
+            align-items: center;
         }
+
+        .sidebar.collapsed + .content {
+            margin-left: 60px; /* Kích thước sidebar thu gọn */
+            transform: translateX(calc((100vw - 60px - 100%) / 2)); /* Căn giữa nội dung */
+        }
+
         .sidebar {
             position: fixed;
             top: 0;
@@ -91,6 +101,7 @@ sqlsrv_close($conn);
             flex-direction: column;
             align-items: flex-start;
         }
+
         .sidebar ul {
         list-style-type: none;
         padding: 0;
@@ -99,6 +110,7 @@ sqlsrv_close($conn);
         .sidebar li {
             position: relative;
         }
+
         .sidebar a,
         .sidebar button {
             display: flex;
@@ -106,32 +118,37 @@ sqlsrv_close($conn);
             padding: 10px;
             text-decoration: none;
         }
+
         .dropdown-container {
             padding-left: 20px; /* Thụt lề cho dropdown */
         }
+        
         .dropdown-btn.active + .dropdown-container {
             display: block; /* Đảm bảo dropdown hiện khi button active */
         }
+
         .collapsed .link-text {
             display: none; /* Ẩn văn bản khi sidebar bị thu gọn */
         }
+
         .icon {
             width: 24px; /* Đặt kích thước cố định cho icon */
             height: 24px;
             margin-right: 10px; /* Khoảng cách giữa icon và văn bản */
         }
-        .sidebar.collapsed {
-            width: 60px; /* Kích thước sidebar khi thu gọn */
-        }
+
         .sidebar.collapsed .link-text {
             display: none; /* Ẩn chữ khi sidebar thu gọn */
         }
+
         .sidebar a i {
             margin-right: 0; /* Bỏ khoảng cách giữa icon và chữ */
         }
+
         .sidebar.collapsed a i {
             margin-right: 0; /* Đảm bảo không có khoảng cách khi chỉ có icon */
         }
+
         .sidebar a, .dropdown-btn {
             padding: 10px 15px;
             text-decoration: none;
@@ -141,59 +158,73 @@ sqlsrv_close($conn);
             align-items: center;
             background-color: transparent;
         }
+
         .sidebar a i, .dropdown-btn i {
             margin-right: 10px; /* Khoảng cách giữa icon và chữ */
         }
+
         .dropdown-container {
             display: none;
             background-color: #262626;
         }
+
         .dropdown-container a {
             padding-left: 30px;
         }
+
         .dropdown-container.show {
             display: block; /* Hiển thị dropdown khi có class 'show' */
         }
+
         .main-content {
             margin-left: 250px;
             padding: 20px;
             width: 100%;
             transition: margin-left 0.3s; /* Hiệu ứng chuyển đổi khi sidebar thu gọn */
         }
+
         .main-content.collapsed {
             margin-left: 60px; /* Kích thước margin khi sidebar thu gọn */
         }
+
         h2 {
             text-align: center;
         }
+
         .container {
             display: flex; 
             justify-content: space-around; 
             margin: 20px;
         }
+
         table {
             width: 35%;
             border-collapse: collapse;
             font-size: 10px;
         }
+
         .container table caption {
             font-size: 1.5em; /* Kích thước của tiêu đề bảng */
             font-weight: bold;
             margin-bottom: 10px;
         }
+
         th, td {
             border: 2px solid white;
             padding: 5px;
             text-align: center;
         }
+
         td.highlight {
             background-color: #32CD32;
         }
+
         .charts {
             display: flex; 
             justify-content: space-between; /* Evenly distribute space between charts */
              gap: 20px; 
         }
+
         .chart-container {
             flex: 1; /* Make both charts take equal space */
             display: flex;
@@ -202,6 +233,7 @@ sqlsrv_close($conn);
             width: 300px; 
             margin: 0 auto;
         }
+
         .charts-center {
             display: flex;
             flex: 1;
@@ -209,20 +241,24 @@ sqlsrv_close($conn);
             gap: 20px; /* Optional: space between the charts */
             margin: 0 auto; /* Center within its parent container */
         }
+
         #barChart {
             width: 400px !important;
             height: 350px !important; /* Adjust height as needed */
         }
+
         #pieChart {
             width: 350px !important;
             height: 350px !important;
         }
+
         #barChartCaption, #pieChartCaption {
             text-align: center;
             color: white;
             margin-top: 5px;
             margin-bottom: 0; /* Remove any extra margin */
         }
+
         .toggle-btn {
             position: absolute;
             top: 15px;
@@ -233,17 +269,20 @@ sqlsrv_close($conn);
             border: none;
             cursor: pointer;
         }
+
         .toggle-btn:hover {
             background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
             border-radius: 5px; /* Bo góc một chút */
             transform: scale(1.1); /* Phóng to một chút */
             transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
+        
         .home-container {
             display: flex; /* Sử dụng flexbox để căn chỉnh */
             flex-direction: column; /* Đặt chiều dọc */
             align-items: center; /* Căn giữa */
         }
+
         .sidebar a {
             display: block;
             color: #fff; /* Màu chữ */
@@ -252,23 +291,28 @@ sqlsrv_close($conn);
             transition: background-color 0.3s ease;
             background-color: none;
         }
+
         .sidebar a:hover, .dropdown-btn:hover {
             color: #32CD32; /* Màu chữ khi hover */
             background-color: rgba(255, 255, 255, 0.1); /* Nền khi hover */
         }
+
         .sidebar a:hover i, .dropdown-btn:hover i {
             color: #32CD32; /* Màu icon khi hover */
         }
+
         .sidebar a, .dropdown-btn {
             position: relative;
             border: none; /* Xóa viền */
             outline: none; /* Xóa outline khi nhấn */
             box-shadow: none; /* Xóa hiệu ứng bóng */
         }
+
         .sidebar a.active {
             color: #ADD8E6; /* Màu xanh lam nhạt */
             font-weight: bold; /* Thêm font-weight cho nổi bật */
         }
+
         .sidebar a:hover::after, .dropdown-btn:hover::after {  /* Hiệu ứng tooltip */
             content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
             position: absolute;
@@ -284,30 +328,38 @@ sqlsrv_close($conn);
             opacity: 0.8; /* Độ mờ của tooltip */
             margin-left: 10px; /* Khoảng cách giữa tooltip và phần tử */
         }
+
         .sidebar a.dashboard {
             background-color: transparent; /* Đảm bảo nền của nút Dashboard trong suốt */
         }
+
         .sidebar a.active {
             color: #00aaff; /* Màu xanh lam tươi khi nút được chọn */
         }
+
         .sidebar a.selected {
             color: #ADD8E6; /* Màu xanh lam nhạt */
         }
+
         .dropdown-container {
             display: none; /* Ẩn menu theo mặc định */
         }
+
         .dropdown-container.show {
             display: block; /* Hiển thị menu khi có class 'show' */
         }
+
         .slide-title {
             font-size: 24px; /* Kích thước chữ cho tiêu đề */
             color: white; /* Màu chữ */
             margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
         }
+
         .slide:hover {
             transform: scale(1.02); /* Phóng to một chút */
             transition: transform 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
+
         .slideshow-container {
             position: relative;
             max-width: 100%;
@@ -315,25 +367,30 @@ sqlsrv_close($conn);
             padding: 20px 0;
             text-align: center;
         }
+
         .slide-title {
             font-size: 24px; /* Kích thước chữ cho tiêu đề */
             color: white; /* Màu chữ */
             margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
         }
+
         .slide {
             display: none; /* Ẩn tất cả các slide mặc định */
             position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
         }
+
         .slide img {
             width: 650px; /* Chiều rộng cố định */
             height: 350px; /* Chiều cao cố định */
             object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
         }
+
         .dots {
             position: relative; /* Để căn giữa dấu chấm */
             text-align: center; /* Căn giữa dấu chấm */
             margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
         }
+
         .dot {
             height: 10px; /* Kích thước dấu chấm */
             width: 10px; /* Kích thước dấu chấm */
@@ -344,16 +401,19 @@ sqlsrv_close($conn);
             cursor: pointer; /* Con trỏ khi hover vào */
             transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
         }
+
         .dot.active {
             height: 15px; /* Kích thước lớn hơn khi được chọn */
             width: 15px; /* Kích thước lớn hơn khi được chọn */
             background-color: #00BFFF; /* Màu xanh lam khi được chọn */
         }
+
         .dot:hover {
             background-color: #00BFFF; /* Màu nền khi hover */
             transform: scale(1.2); /* Phóng to một chút */
             transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
+
         .tooltip {
             position: absolute;
             background-color: rgba(0, 0, 0, 0.7);
@@ -368,6 +428,7 @@ sqlsrv_close($conn);
             max-width: 300px;
             word-wrap: break-word;
         }
+
         .chartCaption {
             font-size: 20px; /* Thay đổi cỡ chữ theo ý bạn */
             font-weight: bold; /* Làm chữ in đậm */
@@ -375,14 +436,17 @@ sqlsrv_close($conn);
             text-align: center;
             margin-top: 10px;
         }
+
         .tooltip {
             display: none; /* Xung đột nếu không được gán đúng */
         }
+
         .highlight {
             position: relative;
             background-color: #32CD32; /* Màu nền ô highlight */
             cursor: pointer;
         }
+
         .highlight:hover::after {
             content: attr(data-tooltip); /* Lấy nội dung từ data-tooltip */
             position: absolute;
@@ -402,6 +466,7 @@ sqlsrv_close($conn);
             text-align: left;
             pointer-events: none; /* Không bị ảnh hưởng bởi chuột */
         }   
+
         .highlight:hover::before {
             content: ''; /* Mũi tên nhỏ chỉ vào ô */
             position: absolute;
@@ -775,50 +840,50 @@ sqlsrv_close($conn);
     });
     
     function toggleSidebar() {
-    let sidebar = document.getElementById('sidebar');
-    let content = document.querySelector('.content');
+        let sidebar = document.getElementById('sidebar');
+        let content = document.querySelector('.content');
 
-    if (sidebar.classList.contains('collapsed')) {
-        sidebar.classList.remove('collapsed');
-        content.classList.remove('collapsed');
-    } else {
-        sidebar.classList.add('collapsed');
-        content.classList.add('collapsed');
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            content.style.transform = ''; // Reset vị trí khi sidebar mở rộng
+        } else {
+            sidebar.classList.add('collapsed');
+            content.style.transform = `translateX(calc((100vw - 60px - ${content.offsetWidth}px) / 2))`; // Căn giữa lại khi sidebar thu gọn
+        }
+
+        updateFooterPosition(); // Cập nhật vị trí footer
     }
 
-    updateFooterPosition(); // Cập nhật vị trí của footer sau khi thay đổi thanh công cụ
-}
+    function updateFooterPosition() {
+        const sidebar = document.getElementById('sidebar');
+        const footer = document.getElementById('datetime');
 
-function updateFooterPosition() {
-    const sidebar = document.getElementById('sidebar');
-    const footer = document.getElementById('datetime');
+        // Tính toán chiều rộng thanh công cụ
+        const sidebarWidth = sidebar.offsetWidth;
 
-    // Tính toán chiều rộng thanh công cụ
-    const sidebarWidth = sidebar.offsetWidth;
+        // Đặt lề trái của footer để căn giữa
+        footer.style.left = `calc(${sidebarWidth}px / 2)`; // Căn giữa
+        footer.style.transform = 'translateX(-50%)'; // Đẩy về phía bên trái để căn giữa chính xác
+    }
 
-    // Đặt lề trái của footer để căn giữa
-    footer.style.left = `calc(${sidebarWidth}px / 2)`; // Căn giữa
-    footer.style.transform = 'translateX(-50%)'; // Đẩy về phía bên trái để căn giữa chính xác
-}
+    // Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
+    updateFooterPosition();
 
-// Gọi hàm ngay lập tức để thiết lập vị trí ban đầu
-updateFooterPosition();
+    document.querySelectorAll('.highlight').forEach(cell => {
+        cell.addEventListener('mouseover', function() {
+            const tooltip = document.createElement('div');
+            tooltip.textContent = this.getAttribute('data-tooltip');
+            tooltip.className = 'tooltip';
+            document.body.appendChild(tooltip);
 
-document.querySelectorAll('.highlight').forEach(cell => {
-    cell.addEventListener('mouseover', function() {
-        const tooltip = document.createElement('div');
-        tooltip.textContent = this.getAttribute('data-tooltip');
-        tooltip.className = 'tooltip';
-        document.body.appendChild(tooltip);
+            const rect = this.getBoundingClientRect();
+            tooltip.style.left = `${rect.left + window.scrollX}px`;
+            tooltip.style.top = `${rect.top - tooltip.offsetHeight + window.scrollY}px`;
 
-        const rect = this.getBoundingClientRect();
-        tooltip.style.left = `${rect.left + window.scrollX}px`;
-        tooltip.style.top = `${rect.top - tooltip.offsetHeight + window.scrollY}px`;
-
-        this.addEventListener('mouseout', () => {
-            tooltip.remove();
+            this.addEventListener('mouseout', () => {
+                tooltip.remove();
+            });
         });
     });
-});
 
 </script>
