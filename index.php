@@ -31,10 +31,12 @@ default:
     $sql = null; // Một truy vấn mặc định
     break;
 }
+
 $stmt = sqlsrv_query($conn, $sql, $params ?? null); 
 if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
+
 // Tạo mảng để lưu dữ liệu
 $data = [];
 $customers = [];
@@ -399,7 +401,7 @@ sqlsrv_close($conn);
             max-width: 250px; /* Chiều rộng tối đa */
             text-align: left;
             pointer-events: none; /* Không bị ảnh hưởng bởi chuột */
-        }
+        }   
         .highlight:hover::before {
             content: ''; /* Mũi tên nhỏ chỉ vào ô */
             position: absolute;
@@ -490,15 +492,15 @@ sqlsrv_close($conn);
             <div id="home" class="page">
                 <div class="slideshow-container">
                     <div class="slide">
-                        <h2 class="slide-title">Tiêu đề cho Hình 1</h2>
+                        <h2 class="slide-title">Revolutionizing Warehouse Operations with Smart Technology</h2>
                         <img class="slide-image" src="Picture1.png" alt="Slide 1">
                     </div>
                     <div class="slide">
-                        <h2 class="slide-title">Tiêu đề cho Hình 2</h2>
+                        <h2 class="slide-title">Real-Time Inventory Management for Efficiency</h2>
                         <img class="slide-image" src="Picture2.png" alt="Slide 2">
                     </div>
                     <div class="slide">
-                        <h2 class="slide-title">Tiêu đề cho Hình 3</h2>
+                        <h2 class="slide-title">Optimized Logistics with AI-Powered Solutions</h2>
                         <img class="slide-image" src="Picture3.png" alt="Slide 3">
                     </div>
                     <div class="dots">
@@ -560,7 +562,7 @@ sqlsrv_close($conn);
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? "MASP: {$info['MAKH']}\nTENSP: {$info['TENSP']}\nTENKH: {$info['TENKH']}" : '' ?>"
+                        data-tooltip="<?= $info ? 'Product code: ' . $info['MAKH'] . '\nCustomer code: ' . $info['TENSP'] . '\nCustomer name: ' . $info['TENKH'] . '\nDocument Date: ' . $info['NGAYCT'] : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -589,7 +591,7 @@ sqlsrv_close($conn);
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? "MASP: {$info['MAKH']}\nTENSP: {$info['TENSP']}\nTENKH: {$info['TENKH']}" : '' ?>"
+                        data-tooltip="<?= $info ? 'Product code: ' . $info['MAKH'] . '\nCustomer code: ' . $info['TENSP'] . '\nCustomer name: ' . $info['TENKH'] . '\nDocument Date: ' . $info['NGAYCT'] : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -600,7 +602,8 @@ sqlsrv_close($conn);
 </div>
     <!-- Biểu đồ -->
         <div class="charts">
-                <div class="chart-container"> <!-- Biểu đồ cột -->
+                <div class="chart-container">
+                    <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
                         <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
@@ -614,11 +617,13 @@ sqlsrv_close($conn);
                 </div>
          </div>
          <?php break; case 'all': ?>
-            <div class="charts charts-center"> <!-- Biểu đồ -->
-                <div class="chart-container"> <!-- Biểu đồ cột -->
+            <div class="charts charts-center">
+                <!-- Biểu đồ -->
+                <div class="chart-container">
+                    <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Slot Usage Across All Stations
+                        Percentage of Total Slots (%)
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
@@ -662,14 +667,14 @@ sqlsrv_close($conn);
                         min: 0,
                         max: 100, // Thang đo từ 0 đến 100
                         stepSize: 10, // Độ chia là 10
-                        title: {
+                        /* title: {
                             display: true,
                             text: 'Percentage of Total Slots (%)',
                             color: 'white',
                             font: {
                                 size: 20
                             }
-                        },
+                        }, */
                         ticks: {
                             color: 'white',
                             stepSize: 10
