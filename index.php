@@ -635,10 +635,10 @@ sqlsrv_close($conn);
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
                         data-tooltip="<?= $info ?
-                        'Product code: ' . $info['MAKH'] . "\n" .
-                        'Customer code: ' . $info['TENSP'] . "\n" .
-                        'Customer name: ' . $info['TENKH'] . "\n" .
-                        'Document Date: ' . $info['NGAYCT'] : '' ?>"
+                        $info['MAKH'] . "\n" .
+                        $info['TENSP'] . "\n" .
+                        $info['TENKH'] . "\n" .
+                        $info['NGAYCT'] : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -668,10 +668,10 @@ sqlsrv_close($conn);
                      <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
                         data-tooltip="<?= $info ?
-                        'Product code: ' . $info['MAKH'] . "\n" .
-                        'Customer code: ' . $info['TENSP'] . "\n" .
-                        'Customer name: ' . $info['TENKH'] . "\n" .
-                        'Document Date: ' . $info['NGAYCT'] : '' ?>"
+                        $info['MAKH'] . "\n" .
+                        $info['TENSP'] . "\n" .
+                        $info['TENKH'] . "\n" .
+                        $info['NGAYCT'] : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
