@@ -24,7 +24,7 @@ case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $sql = "SELECT NGAYCT, MAKH, TENSP, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
     break;
 default:
