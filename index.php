@@ -24,7 +24,7 @@ case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
     break;
 default:
@@ -547,7 +547,7 @@ sqlsrv_close($conn);
                         <span class="link-text">Station F</span>
                     </a>
                 </li>
-                <li>
+                <li>    
                     <a href="?station=G" onclick="showPage('G'); closeDropdowns();" data-tooltip="Go to station G">
                         <i class="fas fa-industry"></i>
                         <span class="link-text">Station G</span>
@@ -634,10 +634,11 @@ sqlsrv_close($conn);
                     ?>
                    <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ?
-                        $info['MAKH'] . "\n" .
-                        $info['TENSP'] . "\n" .
-                        $info['TENKH'] : '' ?>"
+                        data-tooltip="<?= $info ? 
+                        $info['MAKH'] . "\n" . 
+                        $info['TENSP'] . "\n" . 
+                        $info['TENKH'] . "\n" . 
+                        ($info['NGAYCT'] ?? 'No data') : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -664,12 +665,13 @@ sqlsrv_close($conn);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
                     ?>
-                     <td 
+                    <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ?
-                        $info['MAKH'] . "\n" .
-                        $info['TENSP'] . "\n" .
-                        $info['TENKH'] : '' ?>"
+                        data-tooltip="<?= $info ? 
+                        $info['MAKH'] . "\n" . 
+                        $info['TENSP'] . "\n" . 
+                        $info['TENKH'] . "\n" . 
+                        ($info['NGAYCT'] ?? 'No data') : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
