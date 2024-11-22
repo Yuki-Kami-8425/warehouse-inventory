@@ -446,10 +446,6 @@ sqlsrv_close($conn);
             margin-top: 10px;
         }
 
-        .tooltip {
-            display: none; /* Xung đột nếu không được gán đúng */
-        }
-
         .highlight {
             position: relative;
             background-color: #32CD32; /* Màu nền ô highlight */
@@ -636,7 +632,11 @@ sqlsrv_close($conn);
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 'Product code: ' . $info['MAKH'] . '\n Customer code: ' . $info['TENSP'] . '\n Customer name: ' . $info['TENKH'] . '\n Document Date: ' . $info['NGAYCT'] : '' ?>"
+                        data-tooltip="<?= $info ?
+                        'Product code: ' . htmlspecialchars($info['MAKH']) . '<br>' .
+                        'Customer code: ' . htmlspecialchars($info['TENSP']) . '<br>' .
+                        'Customer name: ' . htmlspecialchars($info['TENKH']) . '<br>' .
+                        'Document Date: ' . htmlspecialchars($info['NGAYCT']->format('Y-m-d')) : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -665,7 +665,11 @@ sqlsrv_close($conn);
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 'Product code: ' . $info['MAKH'] . '\n Customer code: ' . $info['TENSP'] . '\n Customer name: ' . $info['TENKH'] . '\n Document Date: ' . $info['NGAYCT'] : '' ?>"
+                        data-tooltip="<?= $info ?
+                        'Product code: ' . htmlspecialchars($info['MAKH']) . '<br>' .
+                        'Customer code: ' . htmlspecialchars($info['TENSP']) . '<br>' .
+                        'Customer name: ' . htmlspecialchars($info['TENKH']) . '<br>' .
+                        'Document Date: ' . htmlspecialchars($info['NGAYCT']->format('Y-m-d')) : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
