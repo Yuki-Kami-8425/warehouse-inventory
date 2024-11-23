@@ -635,10 +635,13 @@ sqlsrv_close($conn);
                    <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
                         data-tooltip="<?= $info ? 
-                        $info['MAKH'] . "\n" . 
-                        $info['TENSP'] . "\n" . 
-                        $info['TENKH'] . "\n" . 
-                        ($info['NGAYCT'] ?? 'No data') : '' ?>"
+                            $info['MAKH'] . "\n" .
+                            $info['TENSP'] . "\n" .
+                            $info['TENKH'] . "\n" .
+                            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
+                                ? $info['NGAYCT']->format('Y-m-d') 
+                                : 'Undefined') 
+                            : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
@@ -668,10 +671,13 @@ sqlsrv_close($conn);
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
                         data-tooltip="<?= $info ? 
-                        $info['MAKH'] . "\n" . 
-                        $info['TENSP'] . "\n" . 
-                        $info['TENKH'] . "\n" . 
-                        ($info['NGAYCT'] ?? 'No data') : '' ?>"
+                            $info['MAKH'] . "\n" .
+                            $info['TENSP'] . "\n" .
+                            $info['TENKH'] . "\n" .
+                            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
+                                ? $info['NGAYCT']->format('Y-m-d') 
+                                : 'Undefined') 
+                            : '' ?>"
                     >
                         <?= $rfid ?>
                     </td>
