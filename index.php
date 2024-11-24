@@ -758,6 +758,7 @@ sqlsrv_close($conn);
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
     const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
@@ -765,29 +766,29 @@ sqlsrv_close($conn);
     const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
 
     // Tạo plugin hiển thị phần trăm trên cột
-const percentageLabelPlugin = {
-    id: 'percentageLabel', // Đặt tên plugin
-    afterDatasetsDraw(chart) {
-        const { ctx, scales: { x, y } } = chart;
+    const percentageLabelPlugin = {
+        id: 'percentageLabel', // Đặt tên plugin
+        afterDatasetsDraw(chart) {
+            const { ctx, scales: { x, y } } = chart;
 
-        // Lấy dữ liệu từ dataset đầu tiên
-        const dataset = chart.data.datasets[0].data;
-        const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
-        if (totalSlots === 0) return; // Tránh lỗi chia cho 0
+            // Lấy dữ liệu từ dataset đầu tiên
+            const dataset = chart.data.datasets[0].data;
+            const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
+            if (totalSlots === 0) return; // Tránh lỗi chia cho 0
 
-        dataset.forEach((value, index) => {
-            const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
-            const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Lấy tọa độ X giữa cột
-            const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
+            dataset.forEach((value, index) => {
+                const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
+                const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Lấy tọa độ X giữa cột
+                const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
 
-            // Vẽ phần trăm lên cột
-            ctx.fillStyle = 'white'; // Màu chữ phần trăm
-            ctx.textAlign = 'center';
-            ctx.font = 'bold 16px Arial'; // Điều chỉnh font nhỏ hơn để dễ đọc
-            ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm cách đỉnh cột 10px
-        });
-    }
-};
+                // Vẽ phần trăm lên cột
+                ctx.fillStyle = 'white'; // Màu chữ phần trăm
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 16px Arial'; // Điều chỉnh font nhỏ hơn để dễ đọc
+                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm cách đỉnh cột 10px
+            });
+        }
+    };
 
 // Khởi tạo biểu đồ
 var ctxBar = document.getElementById('barChart').getContext('2d');
@@ -822,10 +823,9 @@ var barChart = new Chart(ctxBar, {
                 callbacks: {
                     // Tùy chỉnh nội dung tooltip
                     label: function(tooltipItem) {
-                        // Hiển thị tên khách hàng và số lượng slot
-                        var label = tooltipItem.label;
-                        var value = tooltipItem.raw;
-                        return label + ': ' + value + ' slots'; // Tooltip hiển thị số lượng slot
+                        const customerId = tooltipItem.label; // Mã khách hàng
+                        const slotCount = tooltipItem.raw; // Số lượng slot cho khách hàng
+                        return `${customerId}: ${slotCount} slots`; // Tooltip hiển thị số lượng slot
                     }
                 }
             }
@@ -855,7 +855,7 @@ var barChart = new Chart(ctxBar, {
     plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
 });
 
-        // Biểu đồ tròn
+    // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
     var pieChart = new Chart(ctxPie, {
         type: 'pie',
