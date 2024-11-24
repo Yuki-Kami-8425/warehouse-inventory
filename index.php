@@ -824,14 +824,14 @@ var barChart = new Chart(ctxBar, {
                 padding: 10,
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 displayColors: false,
-                callbacks: {
+                /* callbacks: {
                     // Tùy chỉnh nội dung tooltip
                     label: function(tooltipItem) {
                         const customerId = tooltipItem.label; // Mã khách hàng
                         const slotPercentage = tooltipItem.raw; // Tỷ lệ phần trăm slot cho khách hàng
                         return `${customerId}: ${slotPercentage.toFixed(2)}%`; // Tooltip hiển thị phần trăm slot
                     }
-                }
+                } */
             }
         },
         scales: {
