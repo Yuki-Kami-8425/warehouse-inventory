@@ -778,14 +778,17 @@ const percentageLabelPlugin = {
         if (total === 0) return; // Tránh lỗi chia cho 0
 
         dataset.forEach((value, index) => {
-            const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm dựa trên tổng số ô
-            const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Lấy tọa độ X giữa cột
-            const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
+            // Tính phần trăm
+            const percentage = ((value / totalSlots) * 100).toFixed(2);
+            
+            // Lấy tọa độ X và Y của cột
+            const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Tính tọa độ X cho vị trí trung tâm của cột
+            const yPos = y.getPixelForValue(value); // Tính tọa độ Y cho giá trị của cột
 
             // Vẽ phần trăm lên cột
             ctx.fillStyle = 'white'; // Màu chữ phần trăm
             ctx.textAlign = 'center';
-            ctx.font = 'bold 16px Arial'; // Điều chỉnh font nhỏ hơn để dễ đọc
+            ctx.font = 'bold 16px Arial'; // Điều chỉnh font chữ
             ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm cách đỉnh cột 10px
         });
     }
@@ -890,7 +893,6 @@ var pieChart = new Chart(ctxPie, {
         }
     }
 });
-
 
     function toggleDropdown(event) {
         event.stopPropagation();
