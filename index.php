@@ -761,6 +761,9 @@ sqlsrv_close($conn);
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
+    // Tính phần trăm đã sử dụng
+    const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
+
     // Tạo plugin hiển thị phần trăm trên cột
 const percentageLabelPlugin = {
     id: 'percentageLabel', // Đặt tên plugin
@@ -819,8 +822,10 @@ var barChart = new Chart(ctxBar, {
                 callbacks: {
                     // Tùy chỉnh nội dung tooltip
                     label: function(tooltipItem) {
-                        // Hiển thị giá trị của cột hiện tại
-                        return `Customer: ${tooltipItem.label} | Slots: ${tooltipItem.raw}`;
+                        // Hiển thị tên khách hàng và số lượng slot
+                        var label = tooltipItem.label;
+                        var value = tooltipItem.raw;
+                        return label + ': ' + value + ' slots'; // Tooltip hiển thị số lượng slot
                     }
                 }
             }
@@ -850,8 +855,7 @@ var barChart = new Chart(ctxBar, {
     plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
 });
 
-
-    // Biểu đồ tròn
+        // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
     var pieChart = new Chart(ctxPie, {
         type: 'pie',
