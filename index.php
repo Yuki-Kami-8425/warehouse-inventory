@@ -37,24 +37,28 @@ if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Đếm số lượng slot cho mỗi khách hàng
+// Tạo mảng để lưu dữ liệu
+$data = [];
+$customers = [];
+$highlighted = [];
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $data[] = $row;
+    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
+    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
+}
+
+// Tính số lượng pallet (slots) cho mỗi khách hàng
 $customerSlotCount = [];
-foreach ($data as $row) {
-    $customerSlotCount[$row['MAKH']][] = $row['RFID']; // Mỗi khách hàng có danh sách RFID
+foreach ($customers as $customerId => $rfids) {
+    $customerSlotCount[$customerId] = count($rfids); // Mỗi khách hàng có số lượng slot (RFID)
 }
 
-// Tính số lượng slot cho mỗi khách hàng
-$customerData = [];
-foreach ($customerSlotCount as $customerId => $rfids) {
-    $customerData[$customerId] = count($rfids);
-}
+// Sắp xếp số lượng slot giảm dần
+arsort($customerSlotCount);
 
-// Sắp xếp theo số lượng slot giảm dần
-arsort($customerData);
-
-// Lấy 3 khách hàng nhiều nhất và 1 cột "Other" cho các khách hàng còn lại
-$topCustomers = array_slice($customerData, 0, 3, true); // Lấy 3 khách hàng đầu tiên
-$otherData = array_slice($customerData, 3); // Các khách hàng còn lại
+// Lấy 3 khách hàng nhiều nhất và một cột "Other" cho các khách hàng còn lại
+$topCustomers = array_slice($customerSlotCount, 0, 3, true); // Lấy 3 khách hàng đầu tiên
+$otherData = array_slice($customerSlotCount, 3); // Các khách hàng còn lại
 
 // Tính tổng số slot cho các khách hàng còn lại (Other)
 $otherSum = array_sum($otherData);
@@ -73,16 +77,6 @@ if ($otherSum > 0) {
 if (count($customerLabels) < 4) {
     $customerLabels[] = 'Other';
     $customerData[] = $otherSum;
-}
-
-// Tạo mảng để lưu dữ liệu
-$data = [];
-$customers = [];
-$highlighted = [];
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $data[] = $row;
-    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
-    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
 
 sqlsrv_close($conn);
@@ -768,86 +762,86 @@ sqlsrv_close($conn);
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
     // Tạo plugin hiển thị phần trăm trên cột
-    const percentageLabelPlugin = {
-        id: 'percentageLabel', // Đặt tên plugin
-        afterDatasetsDraw(chart) {
-            const { ctx, scales: { x, y } } = chart;
+const percentageLabelPlugin = {
+    id: 'percentageLabel', // Đặt tên plugin
+    afterDatasetsDraw(chart) {
+        const { ctx, scales: { x, y } } = chart;
 
-            // Lấy dữ liệu từ dataset đầu tiên
-            const dataset = chart.data.datasets[0].data;
-            const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
-            if (totalSlots === 0) return; // Tránh lỗi chia cho 0
+        // Lấy dữ liệu từ dataset đầu tiên
+        const dataset = chart.data.datasets[0].data;
+        const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
+        if (totalSlots === 0) return; // Tránh lỗi chia cho 0
 
-            dataset.forEach((value, index) => {
-                const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                const xPos = x.getPixelForValue(index) + x.width / dataset.length / 2; // Lấy tọa độ X giữa cột
-                const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
+        // Duyệt qua mỗi cột để vẽ phần trăm lên cột
+        dataset.forEach((value, index) => {
+            const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
+            const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Lấy tọa độ X giữa cột
+            const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
 
-                // Vẽ phần trăm trên cột
-                ctx.fillStyle = 'white';
-                ctx.textAlign = 'center';
-                ctx.font = 'bold 16px Arial'; // Điều chỉnh font nhỏ hơn để dễ đọc
-                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị cách đỉnh cột 10px
-            });
-        }
-    };
+            // Vẽ phần trăm lên cột
+            ctx.fillStyle = 'white'; // Màu chữ phần trăm
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 16px Arial'; // Điều chỉnh font nhỏ hơn để dễ đọc
+            ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm cách đỉnh cột 10px
+        });
+    }
+};
 
-    // Khởi tạo biểu đồ
-    var ctxBar = document.getElementById('barChart').getContext('2d');
-    var barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
-            datasets: [{
-                label: 'Slots per Customer',
-                data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
-                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    display: false // Ẩn legend
+// Khởi tạo biểu đồ
+var ctxBar = document.getElementById('barChart').getContext('2d');
+var barChart = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+        labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
+        datasets: [{
+            label: 'Slots per Customer',
+            data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
+            backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
+            borderColor: 'white',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        plugins: {
+            legend: {
+                display: false // Ẩn legend
+            },
+            tooltip: {
+                bodyFont: {
+                    size: 16
                 },
-                tooltip: {
-                    bodyFont: {
-                        size: 16
-                    },
-                    titleFont: {
-                        size: 18
-                    },
-                    padding: 10,
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    displayColors: false
+                titleFont: {
+                    size: 18
+                },
+                padding: 10,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                displayColors: false
+            }
+        },
+        scales: {
+            y: {
+                min: 0,
+                max: Math.max(...<?php echo json_encode($customerData); ?>) * 1.2, // Thang đo tự động điều chỉnh tối đa
+                ticks: {
+                    color: 'white',
+                    stepSize: 10
                 }
             },
-            scales: {
-                y: {
-                    min: 0,
-                    max: 100, // Thang đo từ 0 đến 100
-                    ticks: {
-                        color: 'white',
-                        stepSize: 10
-                    }
+            x: {
+                grid: {
+                    display: false // Không hiển thị vạch dọc
                 },
-                x: {
-                    grid: {
-                        display: false // Không hiển thị vạch dọc
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trục X
-                        font: {
-                            size: 20
-                        }
+                ticks: {
+                    color: 'white', // Màu chữ trục X
+                    font: {
+                        size: 20
                     }
                 }
             }
-        },
-        plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
-    });
-
+        }
+    },
+    plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
+});
 
     // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
