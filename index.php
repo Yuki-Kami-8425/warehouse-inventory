@@ -747,6 +747,21 @@ sqlsrv_close($conn);
                     legend: {
                         display: false // Ẩn legend
                     },
+                    tooltip: {
+                        enabled: true,
+                        bodyFont: {
+                            size: 16 // Thay đổi kích thước font chữ của tooltip
+                        },
+                        titleFont: {
+                            size: 18 // Kích thước chữ tiêu đề tooltip
+                        },
+                        padding: 10, // Thay đổi khoảng cách bên trong tooltip
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)', // Đặt màu nền tooltip
+                        displayColors: false, // Ẩn các ô màu trong tooltip
+                    },
+                },
+                animation: {
+                    duration: 0 // Thời gian animation là 0 để tắt hiệu ứng
                 },
                 scales: {
                     y: {
