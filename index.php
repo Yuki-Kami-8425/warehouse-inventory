@@ -728,88 +728,88 @@ sqlsrv_close($conn);
     const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
-    // Biểu đồ cột
-    var ctxBar = document.getElementById('barChart').getContext('2d');
-    var barChart = new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: customerLabels,
-                datasets: [{
-                    label: 'Slots per Customer',
-                    data: customerData,
-                    backgroundColor: 'rgba(54, 162, 235, 1)',
-                    borderColor: 'white',
-                    borderWidth: 2
-                }]
+    // Tạo plugin hiển thị phần trăm trên cột
+    const percentageLabelPlugin = {
+        id: 'percentageLabel', // Đặt tên plugin
+        afterDatasetsDraw(chart) {
+            const { ctx, scales: { x, y } } = chart;
+
+            const dataset = chart.data.datasets[0].data;
+            const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
+            if (totalSlots === 0) return; // Tránh lỗi chia cho 0
+
+            dataset.forEach((value, index) => {
+                const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
+                const xPos = x.getPixelForValue(index); // Lấy tọa độ X của cột
+                const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
+
+                // Vẽ phần trăm trên cột
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Vẽ text cách đỉnh cột 10px
+            });
+        }
+    };
+
+// Khởi tạo biểu đồ
+var ctxBar = document.getElementById('barChart').getContext('2d');
+var barChart = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+        labels: customerLabels,
+        datasets: [{
+            label: 'Slots per Customer',
+            data: customerData,
+            backgroundColor: 'rgba(54, 162, 235, 1)',
+            borderColor: 'white',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        plugins: {
+            legend: {
+                display: false // Ẩn legend
             },
-            options: {
-                plugins: {
-                    legend: {
-                        display: false // Ẩn legend
-                    },
-                    tooltip: {
-                        enabled: true,
-                        bodyFont: {
-                            size: 16 // Thay đổi kích thước font chữ của tooltip
-                        },
-                        titleFont: {
-                            size: 18 // Kích thước chữ tiêu đề tooltip
-                        },
-                        padding: 10, // Thay đổi khoảng cách bên trong tooltip
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)', // Đặt màu nền tooltip
-                        displayColors: false, // Ẩn các ô màu trong tooltip
-                    },
+            tooltip: {
+                bodyFont: {
+                    size: 16
                 },
-                animation: {
-                    duration: 0 // Thời gian animation là 0 để tắt hiệu ứng
+                titleFont: {
+                    size: 18
                 },
-                scales: {
-                    y: {
-                        min: 0,
-                        max: 100, // Thang đo từ 0 đến 100
-                        stepSize: 10, // Độ chia là 10
-                        /* title: {
-                            display: true,
-                            text: 'Percentage of Total Slots (%)',
-                            color: 'white',
-                            font: {
-                                size: 20
-                            }
-                        }, */
-                        ticks: {
-                            color: 'white',
-                            stepSize: 10
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false // Không hiển thị vạch dọc
-                        },
-                        ticks: {
-                            color: 'white', // Màu chữ trục X
-                            font: {
-                                size: 20
-                            }
-                        }
+                padding: 10,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                displayColors: false
+            }
+        },
+        animation: {
+            duration: 0 // Tắt hiệu ứng nhảy từ 0 lên
+        },
+        scales: {
+            y: {
+                min: 0,
+                max: 100, // Thang đo từ 0 đến 100
+                ticks: {
+                    color: 'white',
+                    stepSize: 10
+                }
+            },
+            x: {
+                grid: {
+                    display: false // Không hiển thị vạch dọc
+                },
+                ticks: {
+                    color: 'white', // Màu chữ trục X
+                    font: {
+                        size: 20
                     }
                 }
             }
-        });
-        barChart.options.animation.onComplete = function () {
-                const ctx = barChart.ctx;
-                const chartArea = barChart.chartArea;
-                const xScale = barChart.scales.x;
-                const yScale = barChart.scales.y;
-                barChart.data.datasets[0].data.forEach(function (value, index) {
-                    const percentage = ((value / totalSlots) * 100).toFixed(2);
-                    const x = xScale.getPixelForValue(index);
-                    const y = yScale.getPixelForValue(value);
-                    ctx.fillStyle = 'white';
-                    ctx.textAlign = 'center';
-                    ctx.font = 'bold 20px Arial';
-                    ctx.fillText(percentage + '%', x, y - 10);
-                });
-            };
+        }
+    },
+    plugins: [percentageLabelPlugin] // Thêm plugin vào biểu đồ
+});
     // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
     var pieChart = new Chart(ctxPie, {
