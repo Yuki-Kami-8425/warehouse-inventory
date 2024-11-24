@@ -721,6 +721,7 @@ sqlsrv_close($conn);
             </div>
             <?php break; } ?>
     </div>
+    
 <script>
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
@@ -734,20 +735,21 @@ sqlsrv_close($conn);
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
 
+            // Lấy dữ liệu từ dataset đầu tiên
             const dataset = chart.data.datasets[0].data;
             const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
             if (totalSlots === 0) return; // Tránh lỗi chia cho 0
 
             dataset.forEach((value, index) => {
                 const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                const xPos = x.getPixelForValue(index); // Lấy tọa độ X của cột
+                const xPos = x.getPixelForValue(index) + x.width / dataset.length / 2; // Lấy tọa độ X giữa cột
                 const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
 
                 // Vẽ phần trăm trên cột
                 ctx.fillStyle = 'white';
                 ctx.textAlign = 'center';
-                ctx.font = 'bold 20px Arial';
-                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Vẽ text cách đỉnh cột 10px
+                ctx.font = 'bold 16px Arial'; // Điều chỉnh font nhỏ hơn để dễ đọc
+                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị cách đỉnh cột 10px
             });
         }
     };
@@ -757,93 +759,102 @@ sqlsrv_close($conn);
     var barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: customerLabels,
+            labels: customerLabels, // Nhãn cho các cột
             datasets: [{
                 label: 'Slots per Customer',
-                data: customerData,
-                backgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: 'white',
-                borderWidth: 2,
-                parsing: false
+                data: customerData, // Dữ liệu chính
+                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu nền cột
+                borderColor: 'white', // Màu viền cột
+                borderWidth: 2, // Độ dày viền
+                parsing: false // Đảm bảo dữ liệu không cần xử lý thêm
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: true, // Biểu đồ phản hồi kích thước
+            maintainAspectRatio: false, // Vô hiệu hóa tỉ lệ cố định
             plugins: {
                 legend: {
-                    display: false
+                    display: false // Ẩn legend
                 },
                 tooltip: {
-                    mode: 'nearest',
-                    intersect: true
+                    mode: 'index', // Tooltip hiển thị khi trỏ chuột gần nhất
+                    intersect: false, // Cho phép tooltip xuất hiện giữa các điểm
+                    bodyFont: {
+                        size: 14 // Font chữ nội dung tooltip
+                    },
+                    titleFont: {
+                        size: 16 // Font chữ tiêu đề tooltip
+                    },
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Nền tooltip
+                    padding: 10, // Khoảng cách padding bên trong tooltip
+                    displayColors: false // Ẩn màu mẫu trong tooltip
                 }
             },
             interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: true
+                mode: 'nearest', // Chế độ tìm điểm gần nhất
+                axis: 'x', // Chỉ kích hoạt theo trục X
+                intersect: true // Tooltip chỉ xuất hiện khi trỏ chuột nằm trong cột
             },
             scales: {
                 x: {
-                    barPercentage: 1.0,
-                    categoryPercentage: 1.0,
+                    barPercentage: 0.8, // Độ rộng cột
+                    categoryPercentage: 0.8, // Tăng hitbox các cột
                     grid: {
-                        display: false
+                        display: false // Ẩn lưới trục X
                     },
                     ticks: {
-                        color: 'white',
+                        color: 'white', // Màu chữ trục X
                         font: {
-                            size: 20
+                            size: 14 // Kích thước font trục X
                         }
                     }
                 },
                 y: {
                     min: 0,
-                    max: 100,
+                    max: 100, // Giá trị từ 0 đến 100
                     ticks: {
-                        color: 'white',
-                        stepSize: 10
+                        color: 'white', // Màu chữ trục Y
+                        stepSize: 10 // Bước nhảy của giá trị
                     }
                 }
             }
         },
-        plugins: [percentageLabelPlugin]
+        plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
     });
 
-        // Biểu đồ tròn
-        var ctxPie = document.getElementById('pieChart').getContext('2d');
-        var pieChart = new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: ['Used', 'Remaining'],
-                datasets: [{
-                    data: [filledSlots, totalSlots - filledSlots],
-                    backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                    borderColor: 'white',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    },
-                    tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const data = tooltipItem.dataset.data;
-                            const currentValue = data[tooltipItem.dataIndex];
-                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                            return tooltipItem.label + ': ' + percentage + '%';
-                        }
+    // Biểu đồ tròn
+    var ctxPie = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Used', 'Remaining'],
+            datasets: [{
+                data: [filledSlots, totalSlots - filledSlots],
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                },
+                tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const data = tooltipItem.dataset.data;
+                        const currentValue = data[tooltipItem.dataIndex];
+                        const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
+                        return tooltipItem.label + ': ' + percentage + '%';
                     }
                 }
-                }
             }
-        });
+            }
+        }
+    });
 
         function toggleDropdown(event) {
             event.stopPropagation();
