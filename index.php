@@ -37,6 +37,44 @@ if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
+// Đếm số lượng slot cho mỗi khách hàng
+$customerSlotCount = [];
+foreach ($data as $row) {
+    $customerSlotCount[$row['MAKH']][] = $row['RFID']; // Mỗi khách hàng có danh sách RFID
+}
+
+// Tính số lượng slot cho mỗi khách hàng
+$customerData = [];
+foreach ($customerSlotCount as $customerId => $rfids) {
+    $customerData[$customerId] = count($rfids);
+}
+
+// Sắp xếp theo số lượng slot giảm dần
+arsort($customerData);
+
+// Lấy 3 khách hàng nhiều nhất và 1 cột "Other" cho các khách hàng còn lại
+$topCustomers = array_slice($customerData, 0, 3, true); // Lấy 3 khách hàng đầu tiên
+$otherData = array_slice($customerData, 3); // Các khách hàng còn lại
+
+// Tính tổng số slot cho các khách hàng còn lại (Other)
+$otherSum = array_sum($otherData);
+
+// Cập nhật dữ liệu cho biểu đồ
+$customerLabels = array_keys($topCustomers);
+$customerData = array_values($topCustomers);
+
+// Nếu có dữ liệu "Other", thêm vào labels và dữ liệu
+if ($otherSum > 0) {
+    $customerLabels[] = 'Other';
+    $customerData[] = $otherSum;
+}
+
+// Đảm bảo có đủ 4 cột (Nếu không đủ 3 khách hàng, thêm "Other" vào cuối)
+if (count($customerLabels) < 4) {
+    $customerLabels[] = 'Other';
+    $customerData[] = $otherSum;
+}
+
 // Tạo mảng để lưu dữ liệu
 $data = [];
 $customers = [];
@@ -729,7 +767,7 @@ sqlsrv_close($conn);
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
-    // Tạo plugin hiển thị phần trăm trên cột
+    // Tạo plugin hiển thị phần trăm trên cột 
     const percentageLabelPlugin = {
         id: 'percentageLabel', // Đặt tên plugin
         afterDatasetsDraw(chart) {
@@ -748,7 +786,7 @@ sqlsrv_close($conn);
                 ctx.fillStyle = 'white';
                 ctx.textAlign = 'center';
                 ctx.font = 'bold 20px Arial';
-                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Vẽ text cách đỉnh cột 10px
+                ctx.fillText(${percentage}%, xPos, yPos - 10); // Vẽ text cách đỉnh cột 10px
             });
         }
     };
@@ -758,11 +796,11 @@ sqlsrv_close($conn);
     var barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: customerLabels,
+            labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
             datasets: [{
                 label: 'Slots per Customer',
-                data: customerData,
-                backgroundColor: 'rgba(54, 162, 235, 1)',
+                data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
+                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
                 borderColor: 'white',
                 borderWidth: 2
             }]
@@ -806,7 +844,7 @@ sqlsrv_close($conn);
                 }
             }
         },
-        plugins: [percentageLabelPlugin] // Thêm plugin vào biểu đồ
+        plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
     });
 
     // Biểu đồ tròn
@@ -843,26 +881,26 @@ sqlsrv_close($conn);
         }
     });
 
-        function toggleDropdown(event) {
-            event.stopPropagation();
-            closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
-            const dropdown = event.currentTarget.nextElementSibling;
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        }
+    function toggleDropdown(event) {
+        event.stopPropagation();
+        closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
+        const dropdown = event.currentTarget.nextElementSibling;
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
 
-        function closeDropdowns() {
-            const allDropdowns = document.querySelectorAll('.dropdown-container');
-            allDropdowns.forEach(d => {
-                d.style.display = 'none';
-            });
-        }
+    function closeDropdowns() {
+        const allDropdowns = document.querySelectorAll('.dropdown-container');
+        allDropdowns.forEach(d => {
+            d.style.display = 'none';
+        });
+    }
 
-        function showPage(page) {
-            console.log(`Loading page: ${page}`);
-            closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
-        }
+    function showPage(page) {
+        console.log(`Loading page: ${page}`);
+        closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
+    }
 
-        document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
         const station = urlParams.get('station');
         const links = document.querySelectorAll('.sidebar a');
@@ -875,63 +913,63 @@ sqlsrv_close($conn);
     });
     
     function toggleSidebar() {
-    let sidebar = document.getElementById('sidebar');
-    let content = document.querySelector('.content');
+        let sidebar = document.getElementById('sidebar');
+        let content = document.querySelector('.content');
 
-    if (sidebar.classList.contains('collapsed')) {
-        sidebar.classList.remove('collapsed');
-        content.classList.remove('collapsed');
-    } else {
-        sidebar.classList.add('collapsed');
-        content.classList.add('collapsed');
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            content.classList.remove('collapsed');
+        } else {
+            sidebar.classList.add('collapsed');
+            content.classList.add('collapsed');
+        }
+
+        updateFooterPosition(); // Cập nhật vị trí của footer sau khi thay đổi thanh công cụ
     }
 
-    updateFooterPosition(); // Cập nhật vị trí của footer sau khi thay đổi thanh công cụ
-}
+    function updateFooterPosition() {
+        const sidebar = document.getElementById('sidebar');
+        const footer = document.getElementById('datetime');
 
-function updateFooterPosition() {
-    const sidebar = document.getElementById('sidebar');
-    const footer = document.getElementById('datetime');
+        // Calculate the sidebar width (collapsed or expanded)
+        const sidebarWidth = sidebar.offsetWidth;
 
-    // Calculate the sidebar width (collapsed or expanded)
-    const sidebarWidth = sidebar.offsetWidth;
-
-    // Dynamically position the footer in the center of the page
-    footer.style.left = `calc(50% - ${sidebarWidth / 2}px)`;
-    footer.style.transform = 'translateX(-50%)';  // Center footer relative to the page
-}
-
-// Call the function on sidebar toggle to update the footer's position
-function toggleSidebar() {
-    let sidebar = document.getElementById('sidebar');
-    let content = document.querySelector('.content');
-
-    if (sidebar.classList.contains('collapsed')) {
-        sidebar.classList.remove('collapsed');
-        content.classList.remove('collapsed');
-    } else {
-        sidebar.classList.add('collapsed');
-        content.classList.add('collapsed');
+        // Dynamically position the footer in the center of the page
+        footer.style.left = `calc(50% - ${sidebarWidth / 2}px)`;
+        footer.style.transform = 'translateX(-50%)';  // Center footer relative to the page
     }
 
-    updateFooterPosition();
-}
+    // Call the function on sidebar toggle to update the footer's position
+    function toggleSidebar() {
+        let sidebar = document.getElementById('sidebar');
+        let content = document.querySelector('.content');
 
-document.querySelectorAll('.highlight').forEach(cell => {
-    cell.addEventListener('mouseover', function() {
-        const tooltip = document.createElement('div');
-        tooltip.textContent = this.getAttribute('data-tooltip');
-        tooltip.className = 'tooltip';
-        document.body.appendChild(tooltip);
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            content.classList.remove('collapsed');
+        } else {
+            sidebar.classList.add('collapsed');
+            content.classList.add('collapsed');
+        }
 
-        const rect = this.getBoundingClientRect();
-        tooltip.style.left = `${rect.left + window.scrollX}px`;
-        tooltip.style.top = `${rect.top - tooltip.offsetHeight + window.scrollY}px`;
+        updateFooterPosition();
+    }
 
-        this.addEventListener('mouseout', () => {
-            tooltip.remove();
+    document.querySelectorAll('.highlight').forEach(cell => {
+        cell.addEventListener('mouseover', function() {
+            const tooltip = document.createElement('div');
+            tooltip.textContent = this.getAttribute('data-tooltip');
+            tooltip.className = 'tooltip';
+            document.body.appendChild(tooltip);
+
+            const rect = this.getBoundingClientRect();
+            tooltip.style.left = `${rect.left + window.scrollX}px`;
+            tooltip.style.top = `${rect.top - tooltip.offsetHeight + window.scrollY}px`;
+
+            this.addEventListener('mouseout', () => {
+                tooltip.remove();
+            });
         });
     });
-});
 
 </script>
