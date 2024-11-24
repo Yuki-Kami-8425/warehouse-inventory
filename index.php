@@ -766,7 +766,6 @@ const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 // Tính phần trăm ô đã sử dụng
 const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
 
-// Tạo plugin hiển thị phần trăm trên cột
 const percentageLabelPlugin = {
     id: 'percentageLabel', // Đặt tên plugin
     afterDatasetsDraw(chart) {
@@ -774,27 +773,24 @@ const percentageLabelPlugin = {
 
         // Lấy dữ liệu từ dataset đầu tiên
         const dataset = chart.data.datasets[0].data;
-        const total = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
-        if (total === 0) return; // Tránh lỗi chia cho 0
+        const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
+        if (totalSlots === 0) return; // Tránh lỗi chia cho 0
 
         dataset.forEach((value, index) => {
-            // Tính phần trăm
-            const percentage = ((value / totalSlots) * 100).toFixed(2);
-            
-            // Lấy tọa độ X và Y của cột
-            const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Tính tọa độ X cho vị trí trung tâm của cột
-            const yPos = y.getPixelForValue(value); // Tính tọa độ Y cho giá trị của cột
+            const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
+            const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Lấy tọa độ X giữa cột
+            const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
 
             // Vẽ phần trăm lên cột
             ctx.fillStyle = 'white'; // Màu chữ phần trăm
             ctx.textAlign = 'center';
-            ctx.font = 'bold 16px Arial'; // Điều chỉnh font chữ
+            ctx.font = 'bold 20px Arial'; // Đặt kích thước chữ phần trăm thành 20px
             ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm cách đỉnh cột 10px
         });
     }
 };
 
-// Khởi tạo biểu đồ cột
+// Khởi tạo biểu đồ
 var ctxBar = document.getElementById('barChart').getContext('2d');
 var barChart = new Chart(ctxBar, {
     type: 'bar',
@@ -802,7 +798,7 @@ var barChart = new Chart(ctxBar, {
         labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
         datasets: [{
             label: 'Slots per Customer',
-            data: <?php echo json_encode($customerData); ?>, // Dữ liệu phần trăm slot
+            data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
             backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
             borderColor: 'white',
             borderWidth: 2
@@ -816,34 +812,34 @@ var barChart = new Chart(ctxBar, {
             tooltip: {
                 // Cập nhật tooltip để hiển thị đúng thông tin
                 bodyFont: {
-                    size: 16
+                    size: 20 // Đặt kích thước font trong tooltip thành 20px
                 },
                 titleFont: {
-                    size: 18
+                    size: 20 // Đặt kích thước font tiêu đề trong tooltip thành 20px
                 },
                 padding: 10,
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 displayColors: false,
-                /* callbacks: {
+                callbacks: {
                     // Tùy chỉnh nội dung tooltip
                     label: function(tooltipItem) {
                         const customerId = tooltipItem.label; // Mã khách hàng
-                        const slotPercentage = tooltipItem.raw; // Tỷ lệ phần trăm slot cho khách hàng
-                        return `${customerId}: ${slotPercentage.toFixed(2)}%`; // Tooltip hiển thị phần trăm slot
+                        const slotCount = tooltipItem.raw; // Số lượng slot cho khách hàng
+                        return `${customerId}: ${slotCount} slots`; // Tooltip hiển thị số lượng slot
                     }
-                } */
+                }
             }
         },
         scales: {
             y: {
-                min: 0, // Thang đo bắt đầu từ 0%
-                max: 100, // Thang đo tối đa là 100%
+                min: 0, // Thang đo bắt đầu từ 0
+                max: 100, // Thang đo tối đa là 100
                 ticks: {
                     color: 'white', // Màu chữ trục Y
-                    stepSize: 10, // Chia thang đo theo bước 10%
-                    callback: function(value) {
-                        return `${value}%`; // Hiển thị tỷ lệ phần trăm trên trục Y
-                    }
+                    font: {
+                        size: 20 // Đặt kích thước chữ trục Y thành 20px
+                    },
+                    stepSize: 10 // Chia thang đo theo bước 10%
                 }
             },
             x: {
@@ -853,7 +849,7 @@ var barChart = new Chart(ctxBar, {
                 ticks: {
                     color: 'white', // Màu chữ trục X
                     font: {
-                        size: 20
+                        size: 20 // Đặt kích thước chữ trục X thành 20px
                     }
                 }
             }
@@ -861,6 +857,7 @@ var barChart = new Chart(ctxBar, {
     },
     plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
 });
+
 
     // Biểu đồ tròn
 var ctxPie = document.getElementById('pieChart').getContext('2d');
