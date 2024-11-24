@@ -772,7 +772,6 @@ const percentageLabelPlugin = {
         const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
         if (totalSlots === 0) return; // Tránh lỗi chia cho 0
 
-        // Duyệt qua mỗi cột để vẽ phần trăm lên cột
         dataset.forEach((value, index) => {
             const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
             const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Lấy tọa độ X giữa cột
@@ -807,6 +806,7 @@ var barChart = new Chart(ctxBar, {
                 display: false // Ẩn legend
             },
             tooltip: {
+                // Cập nhật tooltip để hiển thị đúng thông tin
                 bodyFont: {
                     size: 16
                 },
@@ -815,16 +815,23 @@ var barChart = new Chart(ctxBar, {
                 },
                 padding: 10,
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                displayColors: false
+                displayColors: false,
+                callbacks: {
+                    // Tùy chỉnh nội dung tooltip
+                    label: function(tooltipItem) {
+                        // Hiển thị giá trị của cột hiện tại
+                        return `Customer: ${tooltipItem.label} | Slots: ${tooltipItem.raw}`;
+                    }
+                }
             }
         },
         scales: {
             y: {
-                min: 0,
-                max: Math.max(...<?php echo json_encode($customerData); ?>) * 1.2, // Thang đo tự động điều chỉnh tối đa
+                min: 0, // Thang đo bắt đầu từ 0
+                max: 100, // Thang đo tối đa là 100
                 ticks: {
-                    color: 'white',
-                    stepSize: 10
+                    color: 'white', // Màu chữ trục Y
+                    stepSize: 10 // Chia thang đo theo bước 10%
                 }
             },
             x: {
@@ -842,6 +849,7 @@ var barChart = new Chart(ctxBar, {
     },
     plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
 });
+
 
     // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
