@@ -802,7 +802,7 @@ var barChart = new Chart(ctxBar, {
         labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
         datasets: [{
             label: 'Slots per Customer',
-            data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
+            data: <?php echo json_encode($customerData); ?>, // Dữ liệu phần trăm slot
             backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
             borderColor: 'white',
             borderWidth: 2
@@ -828,20 +828,22 @@ var barChart = new Chart(ctxBar, {
                     // Tùy chỉnh nội dung tooltip
                     label: function(tooltipItem) {
                         const customerId = tooltipItem.label; // Mã khách hàng
-                        const slotCount = tooltipItem.raw; // Số lượng slot cho khách hàng
-                        const percentage = ((slotCount / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                        return `${customerId}: ${slotCount} slots (${percentage}%)`; // Tooltip hiển thị số lượng slot và phần trăm
+                        const slotPercentage = tooltipItem.raw; // Tỷ lệ phần trăm slot cho khách hàng
+                        return `${customerId}: ${slotPercentage.toFixed(2)}%`; // Tooltip hiển thị phần trăm slot
                     }
                 }
             }
         },
         scales: {
             y: {
-                min: 0, // Thang đo bắt đầu từ 0
-                max: totalSlots, // Thang đo tối đa là tổng số ô (slots)
+                min: 0, // Thang đo bắt đầu từ 0%
+                max: 100, // Thang đo tối đa là 100%
                 ticks: {
                     color: 'white', // Màu chữ trục Y
-                    stepSize: 20 // Chia thang đo theo bước 20 ô
+                    stepSize: 10, // Chia thang đo theo bước 10%
+                    callback: function(value) {
+                        return `${value}%`; // Hiển thị tỷ lệ phần trăm trên trục Y
+                    }
                 }
             },
             x: {
