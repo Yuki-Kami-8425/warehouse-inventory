@@ -752,97 +752,98 @@ sqlsrv_close($conn);
         }
     };
 
-// Khởi tạo biểu đồ
-var ctxBar = document.getElementById('barChart').getContext('2d');
-var barChart = new Chart(ctxBar, {
-    type: 'bar',
-    data: {
-        labels: customerLabels,
-        datasets: [{
-            label: 'Slots per Customer',
-            data: customerData,
-            backgroundColor: 'rgba(54, 162, 235, 1)',
-            borderColor: 'white',
-            borderWidth: 2
-        }]
-    },
-    options: {
-        plugins: {
-            legend: {
-                display: false // Ẩn legend
-            },
-            tooltip: {
-                bodyFont: {
-                    size: 16
-                },
-                titleFont: {
-                    size: 18
-                },
-                padding: 10,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                displayColors: false
-            }
-        },
-        animation: {
-            duration: 0 // Tắt hiệu ứng nhảy từ 0 lên
-        },
-        scales: {
-            y: {
-                min: 0,
-                max: 100, // Thang đo từ 0 đến 100
-                ticks: {
-                    color: 'white',
-                    stepSize: 10
-                }
-            },
-            x: {
-                grid: {
-                    display: false // Không hiển thị vạch dọc
-                },
-                ticks: {
-                    color: 'white', // Màu chữ trục X
-                    font: {
-                        size: 20
-                    }
-                }
-            }
-        }
-    },
-    plugins: [percentageLabelPlugin] // Thêm plugin vào biểu đồ
-});
-    // Biểu đồ tròn
-    var ctxPie = document.getElementById('pieChart').getContext('2d');
-    var pieChart = new Chart(ctxPie, {
-        type: 'pie',
+    // Khởi tạo biểu đồ
+    var ctxBar = document.getElementById('barChart').getContext('2d');
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
         data: {
-            labels: ['Used', 'Remaining'],
+            labels: customerLabels,
             datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                label: 'Slots per Customer',
+                data: customerData,
+                backgroundColor: 'rgba(54, 162, 235, 1)',
                 borderColor: 'white',
-                borderWidth: 2
+                borderWidth: 2,
+                parsing: false
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    labels: {
-                        color: 'white'
-                    }
+                    display: false
                 },
                 tooltip: {
-                callbacks: {
-                    label: function(tooltipItem) {
-                        const data = tooltipItem.dataset.data;
-                        const currentValue = data[tooltipItem.dataIndex];
-                        const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                        return tooltipItem.label + ': ' + percentage + '%';
+                    mode: 'nearest',
+                    intersect: true
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: true
+            },
+            scales: {
+                x: {
+                    barPercentage: 1.0,
+                    categoryPercentage: 1.0,
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: 'white',
+                        font: {
+                            size: 20
+                        }
+                    }
+                },
+                y: {
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        color: 'white',
+                        stepSize: 10
                     }
                 }
             }
-            }
-        }
+        },
+        plugins: [percentageLabelPlugin]
     });
+
+        // Biểu đồ tròn
+        var ctxPie = document.getElementById('pieChart').getContext('2d');
+        var pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Used', 'Remaining'],
+                datasets: [{
+                    data: [filledSlots, totalSlots - filledSlots],
+                    backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    },
+                    tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const data = tooltipItem.dataset.data;
+                            const currentValue = data[tooltipItem.dataIndex];
+                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
+                            return tooltipItem.label + ': ' + percentage + '%';
+                        }
+                    }
+                }
+                }
+            }
+        });
 
         function toggleDropdown(event) {
             event.stopPropagation();
