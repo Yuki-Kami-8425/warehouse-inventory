@@ -766,26 +766,23 @@ const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 // Tính phần trăm ô đã sử dụng
 const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
 
+// Cập nhật lại plugin hiển thị phần trăm
 const percentageLabelPlugin = {
-    id: 'percentageLabel', // Đặt tên plugin
+    id: 'percentageLabel', 
     afterDatasetsDraw(chart) {
         const { ctx, scales: { x, y } } = chart;
-
-        // Lấy dữ liệu từ dataset đầu tiên
         const dataset = chart.data.datasets[0].data;
-        const totalSlots = dataset.reduce((sum, val) => sum + val, 0); // Tính tổng dữ liệu
-        if (totalSlots === 0) return; // Tránh lỗi chia cho 0
+        const totalSlots = dataset.reduce((sum, val) => sum + val, 0); 
+        if (totalSlots === 0) return; 
 
         dataset.forEach((value, index) => {
-            const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính phần trăm
-            const xPos = x.getPixelForValue(index) + (x.getPixelForValue(index + 1) - x.getPixelForValue(index)) / 2; // Lấy tọa độ X giữa cột
-            const yPos = y.getPixelForValue(value); // Lấy tọa độ Y dựa trên giá trị
-
-            // Vẽ phần trăm lên cột
-            ctx.fillStyle = 'white'; // Màu chữ phần trăm
+            const percentage = ((value / totalSlots) * 100).toFixed(2); 
+            const xPos = x.getPixelForValue(index) + x.width / (2 * dataset.length); // Sửa lại cách tính xPos
+            const yPos = y.getPixelForValue(value); 
+            ctx.fillStyle = 'white'; 
             ctx.textAlign = 'center';
-            ctx.font = 'bold 20px Arial'; // Đặt kích thước chữ phần trăm thành 20px
-            ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm cách đỉnh cột 10px
+            ctx.font = 'bold 20px Arial'; 
+            ctx.fillText(`${percentage}%`, xPos, yPos - 10); 
         });
     }
 };
@@ -810,24 +807,25 @@ var barChart = new Chart(ctxBar, {
                 display: false // Ẩn legend
             },
             tooltip: {
-                // Cập nhật tooltip để hiển thị đúng thông tin
                 bodyFont: {
-                    size: 20 // Đặt kích thước font trong tooltip thành 20px
+                    size: 20
                 },
                 titleFont: {
-                    size: 20 // Đặt kích thước font tiêu đề trong tooltip thành 20px
+                    size: 20
                 },
                 padding: 10,
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 displayColors: false,
                 callbacks: {
-                    // Tùy chỉnh nội dung tooltip
                     label: function(tooltipItem) {
-                        const customerId = tooltipItem.label; // Mã khách hàng
-                        const slotCount = tooltipItem.raw; // Số lượng slot cho khách hàng
-                        return `${customerId}: ${slotCount} slots`; // Tooltip hiển thị số lượng slot
+                        const customerId = tooltipItem.label;
+                        const slotCount = tooltipItem.raw;
+                        return `${customerId}: ${slotCount} slots`; 
                     }
-                }
+                },
+                // Điều chỉnh vị trí của tooltip để không bị lệch
+                position: 'average', // Đặt tooltip ở giữa các cột
+                xAlign: 'center', // Đảm bảo tooltip canh giữa theo trục X
             }
         },
         scales: {
