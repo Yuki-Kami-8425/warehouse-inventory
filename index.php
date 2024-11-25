@@ -717,179 +717,177 @@ sqlsrv_close($conn);
             </tr>
         <?php endfor; ?>
     </table>
-</div>
-    <!-- Biểu đồ -->
-        <div class="charts">
-                <div class="chart-container">
-                    <!-- Biểu đồ cột -->
-                    <canvas id="barChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
-                    </div>
-                </div>
-                <div class="chart-container"> <!-- Biểu đồ tròn -->
-                    <canvas id="pieChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
-                    </div>
-                </div>
-         </div>
-         <?php break; case 'all': ?>
-            <div class="charts charts-center">
-                <!-- Biểu đồ -->
-                <div class="chart-container">
-                    <!-- Biểu đồ cột -->
-                    <canvas id="barChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Percentage of Total Slots (%)
-                    </div>
-                </div>
-                <div class="chart-container"> <!-- Biểu đồ tròn -->
-                    <canvas id="pieChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                        Distribution of Storage Slots 
-                    </div>
-                </div>
-            </div>
-            <?php break; } ?>
     </div>
-<script>
-    // Dữ liệu biểu đồ
-const customers = <?= json_encode($customers) ?>;
-const customerLabels = Object.keys(customers); // Mã khách hàng
-const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+        <!-- Biểu đồ -->
+            <div class="charts">
+                    <div class="chart-container">
+                        <!-- Biểu đồ cột -->
+                        <canvas id="barChart"></canvas>
+                        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                            <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
+                        </div>
+                    </div>
+                    <div class="chart-container"> <!-- Biểu đồ tròn -->
+                        <canvas id="pieChart"></canvas>
+                        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                            <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
+                        </div>
+                    </div>
+            </div>
+            <?php break; case 'all': ?>
+                <div class="charts charts-center">
+                    <!-- Biểu đồ -->
+                    <div class="chart-container">
+                        <!-- Biểu đồ cột -->
+                        <canvas id="barChart"></canvas>
+                        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                            Percentage of Total Slots (%)
+                        </div>
+                    </div>
+                    <div class="chart-container"> <!-- Biểu đồ tròn -->
+                        <canvas id="pieChart"></canvas>
+                        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                            Distribution of Storage Slots 
+                        </div>
+                    </div>
+                </div>
+                <?php break; } ?>
+        </div>
+    <script>
+        // Dữ liệu biểu đồ
+    const customers = <?= json_encode($customers) ?>;
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
 
-// Tổng số ô (slots) cho tất cả trạm (ví dụ, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm)
-const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô (slots)
-const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    // Tổng số ô (slots) cho tất cả trạm (ví dụ, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm)
+    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô (slots)
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
-// Tính phần trăm ô đã sử dụng
-const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
+    // Tính phần trăm ô đã sử dụng
+    const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
 
-// Cập nhật lại plugin hiển thị phần trăm
-const percentageLabelPlugin = {
-    id: 'percentageLabel', 
-    afterDatasetsDraw(chart) {
-        const { ctx, scales: { x, y } } = chart;
-        const dataset = chart.data.datasets[0].data;
-        const totalSlots = dataset.reduce((sum, val) => sum + val, 0); 
-        if (totalSlots === 0) return; 
+    const totalSlots = <?= $station === 'all' ? 196 * 7 : 196 ?>; // Tổng số slot
+    const percentageLabelPlugin = {
+        id: 'percentageLabel',
+        afterDatasetsDraw(chart) {
+            const { ctx, scales: { x, y } } = chart;
+            const dataset = chart.data.datasets[0].data;
+            
+            dataset.forEach((value, index) => {
+                const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm
+                const xPos = x.getPixelForValue(index);
+                const yPos = y.getPixelForValue(value);
+                
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm
+            });
+        }
+    };
 
-        dataset.forEach((value, index) => {
-            const percentage = ((value / totalSlots) * 100).toFixed(2); 
-            const xPos = x.getPixelForValue(index) + x.width / (2 * dataset.length); // Sửa lại cách tính xPos
-            const yPos = y.getPixelForValue(value); 
-            ctx.fillStyle = 'white'; 
-            ctx.textAlign = 'center';
-            ctx.font = 'bold 20px Arial'; 
-            ctx.fillText(`${percentage}%`, xPos, yPos - 10); 
-        });
-    }
-};
-
-// Khởi tạo biểu đồ
-var ctxBar = document.getElementById('barChart').getContext('2d');
-var barChart = new Chart(ctxBar, {
-    type: 'bar',
-    data: {
-        labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
-        datasets: [{
-            label: 'Slots per Customer',
-            data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
-            backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
-            borderColor: 'white',
-            borderWidth: 2
-        }]
-    },
-    options: {
-        plugins: {
-            legend: {
-                display: false // Ẩn legend
+    // Khởi tạo biểu đồ
+    var ctxBar = document.getElementById('barChart').getContext('2d');
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
+            datasets: [{
+                label: 'Slots per Customer',
+                data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
+                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false // Ẩn legend
+                },
+                tooltip: {
+                    bodyFont: {
+                        size: 20
+                    },
+                    titleFont: {
+                        size: 20
+                    },
+                    padding: 10,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    displayColors: false,
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const customerId = tooltipItem.label;
+                            const slotCount = tooltipItem.raw;
+                            return `${customerId}: ${slotCount} slots`; 
+                        }
+                    },
+                    // Điều chỉnh vị trí của tooltip để không bị lệch
+                    position: 'average', // Đặt tooltip ở giữa các cột
+                    xAlign: 'center', // Đảm bảo tooltip canh giữa theo trục X
+                }
             },
-            tooltip: {
-                bodyFont: {
-                    size: 20
-                },
-                titleFont: {
-                    size: 20
-                },
-                padding: 10,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                displayColors: false,
-                callbacks: {
-                    label: function(tooltipItem) {
-                        const customerId = tooltipItem.label;
-                        const slotCount = tooltipItem.raw;
-                        return `${customerId}: ${slotCount} slots`; 
+            scales: {
+                y: {
+                    min: 0, // Thang đo bắt đầu từ 0
+                    max: 100, // Thang đo tối đa là 100
+                    ticks: {
+                        color: 'white', // Màu chữ trục Y
+                        font: {
+                            size: 20 // Đặt kích thước chữ trục Y thành 20px
+                        },
+                        stepSize: 10 // Chia thang đo theo bước 10%
                     }
                 },
-                // Điều chỉnh vị trí của tooltip để không bị lệch
-                position: 'average', // Đặt tooltip ở giữa các cột
-                xAlign: 'center', // Đảm bảo tooltip canh giữa theo trục X
+                x: {
+                    grid: {
+                        display: false // Không hiển thị vạch dọc
+                    },
+                    ticks: {
+                        color: 'white', // Màu chữ trục X
+                        font: {
+                            size: 20 // Đặt kích thước chữ trục X thành 20px
+                        }
+                    }
+                }
             }
         },
-        scales: {
-            y: {
-                min: 0, // Thang đo bắt đầu từ 0
-                max: 100, // Thang đo tối đa là 100
-                ticks: {
-                    color: 'white', // Màu chữ trục Y
-                    font: {
-                        size: 20 // Đặt kích thước chữ trục Y thành 20px
-                    },
-                    stepSize: 10 // Chia thang đo theo bước 10%
-                }
-            },
-            x: {
-                grid: {
-                    display: false // Không hiển thị vạch dọc
-                },
-                ticks: {
-                    color: 'white', // Màu chữ trục X
-                    font: {
-                        size: 20 // Đặt kích thước chữ trục X thành 20px
-                    }
-                }
-            }
-        }
-    },
-    plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
-});
-
+        plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
+    });
 
     // Biểu đồ tròn
-var ctxPie = document.getElementById('pieChart').getContext('2d');
-var pieChart = new Chart(ctxPie, {
-    type: 'pie',
-    data: {
-        labels: ['Used', 'Remaining'],
-        datasets: [{
-            data: [filledSlots, totalSlots - filledSlots],
-            backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-            borderColor: 'white',
-            borderWidth: 2
-        }]
-    },
-    options: {
-        plugins: {
-            legend: {
-                labels: {
-                    color: 'white'
-                }
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(tooltipItem) {
-                        const data = tooltipItem.dataset.data;
-                        const currentValue = data[tooltipItem.dataIndex];
-                        const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                        return tooltipItem.label + ': ' + percentage + '%'; // Hiển thị phần trăm trong tooltip
+    var ctxPie = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Used', 'Remaining'],
+            datasets: [{
+                data: [filledSlots, totalSlots - filledSlots],
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const data = tooltipItem.dataset.data;
+                            const currentValue = data[tooltipItem.dataIndex];
+                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
+                            return tooltipItem.label + ': ' + percentage + '%'; // Hiển thị phần trăm trong tooltip
+                        }
                     }
                 }
             }
         }
-    }
-});
+    });
 
     function toggleDropdown(event) {
         event.stopPropagation();
