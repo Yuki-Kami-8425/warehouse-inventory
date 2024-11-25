@@ -1,5 +1,4 @@
 <?php 
-
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
     "Database" => "eiu_warehouse_24",
@@ -47,10 +46,13 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
 
-// Tính số lượng pallet (slots) cho mỗi khách hàng
-$customerSlotCount = [];
+// Tính số lượng pallet (slots) cho mỗi khách hàng và phần trăm
+$customerPercentages = [];
+$totalSlots = ($station === 'all' ? 196 * 7 : 196); // Tổng số ô theo trạm
 foreach ($customers as $customerId => $rfids) {
-    $customerSlotCount[$customerId] = count($rfids); // Mỗi khách hàng có số lượng slot (RFID)
+    $slotCount = count($rfids); // Số slot của khách hàng
+    $percentage = ($slotCount / $totalSlots) * 100; // Tính phần trăm
+    $customerPercentages[$customerId] = round($percentage, 2);
 }
 
 // Sắp xếp số lượng slot giảm dần
@@ -771,17 +773,16 @@ sqlsrv_close($conn);
         id: 'percentageLabel',
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
-            const dataset = chart.data.datasets[0].data;
-            
-            dataset.forEach((value, index) => {
-                const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm
-                const xPos = x.getPixelForValue(index);
-                const yPos = y.getPixelForValue(value);
-                
+            const percentages = customerData;
+
+            chart.data.datasets[0].data.forEach((value, index) => {
+                const xPos = x.getPixelForValue(index); // Vị trí trục X
+                const yPos = y.getPixelForValue(value); // Vị trí trục Y
+
                 ctx.fillStyle = 'white';
                 ctx.textAlign = 'center';
                 ctx.font = 'bold 20px Arial';
-                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm
+                ctx.fillText(`${percentages[index]}%`, xPos, yPos - 10); // Hiển thị phần trăm
             });
         }
     };
