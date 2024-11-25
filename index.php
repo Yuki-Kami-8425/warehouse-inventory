@@ -804,12 +804,22 @@ sqlsrv_close($conn);
                     display: false // Ẩn legend
                 },
                 tooltip: {
+                    intersect: true, // Tooltip chỉ hiện khi chuột nằm trên cột
+                    mode: 'nearest', // Canh tooltip theo điểm gần nhất
+                    bodyFont: {
+                        size: 20
+                    },
+                    titleFont: {
+                        size: 20
+                    },
+                    padding: 10,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    displayColors: false,
                     callbacks: {
-                        label: function(tooltipItem) {
-                            const data = tooltipItem.dataset.data;
-                            const currentValue = data[tooltipItem.dataIndex];
-                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                            return tooltipItem.label + ': ' + percentage + '%'; // Hiển thị phần trăm trong tooltip
+                        label: function (tooltipItem) {
+                            const customerId = tooltipItem.label;
+                            const slotCount = tooltipItem.raw;
+                            return `${customerId}: ${slotCount} slots`;
                         }
                     }
                 }
