@@ -46,13 +46,10 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
 
-// Tính số lượng pallet (slots) cho mỗi khách hàng và phần trăm
-$customerPercentages = [];
-$totalSlots = ($station === 'all' ? 196 * 7 : 196); // Tổng số ô theo trạm
+// Tính số lượng pallet (slots) cho mỗi khách hàng
+$customerSlotCount = [];
 foreach ($customers as $customerId => $rfids) {
-    $slotCount = count($rfids); // Số slot của khách hàng
-    $percentage = ($slotCount / $totalSlots) * 100; // Tính phần trăm
-    $customerPercentages[$customerId] = round($percentage, 2);
+    $customerSlotCount[$customerId] = count($rfids); // Mỗi khách hàng có số lượng slot (RFID)
 }
 
 // Sắp xếp số lượng slot giảm dần
@@ -773,16 +770,17 @@ sqlsrv_close($conn);
         id: 'percentageLabel',
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
-            const percentages = customerData;
-
+            const percentages = <?= json_encode(array_values($customerPercentages)) ?>; // Sử dụng phần trăm đã tính
+            
             chart.data.datasets[0].data.forEach((value, index) => {
-                const xPos = x.getPixelForValue(index); // Vị trí trục X
-                const yPos = y.getPixelForValue(value); // Vị trí trục Y
-
+                const xPos = x.getPixelForValue(index); // Vị trí trên trục X
+                const yPos = y.getPixelForValue(value); // Vị trí trên trục Y
+                
                 ctx.fillStyle = 'white';
                 ctx.textAlign = 'center';
                 ctx.font = 'bold 20px Arial';
-                ctx.fillText(`${percentages[index]}%`, xPos, yPos - 10); // Hiển thị phần trăm
+                // Hiển thị phần trăm đã tính
+                ctx.fillText(`${percentages[index]}%`, xPos, yPos - 10);
             });
         }
     };
