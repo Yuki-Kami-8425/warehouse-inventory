@@ -766,7 +766,7 @@ sqlsrv_close($conn);
     // Tính phần trăm ô đã sử dụng
     const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
 
-    const totalSlots = <?= $station === 'all' ? 196 * 7 : 196 ?>; // Tổng số slot
+    
     const percentageLabelPlugin = {
         id: 'percentageLabel',
         afterDatasetsDraw(chart) {
