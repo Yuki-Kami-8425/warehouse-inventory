@@ -1,4 +1,5 @@
 <?php 
+
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
     "Database" => "eiu_warehouse_24",
@@ -770,17 +771,17 @@ sqlsrv_close($conn);
         id: 'percentageLabel',
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
-            const percentages = <?= json_encode(array_values($customerPercentages)) ?>; // Sử dụng phần trăm đã tính
+            const dataset = chart.data.datasets[0].data;
             
-            chart.data.datasets[0].data.forEach((value, index) => {
-                const xPos = x.getPixelForValue(index); // Vị trí trên trục X
-                const yPos = y.getPixelForValue(value); // Vị trí trên trục Y
+            dataset.forEach((value, index) => {
+                const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm
+                const xPos = x.getPixelForValue(index);
+                const yPos = y.getPixelForValue(value);
                 
                 ctx.fillStyle = 'white';
                 ctx.textAlign = 'center';
                 ctx.font = 'bold 20px Arial';
-                // Hiển thị phần trăm đã tính
-                ctx.fillText(`${percentages[index]}%`, xPos, yPos - 10);
+                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm
             });
         }
     };
