@@ -719,42 +719,42 @@ sqlsrv_close($conn);
     </table>
     </div>
         <!-- Biểu đồ -->
-            <div class="charts">
-                    <div class="chart-container">
-                        <!-- Biểu đồ cột -->
-                        <canvas id="barChart"></canvas>
-                        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                            <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
-                        </div>
-                    </div>
-                    <div class="chart-container"> <!-- Biểu đồ tròn -->
-                        <canvas id="pieChart"></canvas>
-                        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                            <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
-                        </div>
-                    </div>
-            </div>
-            <?php break; case 'all': ?>
-                <div class="charts charts-center">
-                    <!-- Biểu đồ -->
-                    <div class="chart-container">
-                        <!-- Biểu đồ cột -->
-                        <canvas id="barChart"></canvas>
-                        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                            Percentage of Total Slots (%)
-                        </div>
-                    </div>
-                    <div class="chart-container"> <!-- Biểu đồ tròn -->
-                        <canvas id="pieChart"></canvas>
-                        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-                            Distribution of Storage Slots 
-                        </div>
+        <div class="charts">
+                <div class="chart-container">
+                    <!-- Biểu đồ cột -->
+                    <canvas id="barChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
                     </div>
                 </div>
-                <?php break; } ?>
+                <div class="chart-container"> <!-- Biểu đồ tròn -->
+                    <canvas id="pieChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
+                    </div>
+                </div>
+        </div>
+        <?php break; case 'all': ?>
+            <div class="charts charts-center">
+                <!-- Biểu đồ -->
+                <div class="chart-container">
+                    <!-- Biểu đồ cột -->
+                    <canvas id="barChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        Percentage of Total Slots (%)
+                    </div>
+                </div>
+                <div class="chart-container"> <!-- Biểu đồ tròn -->
+                    <canvas id="pieChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        Distribution of Storage Slots 
+                    </div>
+                </div>
+            </div>
+            <?php break; } ?>
         </div>
     <script>
-        // Dữ liệu biểu đồ
+    // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
     const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
@@ -765,8 +765,6 @@ sqlsrv_close($conn);
 
     // Tính phần trăm ô đã sử dụng
     const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
-
-    
     const percentageLabelPlugin = {
         id: 'percentageLabel',
         afterDatasetsDraw(chart) {
@@ -822,9 +820,9 @@ sqlsrv_close($conn);
                             return `${customerId}: ${slotCount} slots`; 
                         }
                     },
-                    // Điều chỉnh vị trí của tooltip để không bị lệch
+                    /* // Điều chỉnh vị trí của tooltip để không bị lệch
                     position: 'average', // Đặt tooltip ở giữa các cột
-                    xAlign: 'center', // Đảm bảo tooltip canh giữa theo trục X
+                    xAlign: 'center', // Đảm bảo tooltip canh giữa theo trục X */
                 }
             },
             scales: {
