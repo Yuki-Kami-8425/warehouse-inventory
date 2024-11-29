@@ -104,14 +104,14 @@ sqlsrv_close($conn);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;  /* Ensure body takes full height */
+            height: 100%;  /* Thay vì 100vh, sử dụng 100% chiều cao của phần tử cha */
             margin: 0;  /* Remove default margin */
             overflow: hidden;  /* Prevent body from scrolling */
         }
-        
+
         .main-content {
             flex-grow: 1; /* Take all available space */
-            padding: 20px;
+            padding: 2%; /* Thay vì padding 20px, dùng padding theo tỷ lệ phần trăm */
             transition: margin-left 0.3s ease;
             max-width: 100%;  /* Prevent overflow */
         }
@@ -120,10 +120,10 @@ sqlsrv_close($conn);
             position: fixed;
             top: 0;
             left: 0;
-            height: 100%;
-            width: 150px;
+            height: 100%; /* Chiều cao toàn màn hình */
+            width: 15%; /* Chiều rộng là 15% của chiều ngang màn hình */
             background-color: #2c3e50; /* Màu nền thanh bên */
-            padding-top: 60px;
+            padding-top: 5%; /* Khoảng cách phía trên là 5% của chiều cao */
             transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
             display: flex;
             flex-direction: column;
@@ -144,12 +144,12 @@ sqlsrv_close($conn);
         .sidebar button {
             display: flex;
             align-items: center; /* Canh giữa các biểu tượng và văn bản */
-            padding: 10px;
+            padding: 2%; /* Chuyển padding sang tỷ lệ phần trăm */
             text-decoration: none;
         }
 
         .dropdown-container {
-            padding-left: 20px; /* Thụt lề cho dropdown */
+            padding-left: 5%; /* Chuyển padding sang tỷ lệ phần trăm */
         }
 
         .dropdown-btn.active + .dropdown-container {
@@ -161,21 +161,21 @@ sqlsrv_close($conn);
         }
 
         .icon {
-            width: 24px; /* Đặt kích thước cố định cho icon */
-            height: 24px;
-            margin-right: 10px; /* Khoảng cách giữa icon và văn bản */
+            width: 5%; /* Đặt kích thước icon theo tỷ lệ phần trăm */
+            height: 5%;
+            margin-right: 3%; /* Khoảng cách giữa icon và văn bản */
         }
 
         .sidebar.collapsed {
-            width: 60px; /* Kích thước sidebar khi thu gọn */
+            width: 15%; /* Kích thước sidebar khi thu gọn */
         }
 
         .sidebar.collapsed + .main-content {
-            margin-left: 60px;  /* Adjust margin of main-content when collapsed */
+            margin-left: 15%;  /* Adjust margin of main-content when collapsed */
         }
 
         .sidebar + .main-content {
-            margin-left: 150px;  /* Initial width of the sidebar */
+            margin-left: 40%;  /* Initial width of the sidebar */
         }
 
         .sidebar.collapsed .link-text {
@@ -191,9 +191,9 @@ sqlsrv_close($conn);
         }
 
         .sidebar a, .dropdown-btn {
-            padding: 10px 15px;
+            padding: 2% 3%; /* Chuyển padding sang tỷ lệ phần trăm */
             text-decoration: none;
-            font-size: 18px;
+            font-size: 2vw; /* Đặt kích thước chữ theo tỷ lệ phần trăm viewport */
             color: white;
             display: flex;
             align-items: center;
@@ -201,7 +201,7 @@ sqlsrv_close($conn);
         }
 
         .sidebar a i, .dropdown-btn i {
-            margin-right: 10px; /* Khoảng cách giữa icon và chữ */
+            margin-right: 3%; /* Khoảng cách giữa icon và chữ */
         }
 
         .dropdown-container {
@@ -210,7 +210,7 @@ sqlsrv_close($conn);
         }
 
         .dropdown-container a {
-            padding-left: 30px;
+            padding-left: 7%; /* Thụt lề cho các phần tử trong dropdown */
         }
 
         .dropdown-container.show {
@@ -218,14 +218,14 @@ sqlsrv_close($conn);
         }
 
         .main-content {
-            margin-left: 250px;
-            padding: 20px;
+            margin-left: 60%; /* Margin chính khi sidebar không thu gọn */
+            padding: 2%; /* Chuyển padding sang tỷ lệ phần trăm */
             width: 100%;
             transition: margin-left 0.3s; /* Hiệu ứng chuyển đổi khi sidebar thu gọn */
         }
 
         .main-content.collapsed {
-            margin-left: 60px; /* Kích thước margin khi sidebar thu gọn */
+            margin-left: 15%; /* Kích thước margin khi sidebar thu gọn */
         }
 
         h2 {
@@ -235,24 +235,24 @@ sqlsrv_close($conn);
         .container {
             display: flex; 
             justify-content: space-around; 
-            margin: 20px;
+            margin: 2%; /* Chuyển margin sang tỷ lệ phần trăm */
         }
 
         table {
-            width: 35%;
+            width: 35%; /* Chiều rộng bảng ở dạng phần trăm */
             border-collapse: collapse;
-            font-size: 10px;
+            font-size: 1.2vw; /* Font-size theo tỷ lệ phần trăm của viewport */
         }
 
         .container table caption {
-            font-size: 1.5em; /* Kích thước của tiêu đề bảng */
+            font-size: 2vw; /* Kích thước của tiêu đề bảng */
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 1%; /* Khoảng cách giữa tiêu đề bảng và nội dung */
         }
 
         th, td {
-            border: 2px solid white;
-            padding: 5px;
+            border: 0.2vw solid white; /* Đặt viền bảng theo tỷ lệ phần trăm */
+            padding: 1%; /* Padding cho các ô trong bảng */
             text-align: center;
         }
 
@@ -263,259 +263,210 @@ sqlsrv_close($conn);
         .charts {
             display: flex; 
             justify-content: space-between; /* Evenly distribute space between charts */
-             gap: 20px; 
+            gap: 3%; /* Khoảng cách giữa các chart */
         }
 
         .chart-container {
-            flex: 1; /* Make both charts take equal space */
+            flex: 1; /* Chiếm không gian bằng nhau */
             display: flex;
             flex-direction: column;
-            align-items: center; /* Align items (chart + caption) horizontally */
-            width: 300px; 
+            align-items: center; /* Căn giữa */
+            width: 30%; /* Điều chỉnh theo tỷ lệ phần trăm */
             margin: 0 auto;
         }
 
         .charts-center {
             display: flex;
             flex: 1;
-            justify-content: center; /* Centers the charts horizontally */
-            gap: 20px; /* Optional: space between the charts */
-            margin: 0 auto; /* Center within its parent container */
+            justify-content: center; /* Căn giữa các biểu đồ */
+            gap: 3%; /* Khoảng cách giữa các biểu đồ */
+            margin: 0 auto;
         }
 
         #barChart {
-            width: 400px;
-            height: 350px; /* Adjust height as needed */
+            width: 20%; /* Chiều rộng theo tỷ lệ phần trăm */
+            height: 18%; /* Chiều cao theo tỷ lệ viewport */
         }
 
         #pieChart {
-            width: 350px;
-            height: 350px;
+            width: 20%; /* Chiều rộng theo tỷ lệ phần trăm */
+            height: 20%;
         }
 
         #barChartCaption, #pieChartCaption {
             text-align: center;
             color: white;
-            margin-top: 5px;
-            margin-bottom: 0; /* Remove any extra margin */
+            margin-top: 1%; /* Khoảng cách trên */
+            margin-bottom: 0;
         }
 
         .toggle-btn {
             position: absolute;
-            top: 15px;
-            left: 10px;
-            font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
-            color: white; /* Màu của biểu tượng */
+            top: 3%;
+            left: 2%;
+            font-size: 3vw; /* Kích thước biểu tượng theo tỷ lệ viewport */
+            color: white;
             background: none;
             border: none;
             cursor: pointer;
         }
 
         .toggle-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
-            border-radius: 5px; /* Bo góc một chút */
-            transform: scale(1.1); /* Phóng to một chút */
-            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            transform: scale(1.1);
+            transition: all 0.3s;
         }
 
         .home-container {
-            display: flex; /* Sử dụng flexbox để căn chỉnh */
-            flex-direction: column; /* Đặt chiều dọc */
-            align-items: center; /* Căn giữa */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .sidebar a {
             display: block;
-            color: #fff; /* Màu chữ */
+            color: #fff;
             text-decoration: none;
-            padding: 10px;
+            padding: 2%;
             transition: background-color 0.3s ease;
             background-color: none;
         }
 
         .sidebar a:hover, .dropdown-btn:hover {
-            color: #32CD32; /* Màu chữ khi hover */
-            background-color: rgba(255, 255, 255, 0.1); /* Nền khi hover */
+            color: #32CD32;
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .sidebar a:hover i, .dropdown-btn:hover i {
-            color: #32CD32; /* Màu icon khi hover */
-        }
-
-        .sidebar a, .dropdown-btn {
-            position: relative;
-            border: none; /* Xóa viền */
-            outline: none; /* Xóa outline khi nhấn */
-            box-shadow: none; /* Xóa hiệu ứng bóng */
+            color: #32CD32;
         }
 
         .sidebar a.active {
-            color: #ADD8E6; /* Màu xanh lam nhạt */
-            font-weight: bold; /* Thêm font-weight cho nổi bật */
+            color: #ADD8E6;
+            font-weight: bold;
         }
 
-        .sidebar a:hover::after, .dropdown-btn:hover::after {  /* Hiệu ứng tooltip */
-            content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
+        .sidebar a:hover::after, .dropdown-btn:hover::after {
+            content: attr(data-tooltip);
             position: absolute;
-            left: 100%; /* Hiển thị tooltip bên phải của phần tử */
+            left: 100%;
             top: 50%;
             transform: translateY(-50%);
-            background-color: #000; /* Màu nền tooltip */
-            color: #fff; /* Màu chữ tooltip */
-            padding: 5px 10px;
+            background-color: #000;
+            color: #fff;
+            padding: 1% 2%;
             border-radius: 5px;
             white-space: nowrap;
             z-index: 1;
-            opacity: 0.8; /* Độ mờ của tooltip */
-            margin-left: 10px; /* Khoảng cách giữa tooltip và phần tử */
-        }
-
-        .sidebar a.dashboard {
-            background-color: transparent; /* Đảm bảo nền của nút Dashboard trong suốt */
-        }
-
-        .sidebar a.active {
-            color: #00aaff; /* Màu xanh lam tươi khi nút được chọn */
-        }
-
-        .sidebar a.selected {
-            color: #ADD8E6; /* Màu xanh lam nhạt */
-        }
-
-        .dropdown-container {
-            display: none; /* Ẩn menu theo mặc định */
-        }
-
-        .dropdown-container.show {
-            display: block; /* Hiển thị menu khi có class 'show' */
+            opacity: 0.8;
+            margin-left: 1%;
         }
 
         .slide-title {
-            font-size: 24px; /* Kích thước chữ cho tiêu đề */
-            color: white; /* Màu chữ */
-            margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
+            font-size: 3vw;
+            color: white;
+            margin-bottom: 2%;
         }
 
         .slide:hover {
-            transform: scale(1.02); /* Phóng to một chút */
-            transition: transform 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+            transform: scale(1.02);
+            transition: transform 0.3s;
         }
 
         .slideshow-container {
             position: relative;
             max-width: 100%;
             margin: auto;
-            padding: 20px 0;
+            padding: 2% 0;
             text-align: center;
         }
 
-        .slide-title {
-            font-size: 24px; /* Kích thước chữ cho tiêu đề */
-            color: white; /* Màu chữ */
-            margin-bottom: 10px; /* Khoảng cách giữa tiêu đề và hình ảnh */
-        }
-
         .slide {
-            display: none; /* Ẩn tất cả các slide mặc định */
-            position: relative; /* Để có thể căn chỉnh các thành phần bên trong */
+            display: none;
+            position: relative;
         }
 
         .slide img {
-            width: 650px; /* Chiều rộng cố định */
-            height: 350px; /* Chiều cao cố định */
-            object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
+            width: 70%; /* Chiều rộng ảnh theo tỷ lệ phần trăm */
+            height: auto; /* Tự động điều chỉnh chiều cao */
+            object-fit: fill;
         }
-        
+
         .dots {
-            position: relative; /* Để căn giữa dấu chấm */
-            text-align: center; /* Căn giữa dấu chấm */
-            margin-top: 10px; /* Khoảng cách giữa chữ và dấu chấm */
+            position: relative;
+            text-align: center;
+            margin-top: 2%;
         }
 
         .dot {
-            height: 10px; /* Kích thước dấu chấm */
-            width: 10px; /* Kích thước dấu chấm */
-            margin: 0 5px; /* Khoảng cách giữa các dấu chấm */
-            background-color: white; /* Màu trắng */
-            border-radius: 50%; /* Đường viền tròn */
-            display: inline-block; /* Hiển thị thành dòng ngang */
-            cursor: pointer; /* Con trỏ khi hover vào */
-            transition: all 0.3s; /* Hiệu ứng chuyển tiếp */
+            height: 1.5vw;
+            width: 1.5vw;
+            margin: 0 1%;
+            background-color: white;
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
         .dot.active {
-            height: 15px; /* Kích thước lớn hơn khi được chọn */
-            width: 15px; /* Kích thước lớn hơn khi được chọn */
-            background-color: #00BFFF; /* Màu xanh lam khi được chọn */
+            height: 2vw;
+            width: 2vw;
+            background-color: #00BFFF;
         }
 
         .dot:hover {
-            background-color: #00BFFF; /* Màu nền khi hover */
-            transform: scale(1.2); /* Phóng to một chút */
-            transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+            background-color: #00BFFF;
+            transform: scale(1.2);
+            transition: all 0.3s;
         }
 
         .tooltip {
             position: absolute;
             background-color: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 10px 15px;
+            padding: 2% 3%;
             border-radius: 8px;
             display: none;
             pointer-events: none;
-            font-size: 14px;
+            font-size: 1.5vw;
             z-index: 9999;
-            white-space: pre-line;
-            max-width: 400px; /* Tăng chiều rộng tối đa */
-            min-width: 200px; /* Tăng chiều rộng tối thiểu */
+            max-width: 40%; /* Tăng chiều rộng tối đa */
+            min-width: 20%; /* Tăng chiều rộng tối thiểu */
             word-wrap: break-word;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hiệu ứng đổ bóng */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
         .chartCaption {
-            font-size: 20px; /* Thay đổi cỡ chữ theo ý bạn */
-            font-weight: bold; /* Làm chữ in đậm */
-            color: white; /* Đảm bảo chữ vẫn màu trắng */
+            font-size: 2vw;
+            font-weight: bold;
+            color: white;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 2%;
         }
-        
+
         .highlight {
             position: relative;
-            background-color: #32CD32; /* Màu nền ô highlight */
+            background-color: #32CD32;
             cursor: pointer;
         }
 
         .highlight:hover::after {
-            content: attr(data-tooltip); /* Lấy nội dung từ data-tooltip */
+            content: attr(data-tooltip);
             position: absolute;
-            top: 50%; /* Hiển thị ở giữa chiều dọc của ô */
-            left: 110%; /* Cách ô một khoảng nhỏ */
-            transform: translateY(-50%); /* Canh giữa theo chiều dọc */
-            background: rgba(0, 0, 0, 0.8); /* Nền đen nhạt */
-            color: #fff; /* Chữ màu trắng */
-            padding: 10px 15px;
-            border-radius: 5px; /* Bo tròn góc */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hiệu ứng bóng */
-            white-space: pre-line; /* Hiển thị xuống dòng */
-            z-index: 9999; /* Hiển thị trên cùng */
-            font-size: 14px; /* Kích thước chữ */
-            min-width: 180px; /* Chiều rộng tối thiểu */
-            max-width: 250px; /* Chiều rộng tối đa */
-            text-align: left;
-            pointer-events: none; /* Không bị ảnh hưởng bởi chuột */
-        }   
-
-        .highlight:hover::before {
-            content: ''; /* Mũi tên nhỏ chỉ vào ô */
-            position: absolute;
-            top: 50%; /* Ở giữa chiều dọc của ô */
-            left: 100%; /* Nằm ngay bên cạnh tooltip */
-            transform: translate(-50%, -50%);
-            border-width: 5px;
-            border-style: solid;
-            border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent; /* Màu nền đen nhạt cho mũi tên */
+            top: 50%;
+            left: 110%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 2% 3%;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            font-size: 1.5vw;
+            opacity: 0.9;
         }
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
