@@ -123,6 +123,7 @@ sqlsrv_close($conn);
             height: 100%;
             width: 150px;
             background-color: #2c3e50; /* Màu nền thanh bên */
+            overflow-y: auto;
             padding-top: 60px;
             transition: width 0.3s; /* Hiệu ứng chuyển đổi khi thu gọn */
             display: flex;
@@ -284,13 +285,13 @@ sqlsrv_close($conn);
         }
 
         #barChart {
-            width: 400px !important;
-            height: 350px !important; /* Adjust height as needed */
+            width: 25%;
+            height: 20%; /* Adjust height as needed */
         }
 
         #pieChart {
-            width: 350px !important;
-            height: 350px !important;
+            width: 350px;
+            height: 350px;
         }
 
         #barChartCaption, #pieChartCaption {
@@ -515,6 +516,16 @@ sqlsrv_close($conn);
             border-width: 5px;
             border-style: solid;
             border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent; /* Màu nền đen nhạt cho mũi tên */
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100px; /* Thu nhỏ sidebar trên màn hình nhỏ */
+            }
+
+            table td, table th {
+                font-size: 10px; /* Giảm chữ trong bảng */
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
