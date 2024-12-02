@@ -98,16 +98,14 @@ sqlsrv_close($conn);
     </script>
     <style>
         body {
-            position: center;
             font-family: Arial, sans-serif;
             background-color: #001F3F;
             color: white;
             display: flex;
-            flex-direction: column; /* Cần thêm để hỗ trợ layout dạng cột */
-            height: auto; /* Thay thế để không khóa cố định chiều cao */
-            min-height: 100vh;
-            margin: 0;
-            width: auto;
+            justify-content: center;
+            align-items: center;
+            height: auto;  /* Ensure body takes full height */
+            margin: 0;  /* Remove default margin */
         }
 
         .overlay h2, .overlay p {
