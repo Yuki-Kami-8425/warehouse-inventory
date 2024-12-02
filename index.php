@@ -98,6 +98,12 @@ sqlsrv_close($conn);
     </script>
 
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #001F3F;
@@ -112,9 +118,14 @@ sqlsrv_close($conn);
         }
         
         .content {
-            width: 1920px; /* Chiều rộng gốc thiết kế */
-            height: 1080px; /* Chiều cao gốc thiết kế */
-            position: relative;
+            flex: 1; /* Phần nội dung chính chiếm toàn bộ phần còn lại */
+            padding: 20px;
+            overflow: auto; /* Tránh tràn nội dung */
+        }
+
+        .content img {
+            max-width: 100%; /* Hình ảnh co lại khi màn hình nhỏ */
+            height: auto;
         }
 
         .main-content {
@@ -241,9 +252,10 @@ sqlsrv_close($conn);
         }
 
         .container {
-            display: flex; 
-            justify-content: space-around; 
-            margin: 20px;
+            display: flex; /* Sử dụng Flexbox cho bố cục */
+            flex-wrap: wrap; /* Cho phép các phần tử xuống dòng khi không đủ chỗ */
+            height: 100vh;
+            overflow: hidden;
         }
 
         table {
@@ -259,9 +271,21 @@ sqlsrv_close($conn);
         }
 
         th, td {
-            border: 2px solid white;
+            border: 1px solid white;
             padding: 5px;
             text-align: center;
+            word-break: break-word
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                flex: 1 0 100%; /* Sidebar chiếm toàn bộ chiều rộng màn hình */
+                text-align: center;
+            }
+
+            .content {
+                flex: 1 0 100%; /* Nội dung chính cũng chiếm toàn bộ màn hình */
+            }
         }
 
         td.highlight {
