@@ -280,6 +280,7 @@ sqlsrv_close($conn);
             display: flex;
             flex-direction: column;
             align-items: center; /* Align items (chart + caption) horizontally */
+            justify-content: center;  
             width: 300px; 
             margin: 0 auto;
         }
@@ -288,6 +289,7 @@ sqlsrv_close($conn);
             display: flex;
             flex: 1;
             justify-content: center; /* Centers the charts horizontally */
+            align-items: center;          /* Căn giữa biểu đồ và caption theo chiều ngang */ 
             gap: 20px; /* Optional: space between the charts */
             margin: 0 auto; /* Center within its parent container */
         }
@@ -725,6 +727,7 @@ sqlsrv_close($conn);
                 }
             </script>
         <?php break; default: ?>
+
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
@@ -799,6 +802,7 @@ sqlsrv_close($conn);
             </tr>
         <?php endfor; ?>
     </table>
+
     </div>
         <!-- Biểu đồ -->
         <div class="charts">
@@ -816,6 +820,7 @@ sqlsrv_close($conn);
                     </div>
                 </div>
         </div>
+
         <?php break; case 'all': ?>
             <div class="charts charts-center">
                 <!-- Biểu đồ -->
@@ -833,8 +838,9 @@ sqlsrv_close($conn);
                     </div>
                 </div>
             </div>
-            <?php break; } ?>
-        </div>
+        <?php break; } ?>
+    </div>
+    
     <script>
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
