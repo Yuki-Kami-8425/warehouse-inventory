@@ -98,7 +98,7 @@ sqlsrv_close($conn);
     </script>
     <style>
         body {
-            position: relative;
+            position: center;
             font-family: Arial, sans-serif;
             background-color: #001F3F;
             color: white;
@@ -132,7 +132,7 @@ sqlsrv_close($conn);
             position: sticky;
             top: 0;
             left: 0;
-            height: auto;
+            height: 100%;
             width: 150px;
             background-color: #2c3e50; /* Màu nền thanh bên */
             padding-top: 60px;
