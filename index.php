@@ -140,7 +140,6 @@ sqlsrv_close($conn);
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            overflow-y: auto;
         }
 
         .sidebar ul {
