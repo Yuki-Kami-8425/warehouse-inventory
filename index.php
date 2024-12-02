@@ -96,6 +96,7 @@ sqlsrv_close($conn);
             }
         };
     </script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -110,6 +111,12 @@ sqlsrv_close($conn);
             transform-origin: top left;
         }
         
+        .content {
+            width: 1920px; /* Chiều rộng gốc thiết kế */
+            height: 1080px; /* Chiều cao gốc thiết kế */
+            position: relative;
+        }
+
         .main-content {
             flex-grow: 1; /* Take all available space */
             padding: 20px;
@@ -405,9 +412,12 @@ sqlsrv_close($conn);
         .slideshow-container {
             position: relative;
             max-width: 100%;
+            width: 100%; /* Chiều rộng theo thiết kế gốc */
+            height: 500px; /* Đặt chiều cao cố định */
             margin: auto;
             padding: 20px 0;
             text-align: center;
+            overflow: hidden;
         }
 
         .slide-title {
@@ -519,7 +529,21 @@ sqlsrv_close($conn);
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function scalePage() {
+            const content = document.querySelector('.content');
+            const scaleWidth = window.innerWidth / content.offsetWidth;
+            const scaleHeight = window.innerHeight / content.offsetHeight;
+            const scale = Math.min(scaleWidth, scaleHeight); // Dùng tỉ lệ nhỏ hơn để tránh tràn
+
+            document.body.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener('resize', scalePage);
+        window.addEventListener('load', scalePage);
+    </script>
 </head>
+
 <body>
 <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()"; >
