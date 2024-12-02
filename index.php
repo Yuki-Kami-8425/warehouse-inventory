@@ -530,6 +530,33 @@ sqlsrv_close($conn);
             border-style: solid;
             border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent; /* Màu nền đen nhạt cho mũi tên */
         }
+
+        .feature {
+            display: flex;                  /* Sử dụng flexbox để căn giữa các phần tử */
+            flex-direction: column;         /* Sắp xếp các phần tử theo chiều dọc */
+            align-items: center;            /* Căn giữa các phần tử theo chiều ngang */
+            justify-content: center;        /* Căn giữa theo chiều dọc (trong trường hợp cần) */
+            text-align: center;             /* Căn giữa nội dung chữ */
+            padding: 20px;                  /* Thêm padding để tránh các phần tử quá sát nhau */
+        }
+
+        .feature img {
+            width: 100%;                    /* Đặt ảnh chiếm 100% chiều rộng của container */
+            max-width: 250px;               /* Giới hạn chiều rộng tối đa của ảnh */
+            height: auto;                   /* Đảm bảo tỷ lệ ảnh không bị biến dạng */
+            object-fit: contain;            /* Giữ nguyên tỷ lệ ảnh nếu cần */
+            margin-bottom: 15px;            /* Khoảng cách giữa ảnh và tiêu đề */
+        }
+
+        .feature h3 {
+            font-size: 20px;                /* Cỡ chữ cho tiêu đề */
+            margin: 10px 0;                 /* Khoảng cách giữa tiêu đề và đoạn văn */
+        }
+
+        .feature p {
+            font-size: 16px;                /* Cỡ chữ cho mô tả */
+            line-height: 1.5;               /* Đảm bảo đoạn văn không bị chật */
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
