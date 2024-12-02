@@ -106,7 +106,8 @@ sqlsrv_close($conn);
             align-items: center;
             height: 100vh;  /* Ensure body takes full height */
             margin: 0;  /* Remove default margin */
-            overflow: hidden;  /* Prevent body from scrolling */
+            transform-origin: top left; /* Đặt điểm gốc cho việc scale */
+            overflow: hidden; /* Ẩn phần bị tràn */
         }
         
         .main-content {
@@ -236,12 +237,17 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
             margin: 20px;
+            width: 100%;
+            overflow: hidden;
+            justify-content: center;
+            align-items: center;
         }
 
         table {
-            width: 35%;
+            width: 90vw; /* Tỷ lệ phần trăm theo chiều rộng của cửa sổ */
+            max-width: 1200px; /* Đặt giới hạn chiều rộng tối đa */
+            table-layout: fixed; /* Đảm bảo tỷ lệ cột nhất quán */
             border-collapse: collapse;
-            font-size: 10px;
         }
 
         .container table caption {
@@ -250,10 +256,24 @@ sqlsrv_close($conn);
             margin-bottom: 10px;
         }
 
-        th, td {
-            border: 2px solid white;
-            padding: 5px;
+        th, td /*Kích thước phần tử bảng*/ {
+            border: 1px solid #ddd;
             text-align: center;
+            padding: 8px;
+            font-size: 1rem; /* Dùng rem để kích thước text linh hoạt */
+            word-wrap: break-word; /* Đảm bảo nội dung không tràn */
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.8rem; /* Giảm kích thước text */
+            }
+        }
+
+        @media (max-width: 480px) {
+            table {
+                font-size: 0.6rem; /* Giảm kích thước text hơn nữa */
+            }
         }
 
         td.highlight {
@@ -518,7 +538,21 @@ sqlsrv_close($conn);
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function adjustScale() {
+            const scale = Math.min(
+                window.innerWidth / document.documentElement.scrollWidth,
+                window.innerHeight / document.documentElement.scrollHeight
+            );
+            document.body.style.transform = `scale(${scale})`;
+            document.body.style.transformOrigin = "top left";
+        }
+
+        window.addEventListener('resize', adjustScale);
+        window.addEventListener('load', adjustScale);
+    </script>
 </head>
+
 <body>
 <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()"; >
