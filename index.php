@@ -559,6 +559,16 @@ sqlsrv_close($conn);
             font-size: 16px;                /* Cỡ chữ cho mô tả */
             line-height: 1.5;               /* Đảm bảo đoạn văn không bị chật */
         }
+
+        .all-page {
+            height: 100vh; /* Chiếm toàn bộ chiều cao cửa sổ trình duyệt */
+            display: flex;
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            flex-direction: column; /* Sắp xếp các phần tử theo chiều dọc */
+            margin: 0; /* Xóa bỏ margin mặc định */
+        }
+        
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
