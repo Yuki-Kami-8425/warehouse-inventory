@@ -107,8 +107,7 @@ sqlsrv_close($conn);
             height: auto; /* Thay thế để không khóa cố định chiều cao */
             min-height: 100vh;
             margin: 0;
-            overflow-y: visible; /* Đảm bảo nội dung không bị ẩn */
-            width: 100%;
+            width: auto;
         }
 
         .overlay h2, .overlay p {
@@ -129,7 +128,7 @@ sqlsrv_close($conn);
         }
 
         .sidebar {
-            position: sticky;
+            position: flex;
             top: 0;
             left: 0;
             height: 100%;
