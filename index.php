@@ -106,7 +106,6 @@ sqlsrv_close($conn);
             align-items: center;
             height: 100vh;  /* Ensure body takes full height */
             margin: 0;  /* Remove default margin */
-            overflow: hidden;  /* Prevent body from scrolling */
         }
         
         .main-content {
@@ -596,7 +595,7 @@ sqlsrv_close($conn);
         case 'home': ?>
             <div id="home" class="home page">
                 <div class="overlay">
-                    <h1>Welcome to EIU Smart Warehouse</h1>
+                    <h2>Welcome to EIU Smart Warehouse</h2>
                     <p>Efficient. Connected. Automated.</p>
                     <a href="#services" class="cta-button">Explore More</a>
                 </div>
