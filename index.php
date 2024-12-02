@@ -129,10 +129,10 @@ sqlsrv_close($conn);
         }
 
         .sidebar {
-            position: fixed;
+            position: sticky;
             top: 0;
             left: 0;
-            height: 100%;
+            height: auto;
             width: 150px;
             background-color: #2c3e50; /* Màu nền thanh bên */
             padding-top: 60px;
@@ -140,6 +140,7 @@ sqlsrv_close($conn);
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            overflow-y: auto;
         }
 
         .sidebar ul {
