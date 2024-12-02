@@ -98,16 +98,29 @@ sqlsrv_close($conn);
     </script>
     <style>
         body {
+            position: relative;
             font-family: Arial, sans-serif;
             background-color: #001F3F;
             color: white;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;  /* Ensure body takes full height */
-            margin: 0;  /* Remove default margin */
+            flex-direction: column; /* Cần thêm để hỗ trợ layout dạng cột */
+            height: auto; /* Thay thế để không khóa cố định chiều cao */
+            min-height: 100vh;
+            margin: 0;
+            overflow-y: visible; /* Đảm bảo nội dung không bị ẩn */
+            width: 100%;
         }
-        
+
+        .overlay h2, .overlay p {
+            text-align: center;
+            margin-top: 20px; /* Khoảng cách từ trên xuống */
+        }
+
+        .overlay {
+            position: relative; /* Đảm bảo không bị dính vào các phần tử khác */
+            padding: 20px;
+        }
+                
         .main-content {
             flex-grow: 1; /* Take all available space */
             padding: 20px;
@@ -353,6 +366,10 @@ sqlsrv_close($conn);
             font-weight: bold; /* Thêm font-weight cho nổi bật */
         }
 
+        .slide:first-child {
+            display: block;
+        }
+
         .sidebar a:hover::after, .dropdown-btn:hover::after {  /* Hiệu ứng tooltip */
             content: attr(data-tooltip); /* Lấy nội dung từ thuộc tính data-tooltip */
             position: absolute;
@@ -420,9 +437,10 @@ sqlsrv_close($conn);
         }
 
         .slide img {
-            width: 650px; /* Chiều rộng cố định */
-            height: 350px; /* Chiều cao cố định */
+            width: 450px; /* Chiều rộng cố định */
+            height: 250px; /* Chiều cao cố định */
             object-fit: fill; /* Kéo giãn ảnh để lấp đầy khung */
+            position: relative;
         }
         
         .dots {
@@ -589,7 +607,8 @@ sqlsrv_close($conn);
         </li>
     </ul>
 </div>
-    <div class="main-content" id="main-content">
+
+<div class="main-content" id="main-content">
 <?php
     switch ($station) {
         case 'home': ?>
