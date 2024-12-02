@@ -519,6 +519,7 @@ sqlsrv_close($conn);
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()"; >
@@ -593,7 +594,20 @@ sqlsrv_close($conn);
 <?php
     switch ($station) {
         case 'home': ?>
-            <div id="home" class="page">
+            <div id="home" class="home page">
+                <div class="overlay">
+                    <h1>Welcome to EIU Smart Warehouse</h1>
+                    <p>Efficient. Connected. Automated.</p>
+                    <a href="#services" class="cta-button">Explore More</a>
+                </div>
+
+                <section id="overview">
+                    <h2>What is Smart Warehouse?</h2>
+                    <p>
+                        A Smart Warehouse is an advanced storage and logistics facility that leverages modern technologies to improve efficiency, accuracy, and flexibility in warehouse operations. Unlike traditional warehouses, smart warehouses incorporate automation, real-time data tracking, and intelligent systems to streamline processes such as inventory management, order fulfillment, and shipping.
+                    </p>
+                </section>
+
                 <div class="slideshow-container">
                     <div class="slide">
                         <h2 class="slide-title">Revolutionizing Warehouse Operations with Smart Technology</h2>
@@ -613,7 +627,33 @@ sqlsrv_close($conn);
                         <span class="dot" onclick="showSlide(3)"></span>
                     </div>
                 </div>
+
+                <section id="services">
+                    <h2>Our Key Features</h2>
+                    <div class="features">
+                        <div class="feature">
+                            <img src="pic4.png" alt="Feature 1">
+                            <h3>Real-time Tracking</h3>
+                            <p>Monitor your inventory with precision using IoT sensors.</p>
+                        </div>
+                        <div class="feature">
+                            <img src="pic5.png" alt="Feature 2">
+                            <h3>Automation</h3>
+                            <p>Streamline operations with AI-driven robotics.</p>
+                        </div>
+                        <div class="feature">
+                            <img src="pic6.png" alt="Feature 3">
+                            <h3>Cloud Integration</h3>
+                            <p>Sync data seamlessly with cloud platforms.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <footer>
+                    <p>© 2024 Smart Warehouse Solutions. All rights reserved.</p>
+                </footer>
             </div>
+
             <script>
                 let slideIndex = 0;
                 showSlides();
