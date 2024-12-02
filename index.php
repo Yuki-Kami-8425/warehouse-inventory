@@ -106,8 +106,8 @@ sqlsrv_close($conn);
             align-items: center;
             height: 100vh;  /* Ensure body takes full height */
             margin: 0;  /* Remove default margin */
-            transform-origin: top left; /* Đặt điểm gốc cho việc scale */
-            overflow: hidden; /* Ẩn phần bị tràn */
+            overflow: hidden;  /* Prevent body from scrolling */
+            transform-origin: top left;
         }
         
         .main-content {
@@ -237,17 +237,12 @@ sqlsrv_close($conn);
             display: flex; 
             justify-content: space-around; 
             margin: 20px;
-            width: 100%;
-            overflow: hidden;
-            justify-content: center;
-            align-items: center;
         }
 
         table {
-            width: 90vw; /* Tỷ lệ phần trăm theo chiều rộng của cửa sổ */
-            max-width: 1200px; /* Đặt giới hạn chiều rộng tối đa */
-            table-layout: fixed; /* Đảm bảo tỷ lệ cột nhất quán */
+            width: 35%;
             border-collapse: collapse;
+            font-size: 10px;
         }
 
         .container table caption {
@@ -256,24 +251,10 @@ sqlsrv_close($conn);
             margin-bottom: 10px;
         }
 
-        th, td /*Kích thước phần tử bảng*/ {
-            border: 1px solid #ddd;
+        th, td {
+            border: 2px solid white;
+            padding: 5px;
             text-align: center;
-            padding: 8px;
-            font-size: 1rem; /* Dùng rem để kích thước text linh hoạt */
-            word-wrap: break-word; /* Đảm bảo nội dung không tràn */
-        }
-
-        @media (max-width: 768px) {
-            table {
-                font-size: 0.8rem; /* Giảm kích thước text */
-            }
-        }
-
-        @media (max-width: 480px) {
-            table {
-                font-size: 0.6rem; /* Giảm kích thước text hơn nữa */
-            }
         }
 
         td.highlight {
@@ -283,7 +264,7 @@ sqlsrv_close($conn);
         .charts {
             display: flex; 
             justify-content: space-between; /* Evenly distribute space between charts */
-             gap: 20px; 
+            gap: 20px; 
         }
 
         .chart-container {
@@ -304,13 +285,13 @@ sqlsrv_close($conn);
         }
 
         #barChart {
-            width: 400px;
-            height: 350px; /* Adjust height as needed */
+            width: 400px !important;
+            height: 350px !important; /* Adjust height as needed */
         }
 
         #pieChart {
-            width: 350px;
-            height: 350px;
+            width: 350px !important;
+            height: 350px !important;
         }
 
         #barChartCaption, #pieChartCaption {
@@ -538,21 +519,7 @@ sqlsrv_close($conn);
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        function adjustScale() {
-            const scale = Math.min(
-                window.innerWidth / document.documentElement.scrollWidth,
-                window.innerHeight / document.documentElement.scrollHeight
-            );
-            document.body.style.transform = `scale(${scale})`;
-            document.body.style.transformOrigin = "top left";
-        }
-
-        window.addEventListener('resize', adjustScale);
-        window.addEventListener('load', adjustScale);
-    </script>
 </head>
-
 <body>
 <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()"; >
@@ -624,30 +591,30 @@ sqlsrv_close($conn);
     </ul>
 </div>
     <div class="main-content" id="main-content">
-    <?php
-        switch ($station) {
-            case 'home': ?>
-                <div id="home" class="page">
-                    <div class="slideshow-container">
-                        <div class="slide">
-                            <h2 class="slide-title">Revolutionizing Warehouse Operations with Smart Technology</h2>
-                            <img class="slide-image" src="Picture1.png" alt="Slide 1">
-                        </div>
-                        <div class="slide">
-                            <h2 class="slide-title">Real-Time Inventory Management for Efficiency</h2>
-                            <img class="slide-image" src="Picture2.png" alt="Slide 2">
-                        </div>
-                        <div class="slide">
-                            <h2 class="slide-title">Optimized Logistics with AI-Powered Solutions</h2>
-                            <img class="slide-image" src="Picture3.png" alt="Slide 3">
-                        </div>
-                        <div class="dots">
-                            <span class="dot" onclick="showSlide(1)"></span>
-                            <span class="dot" onclick="showSlide(2)"></span>
-                            <span class="dot" onclick="showSlide(3)"></span>
-                        </div>
+<?php
+    switch ($station) {
+        case 'home': ?>
+            <div id="home" class="page">
+                <div class="slideshow-container">
+                    <div class="slide">
+                        <h2 class="slide-title">Revolutionizing Warehouse Operations with Smart Technology</h2>
+                        <img class="slide-image" src="Picture1.png" alt="Slide 1">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Real-Time Inventory Management for Efficiency</h2>
+                        <img class="slide-image" src="Picture2.png" alt="Slide 2">
+                    </div>
+                    <div class="slide">
+                        <h2 class="slide-title">Optimized Logistics with AI-Powered Solutions</h2>
+                        <img class="slide-image" src="Picture3.png" alt="Slide 3">
+                    </div>
+                    <div class="dots">
+                        <span class="dot" onclick="showSlide(1)"></span>
+                        <span class="dot" onclick="showSlide(2)"></span>
+                        <span class="dot" onclick="showSlide(3)"></span>
                     </div>
                 </div>
+            </div>
             <script>
                 let slideIndex = 0;
                 showSlides();
@@ -774,13 +741,13 @@ sqlsrv_close($conn);
                 <div class="chart-container">
                     <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px; font-weight: bold;">
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
                         Percentage of Total Slots (%)
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px; font-weight: bold;">
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
                         Distribution of Storage Slots 
                     </div>
                 </div>
@@ -789,6 +756,18 @@ sqlsrv_close($conn);
         </div>
     <script>
     // Dữ liệu biểu đồ
+    function adjustScale() {
+        const scale = Math.min(
+            window.innerWidth / document.documentElement.scrollWidth,
+            window.innerHeight / document.documentElement.scrollHeight
+        );
+        document.body.style.transform = `scale(${scale})`;
+        document.body.style.transformOrigin = "top left";
+    }
+
+    window.addEventListener('resize', adjustScale);
+    window.addEventListener('load', adjustScale);
+
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
     const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
@@ -838,8 +817,6 @@ sqlsrv_close($conn);
                     display: false // Ẩn legend
                 },
                 tooltip: {
-                    intersect: true, // Tooltip chỉ hiện khi chuột nằm trên cột
-                    mode: 'nearest', // Canh tooltip theo điểm gần nhất
                     bodyFont: {
                         size: 20
                     },
@@ -850,15 +827,29 @@ sqlsrv_close($conn);
                     backgroundColor: 'rgba(0, 0, 0, 0.8)',
                     displayColors: false,
                     callbacks: {
-                        label: function (tooltipItem) {
+                        label: function(tooltipItem) {
                             const customerId = tooltipItem.label;
                             const slotCount = tooltipItem.raw;
-                            return `${customerId}: ${slotCount} slots`;
+                            return `${customerId}: ${slotCount} slots`; 
                         }
-                    }
+                    },
+                    /* // Điều chỉnh vị trí của tooltip để không bị lệch
+                    position: 'average', // Đặt tooltip ở giữa các cột
+                    xAlign: 'center', // Đảm bảo tooltip canh giữa theo trục X */
                 }
             },
             scales: {
+                y: {
+                    min: 0, // Thang đo bắt đầu từ 0
+                    max: 100, // Thang đo tối đa là 100
+                    ticks: {
+                        color: 'white', // Màu chữ trục Y
+                        font: {
+                            size: 20 // Đặt kích thước chữ trục Y thành 20px
+                        },
+                        stepSize: 10 // Chia thang đo theo bước 10%
+                    }
+                },
                 x: {
                     grid: {
                         display: false // Không hiển thị vạch dọc
@@ -866,21 +857,8 @@ sqlsrv_close($conn);
                     ticks: {
                         color: 'white', // Màu chữ trục X
                         font: {
-                            size: 20
+                            size: 20 // Đặt kích thước chữ trục X thành 20px
                         }
-                    },
-                    barPercentage: 0.9, // Tăng tỷ lệ chiều rộng cột
-                    categoryPercentage: 0.8 // Tăng khoảng cách giữa các nhóm cột
-                },
-                y: {
-                    min: 0,
-                    max: 100,
-                    ticks: {
-                        color: 'white',
-                        font: {
-                            size: 20
-                        },
-                        stepSize: 10
                     }
                 }
             }
