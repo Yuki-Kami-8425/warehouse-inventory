@@ -96,14 +96,7 @@ sqlsrv_close($conn);
             }
         };
     </script>
-
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
             font-family: Arial, sans-serif;
             background-color: #001F3F;
@@ -114,20 +107,8 @@ sqlsrv_close($conn);
             height: 100vh;  /* Ensure body takes full height */
             margin: 0;  /* Remove default margin */
             overflow: hidden;  /* Prevent body from scrolling */
-            transform-origin: top left;
         }
         
-        .content {
-            flex: 1; /* Phần nội dung chính chiếm toàn bộ phần còn lại */
-            padding: 20px;
-            overflow: auto; /* Tránh tràn nội dung */
-        }
-
-        .content img {
-            max-width: 100%; /* Hình ảnh co lại khi màn hình nhỏ */
-            height: auto;
-        }
-
         .main-content {
             flex-grow: 1; /* Take all available space */
             padding: 20px;
@@ -252,10 +233,9 @@ sqlsrv_close($conn);
         }
 
         .container {
-            display: flex; /* Sử dụng Flexbox cho bố cục */
-            flex-wrap: wrap; /* Cho phép các phần tử xuống dòng khi không đủ chỗ */
-            height: 100vh;
-            overflow: hidden;
+            display: flex; 
+            justify-content: space-around; 
+            margin: 20px;
         }
 
         table {
@@ -271,21 +251,9 @@ sqlsrv_close($conn);
         }
 
         th, td {
-            border: 1px solid white;
+            border: 2px solid white;
             padding: 5px;
             text-align: center;
-            word-break: break-word
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                flex: 1 0 100%; /* Sidebar chiếm toàn bộ chiều rộng màn hình */
-                text-align: center;
-            }
-
-            .content {
-                flex: 1 0 100%; /* Nội dung chính cũng chiếm toàn bộ màn hình */
-            }
         }
 
         td.highlight {
@@ -295,7 +263,7 @@ sqlsrv_close($conn);
         .charts {
             display: flex; 
             justify-content: space-between; /* Evenly distribute space between charts */
-            gap: 20px; 
+             gap: 20px; 
         }
 
         .chart-container {
@@ -436,12 +404,9 @@ sqlsrv_close($conn);
         .slideshow-container {
             position: relative;
             max-width: 100%;
-            width: 100%; /* Chiều rộng theo thiết kế gốc */
-            height: 500px; /* Đặt chiều cao cố định */
             margin: auto;
             padding: 20px 0;
             text-align: center;
-            overflow: hidden;
         }
 
         .slide-title {
@@ -553,21 +518,7 @@ sqlsrv_close($conn);
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        function scalePage() {
-            const content = document.querySelector('.content');
-            const scaleWidth = window.innerWidth / content.offsetWidth;
-            const scaleHeight = window.innerHeight / content.offsetHeight;
-            const scale = Math.min(scaleWidth, scaleHeight); // Dùng tỉ lệ nhỏ hơn để tránh tràn
-
-            document.body.style.transform = `scale(${scale})`;
-        }
-
-        window.addEventListener('resize', scalePage);
-        window.addEventListener('load', scalePage);
-    </script>
 </head>
-
 <body>
 <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()"; >
@@ -804,18 +755,6 @@ sqlsrv_close($conn);
         </div>
     <script>
     // Dữ liệu biểu đồ
-    function adjustScale() {
-        const scale = Math.min(
-            window.innerWidth / document.documentElement.scrollWidth,
-            window.innerHeight / document.documentElement.scrollHeight
-        );
-        document.body.style.transform = `scale(${scale})`;
-        document.body.style.transformOrigin = "top left";
-    }
-
-    window.addEventListener('resize', adjustScale);
-    window.addEventListener('load', adjustScale);
-
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
     const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
