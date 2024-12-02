@@ -126,7 +126,7 @@ sqlsrv_close($conn);
         }
 
         .sidebar {
-            position: flex;
+            position: fixed;
             top: 0;
             left: 0;
             height: 100%;
