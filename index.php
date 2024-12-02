@@ -123,6 +123,7 @@ sqlsrv_close($conn);
             padding: 20px;
             transition: margin-left 0.3s ease;
             max-width: 100%;  /* Prevent overflow */
+            z-index: 500;
         }
 
         .sidebar {
@@ -137,6 +138,7 @@ sqlsrv_close($conn);
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            z-index: 1000;
         }
 
         .sidebar ul {
@@ -568,7 +570,7 @@ sqlsrv_close($conn);
             flex-direction: column; /* Sắp xếp các phần tử theo chiều dọc */
             margin: 0; /* Xóa bỏ margin mặc định */
         }
-        
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
