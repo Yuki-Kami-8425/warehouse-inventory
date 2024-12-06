@@ -81,6 +81,7 @@ if (count($customerLabels) < 4) {
 
 sqlsrv_close($conn);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -498,9 +499,13 @@ sqlsrv_close($conn);
             margin-top: 10px;
         }
         
-        .highlight {
-            position: relative;
-            background-color: #32CD32; /* Màu nền ô highlight */
+        .highlight-stored {
+            background-color: #90EE90; /* Xanh lá nhạt */
+            cursor: pointer;
+        }
+
+        .highlight-pending {
+            background-color: #FFD700; /* Vàng */
             cursor: pointer;
         }
 
@@ -759,6 +764,14 @@ sqlsrv_close($conn);
                             // Tìm dữ liệu chi tiết cho RFID
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                            if ($info) {
+                                // Xác định class dựa trên trạng thái PALLET_status
+                                if ($info['PALLET_status'] === 'stored') {
+                                    $statusClass = 'highlight-stored';
+                                } elseif ($info['PALLET_status'] === 'pending') {
+                                    $statusClass = 'highlight-pending';
+                                }
+                            }
                         }
                     ?>
                    <td 
@@ -795,6 +808,14 @@ sqlsrv_close($conn);
                             // Tìm dữ liệu chi tiết cho RFID
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                            if ($info) {
+                                // Xác định class dựa trên trạng thái PALLET_status
+                                if ($info['PALLET_status'] === 'stored') {
+                                    $statusClass = 'highlight-stored';
+                                } elseif ($info['PALLET_status'] === 'pending') {
+                                    $statusClass = 'highlight-pending';
+                                }
+                            }
                         }
                     ?>
                     <td 
