@@ -18,13 +18,13 @@ $params = null;
 
 switch ($station) {
 case 'all':
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID, PALLET_status FROM dbo.stored_warehouse";
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
     break;
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT, PALLET_status FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
     break;
 default:
@@ -498,13 +498,10 @@ sqlsrv_close($conn);
             margin-top: 10px;
         }
         
-        .highlight-pending {
-            background-color: rgba(255, 255, 0, 0.6); /* Màu vàng nhạt */
-        }
-
-        /* Màu sắc cho trạng thái stored (xanh lá cây) */
-        .highlight-stored {
-            background-color: rgba(0, 255, 0, 0.6); /* Màu xanh lá nhạt */
+        .highlight {
+            position: relative;
+            background-color: #32CD32; /* Màu nền ô highlight */
+            cursor: pointer;
         }
 
         .highlight:hover::after {
@@ -744,8 +741,8 @@ sqlsrv_close($conn);
         <?php break; default: ?>
 
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
-<!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
-<div class="container">
+        <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
+        <div class="container">
     <table> 
         <!-- Bảng Left Rack -->
         <caption>Left Rack</caption>
@@ -763,15 +760,9 @@ sqlsrv_close($conn);
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
-
-                        // Kiểm tra trạng thái RFID và áp dụng lớp màu sắc tương ứng
-                        $statusClass = '';
-                        if ($info) {
-                            $statusClass = ($info['PALLET_status'] === 'pending') ? 'highlight-pending' : 'highlight-stored';
-                        }
                     ?>
                    <td 
-                        class="<?= $statusClass ?>" 
+                        class="<?= $info ? 'highlight' : '' ?>" 
                         data-tooltip="<?= $info ? 
                             $info['MAKH'] . "\n" .
                             $info['TENSP'] . "\n" .
@@ -805,15 +796,9 @@ sqlsrv_close($conn);
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
-
-                        // Kiểm tra trạng thái RFID và áp dụng lớp màu sắc tương ứng
-                        $statusClass = '';
-                        if ($info) {
-                            $statusClass = ($info['PALLET_status'] === 'pending') ? 'highlight-pending' : 'highlight-stored';
-                        }
                     ?>
                     <td 
-                        class="<?= $statusClass ?>" 
+                        class="<?= $info ? 'highlight' : '' ?>" 
                         data-tooltip="<?= $info ? 
                             $info['MAKH'] . "\n" .
                             $info['TENSP'] . "\n" .
@@ -829,7 +814,6 @@ sqlsrv_close($conn);
             </tr>
         <?php endfor; ?>
     </table>
-</div>
 
     </div>
         <!-- Biểu đồ -->
