@@ -17,98 +17,70 @@ $sql = '';
 $params = null;
 
 switch ($station) {
-    case 'all':
-        $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID, PALLET_status FROM dbo.stored_warehouse";
-        break;
-    case 'home':
-        $sql = ''; // Không cần truy vấn cơ sở dữ liệu cho 'home'
-        break;
-    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-        $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT, PALLET_status FROM dbo.stored_warehouse WHERE RFID LIKE ?";
-        $params = array($station . '%'); // Thêm tham số với station như 'A%', 'B%'...
-        break;
-    default:
-        $sql = ''; // Không có truy vấn mặc định
-        break;
+case 'all':
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID, PALLET_status FROM dbo.stored_warehouse";
+    break;
+case 'home':
+    $sql = null; // Hoặc không cần khởi tạo $sql
+    break;
+case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT, PALLET_status FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $params = array($station . '%');
+    break;
+default:
+    $sql = null; // Một truy vấn mặc định
+    break;
 }
 
-if ($sql) {
-    // Thực hiện truy vấn nếu có câu lệnh SQL
-    $stmt = sqlsrv_query($conn, $sql, $params); 
-    if ($stmt === false) {
-        die(print_r(sqlsrv_errors(), true));
-    }
-
-    // Tạo mảng để lưu dữ liệu
-    $data = [];
-    $customers = [];
-    $highlighted = [
-        'stored' => [],  // RFID có trạng thái stored
-        'pending' => []  // RFID có trạng thái pending
-    ];
-
-    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-        // Thêm dữ liệu vào mảng $data
-        $data[] = $row;
-
-        // Xử lý thông tin khách hàng và RFID
-        $makh = trim($row['MAKH']); // Loại bỏ khoảng trắng
-        $rfid = trim($row['RFID']); // Loại bỏ khoảng trắng
-        $status = strtolower(trim($row['PALLET_status'])); // Chuyển trạng thái về chữ thường để so sánh
-
-        // Kiểm tra dữ liệu hợp lệ trước khi thêm vào
-        if (!empty($makh) && !empty($rfid)) {
-            $customers[$makh][] = $rfid;
-
-            // Phân loại RFID theo trạng thái
-            if ($status === 'stored') {
-                $highlighted['stored'][] = $rfid;
-            } elseif ($status === 'pending') {
-                $highlighted['pending'][] = $rfid;
-            }
-        }
-    }
-
-    // Loại bỏ trùng lặp trong danh sách RFID
-    $highlighted['stored'] = array_unique($highlighted['stored']);
-    $highlighted['pending'] = array_unique($highlighted['pending']);
-
-    // Tính số lượng pallet (slots) cho mỗi khách hàng
-    $customerSlotCount = [];
-    foreach ($customers as $customerId => $rfids) {
-        $customerSlotCount[$customerId] = count($rfids); // Mỗi khách hàng có số lượng slot (RFID)
-    }
-
-    // Sắp xếp số lượng slot giảm dần
-    arsort($customerSlotCount);
-
-    // Lấy 3 khách hàng nhiều nhất và một cột "Other" cho các khách hàng còn lại
-    $topCustomers = array_slice($customerSlotCount, 0, 3, true); // Lấy 3 khách hàng đầu tiên
-    $otherData = array_slice($customerSlotCount, 3); // Các khách hàng còn lại
-
-    // Tính tổng số slot cho các khách hàng còn lại (Other)
-    $otherSum = array_sum($otherData);
-
-    // Cập nhật dữ liệu cho biểu đồ
-    $customerLabels = array_keys($topCustomers);
-    $customerData = array_values($topCustomers);
-
-    // Nếu có dữ liệu "Other", thêm vào labels và dữ liệu
-    if ($otherSum > 0) {
-        $customerLabels[] = 'Other';
-        $customerData[] = $otherSum;
-    }
-
-    // Đảm bảo có đủ 4 cột (Nếu không đủ 3 khách hàng, thêm "Other" vào cuối)
-    if (count($customerLabels) < 4) {
-        $customerLabels[] = 'Other';
-        $customerData[] = $otherSum;
-    }
-
-    sqlsrv_close($conn);
+$stmt = sqlsrv_query($conn, $sql, $params ?? null); 
+if ($stmt === false) {
+    die(print_r(sqlsrv_errors(), true));
 }
+
+// Tạo mảng để lưu dữ liệu
+$data = [];
+$customers = [];
+$highlighted = [];
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $data[] = $row;
+    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
+    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
+}
+
+// Tính số lượng pallet (slots) cho mỗi khách hàng
+$customerSlotCount = [];
+foreach ($customers as $customerId => $rfids) {
+    $customerSlotCount[$customerId] = count($rfids); // Mỗi khách hàng có số lượng slot (RFID)
+}
+
+// Sắp xếp số lượng slot giảm dần
+arsort($customerSlotCount);
+
+// Lấy 3 khách hàng nhiều nhất và một cột "Other" cho các khách hàng còn lại
+$topCustomers = array_slice($customerSlotCount, 0, 3, true); // Lấy 3 khách hàng đầu tiên
+$otherData = array_slice($customerSlotCount, 3); // Các khách hàng còn lại
+
+// Tính tổng số slot cho các khách hàng còn lại (Other)
+$otherSum = array_sum($otherData);
+
+// Cập nhật dữ liệu cho biểu đồ
+$customerLabels = array_keys($topCustomers);
+$customerData = array_values($topCustomers);
+
+// Nếu có dữ liệu "Other", thêm vào labels và dữ liệu
+if ($otherSum > 0) {
+    $customerLabels[] = 'Other';
+    $customerData[] = $otherSum;
+}
+
+// Đảm bảo có đủ 4 cột (Nếu không đủ 3 khách hàng, thêm "Other" vào cuối)
+if (count($customerLabels) < 4) {
+    $customerLabels[] = 'Other';
+    $customerData[] = $otherSum;
+}
+
+sqlsrv_close($conn);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -501,7 +473,6 @@ if ($sql) {
             transition: all 0.3s; /* Thêm hiệu ứng chuyển tiếp */
         }
 
-        /* Tooltip */
         .tooltip {
             position: absolute;
             background-color: rgba(0, 0, 0, 0.7);
@@ -513,106 +484,97 @@ if ($sql) {
             font-size: 14px;
             z-index: 9999;
             white-space: pre-line;
-            max-width: 400px;
-            min-width: 200px;
+            max-width: 400px; /* Tăng chiều rộng tối đa */
+            min-width: 200px; /* Tăng chiều rộng tối thiểu */
             word-wrap: break-word;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hiệu ứng đổ bóng */
         }
 
-        /* Caption cho biểu đồ */
         .chartCaption {
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
+            font-size: 20px; /* Thay đổi cỡ chữ theo ý bạn */
+            font-weight: bold; /* Làm chữ in đậm */
+            color: white; /* Đảm bảo chữ vẫn màu trắng */
             text-align: center;
             margin-top: 10px;
         }
-
-        /* Highlight theo trạng thái */
-        .highlight-stored {
-            background-color: #90EE90; /* Xanh lá nhạt */
-            cursor: pointer;
-        }
-
+        
         .highlight-pending {
-            background-color: #FFD700; /* Vàng */
-            cursor: pointer;
+            background-color: rgba(255, 255, 0, 0.6); /* Màu vàng nhạt */
         }
 
-        /* Tooltip khi hover */
-        .highlight-stored:hover::after,
-        .highlight-pending:hover::after {
-            content: attr(data-tooltip);
+        /* Màu sắc cho trạng thái stored (xanh lá cây) */
+        .highlight-stored {
+            background-color: rgba(0, 255, 0, 0.6); /* Màu xanh lá nhạt */
+        }
+
+        .highlight:hover::after {
+            content: attr(data-tooltip); /* Lấy nội dung từ data-tooltip */
             position: absolute;
-            top: 50%;
-            left: 110%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
+            top: 50%; /* Hiển thị ở giữa chiều dọc của ô */
+            left: 110%; /* Cách ô một khoảng nhỏ */
+            transform: translateY(-50%); /* Canh giữa theo chiều dọc */
+            background: rgba(0, 0, 0, 0.8); /* Nền đen nhạt */
+            color: #fff; /* Chữ màu trắng */
             padding: 10px 15px;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            white-space: pre-line;
-            z-index: 9999;
-            font-size: 14px;
-            min-width: 180px;
-            max-width: 250px;
+            border-radius: 5px; /* Bo tròn góc */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hiệu ứng bóng */
+            white-space: pre-line; /* Hiển thị xuống dòng */
+            z-index: 9999; /* Hiển thị trên cùng */
+            font-size: 14px; /* Kích thước chữ */
+            min-width: 180px; /* Chiều rộng tối thiểu */
+            max-width: 250px; /* Chiều rộng tối đa */
             text-align: left;
-            pointer-events: none;
-        }
+            pointer-events: none; /* Không bị ảnh hưởng bởi chuột */
+        }   
 
-        /* Mũi tên cho Tooltip */
-        .highlight-stored:hover::before,
-        .highlight-pending:hover::before {
-            content: '';
+        .highlight:hover::before {
+            content: ''; /* Mũi tên nhỏ chỉ vào ô */
             position: absolute;
-            top: 50%;
-            left: 100%;
+            top: 50%; /* Ở giữa chiều dọc của ô */
+            left: 100%; /* Nằm ngay bên cạnh tooltip */
             transform: translate(-50%, -50%);
             border-width: 5px;
             border-style: solid;
-            border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent;
+            border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent; /* Màu nền đen nhạt cho mũi tên */
         }
 
-        /* Cấu trúc Flexbox cho tính năng */
         .feature {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
+            display: flex;                  /* Sử dụng flexbox để căn giữa các phần tử */
+            flex-direction: column;         /* Sắp xếp các phần tử theo chiều dọc */
+            align-items: center;            /* Căn giữa các phần tử theo chiều ngang */
+            justify-content: center;        /* Căn giữa theo chiều dọc (trong trường hợp cần) */
+            text-align: center;             /* Căn giữa nội dung chữ */
+            padding: 20px;                  /* Thêm padding để tránh các phần tử quá sát nhau */
         }
 
         .feature img {
-            width: 100%;
-            max-width: 250px;
-            height: auto;
-            object-fit: contain;
-            margin-bottom: 15px;
+            width: 100%;                    /* Đặt ảnh chiếm 100% chiều rộng của container */
+            max-width: 250px;               /* Giới hạn chiều rộng tối đa của ảnh */
+            height: auto;                   /* Đảm bảo tỷ lệ ảnh không bị biến dạng */
+            object-fit: contain;            /* Giữ nguyên tỷ lệ ảnh nếu cần */
+            margin-bottom: 15px;            /* Khoảng cách giữa ảnh và tiêu đề */
         }
 
         .feature h3 {
-            font-size: 20px;
-            margin: 10px 0;
+            font-size: 20px;                /* Cỡ chữ cho tiêu đề */
+            margin: 10px 0;                 /* Khoảng cách giữa tiêu đề và đoạn văn */
         }
 
         .feature p {
-            font-size: 16px;
-            line-height: 1.5;
+            font-size: 16px;                /* Cỡ chữ cho mô tả */
+            line-height: 1.5;               /* Đảm bảo đoạn văn không bị chật */
         }
 
-        /* Cấu trúc toàn trang */
         .all-page {
-            height: 100vh;
+            height: 100vh; /* Chiếm toàn bộ chiều cao cửa sổ trình duyệt */
             display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            margin: 0;
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            flex-direction: column; /* Sắp xếp các phần tử theo chiều dọc */
+            margin: 0; /* Xóa bỏ margin mặc định */
         }
-</style>
 
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -782,81 +744,110 @@ if ($sql) {
         <?php break; default: ?>
 
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
-
 <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
 <div class="container">
-    <?php
-    // Hàm tạo một ô <td> với thông tin RFID và tooltip
-    function renderCell($rfid, $data, $highlighted) {
-        $info = null;
-        $statusClass = '';
+    <table> 
+        <!-- Bảng Left Rack -->
+        <caption>Left Rack</caption>
+        <?php for ($row = 7; $row >= 1; $row--): ?>
+            <tr>
+                <?php for ($col = 1; $col <= 14; $col++): ?>
+                    <?php 
+                        $index = ($row - 1) * 14 + $col; 
+                        $rfid = $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
 
-        if (in_array($rfid, $highlighted)) {
-            // Tìm dữ liệu chi tiết cho RFID
-            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
-            $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                        // Kiểm tra xem RFID có trong danh sách highlight không
+                        $info = null;
+                        if (in_array($rfid, $highlighted)) {
+                            // Tìm dữ liệu chi tiết cho RFID
+                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+                            $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                        }
 
-            if ($info) {
-                // Xác định class dựa trên trạng thái PALLET_status
-                $statusClass = ($info['PALLET_status'] === 'stored') ? 'highlight-stored' : 'highlight-pending';
-            }
-        }
+                        // Kiểm tra trạng thái RFID và áp dụng lớp màu sắc tương ứng
+                        $statusClass = '';
+                        if ($info) {
+                            $statusClass = ($info['PALLET_status'] === 'pending') ? 'highlight-pending' : 'highlight-stored';
+                        }
+                    ?>
+                   <td 
+                        class="<?= $statusClass ?>" 
+                        data-tooltip="<?= $info ? 
+                            $info['MAKH'] . "\n" .
+                            $info['TENSP'] . "\n" .
+                            $info['TENKH'] . "\n" .
+                            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
+                                ? $info['NGAYCT']->format('Y-m-d') 
+                                : 'Undefined') 
+                            : '' ?>"
+                    >
+                        <?= $rfid ?>
+                    </td>
+                <?php endfor; ?>
+            </tr>
+        <?php endfor; ?>
+    </table>
 
-        // Tạo tooltip
-        $tooltip = $info ? 
-            $info['MAKH'] . "\n" .
-            $info['TENSP'] . "\n" .
-            $info['TENKH'] . "\n" .
-            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
-                ? $info['NGAYCT']->format('Y-m-d') 
-                : 'Undefined') 
-            : '';
+    <table> 
+        <!-- Bảng Right Rack -->
+        <caption>Right Rack</caption>
+        <?php for ($row = 7; $row >= 1; $row--): ?>
+            <tr>
+                <?php for ($col = 1; $col <= 14; $col++): ?>
+                    <?php 
+                        $index = ($row - 1) * 14 + $col; 
+                        $rfid = $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
 
-        return "<td class='{$statusClass}' data-tooltip='{$tooltip}'>{$rfid}</td>";
-    }
+                        // Kiểm tra xem RFID có trong danh sách highlight không
+                        $info = null;
+                        if (in_array($rfid, $highlighted)) {
+                            // Tìm dữ liệu chi tiết cho RFID
+                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+                            $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                        }
 
-    // Hàm để tạo bảng
-    function renderRackTable($station, $highlighted, $data, $rackSide) {
-        $output = "<table>";
-        $output .= "<caption>" . ucfirst($rackSide) . " Rack</caption>";
-        
-        // Vòng lặp qua các hàng và cột của bảng
-        for ($row = 7; $row >= 1; $row--) {
-            $output .= '<tr>';
-            for ($col = 1; $col <= 14; $col++) {
-                $index = ($row - 1) * 14 + $col; 
-                $rfid = $station . strtoupper($rackSide[0]) . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID
-                $output .= renderCell($rfid, $data, $highlighted); // Tạo ô <td> cho RFID
-            }
-            $output .= '</tr>';
-        }
-        $output .= '</table>';
-
-        return $output;
-    }
-
-    // Gọi hàm để render bảng Left Rack và Right Rack
-    echo renderRackTable($station, $highlighted['stored'], $data, 'Left');
-    echo renderRackTable($station, $highlighted['pending'], $data, 'Right');
-    ?>
+                        // Kiểm tra trạng thái RFID và áp dụng lớp màu sắc tương ứng
+                        $statusClass = '';
+                        if ($info) {
+                            $statusClass = ($info['PALLET_status'] === 'pending') ? 'highlight-pending' : 'highlight-stored';
+                        }
+                    ?>
+                    <td 
+                        class="<?= $statusClass ?>" 
+                        data-tooltip="<?= $info ? 
+                            $info['MAKH'] . "\n" .
+                            $info['TENSP'] . "\n" .
+                            $info['TENKH'] . "\n" .
+                            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
+                                ? $info['NGAYCT']->format('Y-m-d') 
+                                : 'Undefined') 
+                            : '' ?>"
+                    >
+                        <?= $rfid ?>
+                    </td>
+                <?php endfor; ?>
+            </tr>
+        <?php endfor; ?>
+    </table>
 </div>
 
-<!-- Biểu đồ -->
-<div class="charts">
-    <div class="chart-container">
-        <!-- Biểu đồ cột -->
-        <canvas id="barChart"></canvas>
-        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-            <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
-        </div>
     </div>
-    <div class="chart-container"> <!-- Biểu đồ tròn -->
-        <canvas id="pieChart"></canvas>
-        <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
-            <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
+        <!-- Biểu đồ -->
+        <div class="charts">
+                <div class="chart-container">
+                    <!-- Biểu đồ cột -->
+                    <canvas id="barChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
+                    </div>
+                </div>
+                <div class="chart-container"> <!-- Biểu đồ tròn -->
+                    <canvas id="pieChart"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                        <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
+                    </div>
+                </div>
         </div>
-    </div>
-</div>
 
         <?php break; case 'all': ?>
             <div class="charts charts-center">
@@ -879,143 +870,138 @@ if ($sql) {
     </div>
     
     <script>
-// Dữ liệu biểu đồ
-const customers = <?= json_encode($customers) ?>;
-const customerLabels = Object.keys(customers); // Mã khách hàng
-const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+    // Dữ liệu biểu đồ
+    const customers = <?= json_encode($customers) ?>;
+    const customerLabels = Object.keys(customers); // Mã khách hàng
+    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
 
-// Tổng số ô (slots) cho tất cả trạm (ví dụ, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm)
-const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô (slots)
-const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+    // Tổng số ô (slots) cho tất cả trạm (ví dụ, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm)
+    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô (slots)
+    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
 
-// Tính phần trăm ô đã sử dụng
-const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
-const percentageLabelPlugin = {
-    id: 'percentageLabel',
-    afterDatasetsDraw(chart) {
-        const { ctx, scales: { x, y } } = chart;
-        const dataset = chart.data.datasets[0].data;
+    // Tính phần trăm ô đã sử dụng
+    const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
+    const percentageLabelPlugin = {
+        id: 'percentageLabel',
+        afterDatasetsDraw(chart) {
+            const { ctx, scales: { x, y } } = chart;
+            const dataset = chart.data.datasets[0].data;
+            
+            dataset.forEach((value, index) => {
+                const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm
+                const xPos = x.getPixelForValue(index);
+                const yPos = y.getPixelForValue(value);
+                
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm
+            });
+        }
+    };
 
-        dataset.forEach((value, index) => {
-            const percentage = ((value / totalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm
-            const xPos = x.getPixelForValue(index);
-            const yPos = y.getPixelForValue(value);
-
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
-            ctx.font = 'bold 20px Arial';
-            ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm
-        });
-    }
-};
-
-// Khởi tạo biểu đồ cột
-var ctxBar = document.getElementById('barChart').getContext('2d');
-var barChart = new Chart(ctxBar, {
-    type: 'bar',
-    data: {
-        labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
-        datasets: [{
-            label: 'Slots per Customer',
-            data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
-            backgroundColor: function(context) {
-                // Màu cho từng cột, nếu là pending thì màu đỏ, nếu stored thì màu xanh
-                const status = context.dataset.data[context.dataIndex]; // Lấy dữ liệu cho cột hiện tại
-                return status === 'pending' ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)'; // Màu cho pending là đỏ, stored là xanh
-            },
-            borderColor: 'white',
-            borderWidth: 2
-        }]
-    },
-    options: {
-        plugins: {
-            legend: {
-                display: false // Ẩn legend
-            },
-            tooltip: {
-                bodyFont: {
-                    size: 20
+    // Khởi tạo biểu đồ
+    var ctxBar = document.getElementById('barChart').getContext('2d');
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
+            datasets: [{
+                label: 'Slots per Customer',
+                data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
+                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false // Ẩn legend
                 },
-                titleFont: {
-                    size: 20
-                },
-                padding: 10,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                displayColors: false,
-                callbacks: {
-                    label: function(tooltipItem) {
-                        const customerId = tooltipItem.label;
-                        const slotCount = tooltipItem.raw;
-                        return `${customerId}: ${slotCount} slots`; 
+                tooltip: {
+                    bodyFont: {
+                        size: 20
+                    },
+                    titleFont: {
+                        size: 20
+                    },
+                    padding: 10,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    displayColors: false,
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const customerId = tooltipItem.label;
+                            const slotCount = tooltipItem.raw;
+                            return `${customerId}: ${slotCount} slots`; 
+                        }
+                    },
+                    /* // Điều chỉnh vị trí của tooltip để không bị lệch
+                    position: 'average', // Đặt tooltip ở giữa các cột
+                    xAlign: 'center', // Đảm bảo tooltip canh giữa theo trục X */
+                }
+            },
+            scales: {
+                y: {
+                    min: 0, // Thang đo bắt đầu từ 0
+                    max: 100, // Thang đo tối đa là 100
+                    ticks: {
+                        color: 'white', // Màu chữ trục Y
+                        font: {
+                            size: 20 // Đặt kích thước chữ trục Y thành 20px
+                        },
+                        stepSize: 10 // Chia thang đo theo bước 10%
                     }
                 },
+                x: {
+                    grid: {
+                        display: false // Không hiển thị vạch dọc
+                    },
+                    ticks: {
+                        color: 'white', // Màu chữ trục X
+                        font: {
+                            size: 20 // Đặt kích thước chữ trục X thành 20px
+                        }
+                    }
+                }
             }
         },
-        scales: {
-            y: {
-                min: 0, // Thang đo bắt đầu từ 0
-                max: 100, // Thang đo tối đa là 100
-                ticks: {
-                    color: 'white', // Màu chữ trục Y
-                    font: {
-                        size: 20 // Đặt kích thước chữ trục Y thành 20px
-                    },
-                    stepSize: 10 // Chia thang đo theo bước 10%
-                }
-            },
-            x: {
-                grid: {
-                    display: false // Không hiển thị vạch dọc
+        plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
+    });
+
+    // Biểu đồ tròn
+    var ctxPie = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Used', 'Remaining'],
+            datasets: [{
+                data: [filledSlots, totalSlots - filledSlots],
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
                 },
-                ticks: {
-                    color: 'white', // Màu chữ trục X
-                    font: {
-                        size: 20 // Đặt kích thước chữ trục X thành 20px
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const data = tooltipItem.dataset.data;
+                            const currentValue = data[tooltipItem.dataIndex];
+                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
+                            return tooltipItem.label + ': ' + percentage + '%'; // Hiển thị phần trăm trong tooltip
+                        }
                     }
                 }
             }
         }
-    },
-    plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
-});
-
-// Lấy số lượng pending và stored từ PHP
-const pendingCount = <?= isset($highlighted['pending']) ? $highlighted['pending'] : 0 ?>;
-const storedCount = <?= isset($highlighted['stored']) ? $highlighted['stored'] : 0 ?>;
-
-// Biểu đồ tròn
-var ctxPie = document.getElementById('pieChart').getContext('2d');
-var pieChart = new Chart(ctxPie, {
-    type: 'pie',
-    data: {
-        labels: ['Pending', 'Stored'], // Thêm nhãn Pending và Stored
-        datasets: [{
-            data: [pendingCount, storedCount], // Sử dụng số lượng pending và stored
-            backgroundColor: ['rgba(255, 255, 0, 1)', 'rgba(255, 0, 0, 1)'], // Màu vàng cho Pending, đỏ cho Stored
-            borderColor: 'white',
-            borderWidth: 2
-        }]
-    },
-    options: {
-        plugins: {
-            legend: {
-                labels: {
-                    color: 'white'
-                }
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(tooltipItem) {
-                        const data = tooltipItem.dataset.data;
-                        const currentValue = data[tooltipItem.dataIndex];
-                        const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                        return tooltipItem.label + ': ' + percentage + '%'; // Hiển thị phần trăm trong tooltip
-                    }
-                }
-            }
-        }
-    }
-});
+    });
 
     function toggleDropdown(event) {
         event.stopPropagation();
