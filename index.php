@@ -18,13 +18,13 @@ $params = null;
 
 switch ($station) {
 case 'all':
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID, PALLET_status FROM dbo.stored_warehouse";
     break;
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT, PALLET_status FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
     break;
 default:
@@ -498,9 +498,13 @@ sqlsrv_close($conn);
             margin-top: 10px;
         }
         
-        .highlight {
-            position: relative;
-            background-color: #32CD32; /* Màu nền ô highlight */
+        .highlight-stored {
+            background-color: #90EE90; /* Xanh lá nhạt */
+            cursor: pointer;
+        }
+
+        .highlight-pending {
+            background-color: #FFD700; /* Vàng */
             cursor: pointer;
         }
 
@@ -759,6 +763,12 @@ sqlsrv_close($conn);
                             // Tìm dữ liệu chi tiết cho RFID
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                            // Kiểm tra trạng thái RFID và áp dụng lớp màu sắc tương ứng
+                        $statusClass = '';
+                        if ($info) {
+                            $statusClass = ($info['PALLET_status'] === 'pending') ? 'highlight-pending' : 'highlight-stored';
+                        }
+
                         }
                     ?>
                    <td 
@@ -796,6 +806,12 @@ sqlsrv_close($conn);
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
+                        // Kiểm tra trạng thái RFID và áp dụng lớp màu sắc tương ứng
+                        $statusClass = '';
+                        if ($info) {
+                            $statusClass = ($info['PALLET_status'] === 'pending') ? 'highlight-pending' : 'highlight-stored';
+                        }
+
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
