@@ -763,12 +763,6 @@ sqlsrv_close($conn);
                             // Tìm dữ liệu chi tiết cho RFID
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
-                            // Kiểm tra trạng thái RFID và áp dụng lớp màu sắc tương ứng
-                        $statusClass = '';
-                        if ($info) {
-                            $statusClass = ($info['PALLET_status'] === 'pending') ? 'highlight-pending' : 'highlight-stored';
-                        }
-
                         }
                     ?>
                    <td 
@@ -806,12 +800,6 @@ sqlsrv_close($conn);
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
-                        // Kiểm tra trạng thái RFID và áp dụng lớp màu sắc tương ứng
-                        $statusClass = '';
-                        if ($info) {
-                            $statusClass = ($info['PALLET_status'] === 'pending') ? 'highlight-pending' : 'highlight-stored';
-                        }
-
                     ?>
                     <td 
                         class="<?= $info ? 'highlight' : '' ?>" 
