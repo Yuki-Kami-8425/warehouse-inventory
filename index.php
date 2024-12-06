@@ -485,20 +485,21 @@ sqlsrv_close($conn);
             font-size: 14px;
             z-index: 9999;
             white-space: pre-line;
-            max-width: 400px; /* Tăng chiều rộng tối đa */
-            min-width: 200px; /* Tăng chiều rộng tối thiểu */
+            max-width: 400px;
+            min-width: 200px;
             word-wrap: break-word;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hiệu ứng đổ bóng */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
         .chartCaption {
-            font-size: 20px; /* Thay đổi cỡ chữ theo ý bạn */
-            font-weight: bold; /* Làm chữ in đậm */
-            color: white; /* Đảm bảo chữ vẫn màu trắng */
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
             text-align: center;
             margin-top: 10px;
         }
-        
+
+        /* Highlight theo trạng thái */
         .highlight-stored {
             background-color: #90EE90; /* Xanh lá nhạt */
             cursor: pointer;
@@ -509,35 +510,38 @@ sqlsrv_close($conn);
             cursor: pointer;
         }
 
-        .highlight:hover::after {
-            content: attr(data-tooltip); /* Lấy nội dung từ data-tooltip */
+        /* Tooltip khi hover */
+        .highlight-stored:hover::after,
+        .highlight-pending:hover::after {
+            content: attr(data-tooltip);
             position: absolute;
-            top: 50%; /* Hiển thị ở giữa chiều dọc của ô */
-            left: 110%; /* Cách ô một khoảng nhỏ */
-            transform: translateY(-50%); /* Canh giữa theo chiều dọc */
-            background: rgba(0, 0, 0, 0.8); /* Nền đen nhạt */
-            color: #fff; /* Chữ màu trắng */
+            top: 50%;
+            left: 110%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
             padding: 10px 15px;
-            border-radius: 5px; /* Bo tròn góc */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hiệu ứng bóng */
-            white-space: pre-line; /* Hiển thị xuống dòng */
-            z-index: 9999; /* Hiển thị trên cùng */
-            font-size: 14px; /* Kích thước chữ */
-            min-width: 180px; /* Chiều rộng tối thiểu */
-            max-width: 250px; /* Chiều rộng tối đa */
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            white-space: pre-line;
+            z-index: 9999;
+            font-size: 14px;
+            min-width: 180px;
+            max-width: 250px;
             text-align: left;
-            pointer-events: none; /* Không bị ảnh hưởng bởi chuột */
-        }   
+            pointer-events: none;
+        }
 
-        .highlight:hover::before {
-            content: ''; /* Mũi tên nhỏ chỉ vào ô */
+        .highlight-stored:hover::before,
+        .highlight-pending:hover::before {
+            content: '';
             position: absolute;
-            top: 50%; /* Ở giữa chiều dọc của ô */
-            left: 100%; /* Nằm ngay bên cạnh tooltip */
+            top: 50%;
+            left: 100%;
             transform: translate(-50%, -50%);
             border-width: 5px;
             border-style: solid;
-            border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent; /* Màu nền đen nhạt cho mũi tên */
+            border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent;
         }
 
         .feature {
@@ -748,93 +752,95 @@ sqlsrv_close($conn);
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
-    <table> 
-        <!-- Bảng Left Rack -->
-        <caption>Left Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php 
-                        $index = ($row - 1) * 14 + $col; 
-                        $rfid = $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
+        <table> 
+    <!-- Bảng Left Rack -->
+    <caption>Left Rack</caption>
+    <?php for ($row = 7; $row >= 1; $row--): ?>
+        <tr>
+            <?php for ($col = 1; $col <= 14; $col++): ?>
+                <?php 
+                    $index = ($row - 1) * 14 + $col; 
+                    $rfid = $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
 
-                        // Kiểm tra xem RFID có trong danh sách highlight không
-                        $info = null;
-                        if (in_array($rfid, $highlighted)) {
-                            // Tìm dữ liệu chi tiết cho RFID
-                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
-                            $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
-                            if ($info) {
-                                // Xác định class dựa trên trạng thái PALLET_status
-                                if ($info['PALLET_status'] === 'stored') {
-                                    $statusClass = 'highlight-stored';
-                                } elseif ($info['PALLET_status'] === 'pending') {
-                                    $statusClass = 'highlight-pending';
-                                }
+                    // Kiểm tra xem RFID có trong danh sách highlight không
+                    $info = null;
+                    $statusClass = '';
+                    if (in_array($rfid, $highlighted)) {
+                        // Tìm dữ liệu chi tiết cho RFID
+                        $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+                        $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                        if ($info) {
+                            // Xác định class dựa trên trạng thái PALLET_status
+                            if ($info['PALLET_status'] === 'stored') {
+                                $statusClass = 'highlight-stored';
+                            } elseif ($info['PALLET_status'] === 'pending') {
+                                $statusClass = 'highlight-pending';
                             }
                         }
-                    ?>
-                   <td 
-                        class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 
-                            $info['MAKH'] . "\n" .
-                            $info['TENSP'] . "\n" .
-                            $info['TENKH'] . "\n" .
-                            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
-                                ? $info['NGAYCT']->format('Y-m-d') 
-                                : 'Undefined') 
-                            : '' ?>"
-                    >
-                        <?= $rfid ?>
-                    </td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
+                    }
+                ?>
+                <td 
+                    class="<?= $statusClass ?>" 
+                    data-tooltip="<?= $info ? 
+                        $info['MAKH'] . "\n" .
+                        $info['TENSP'] . "\n" .
+                        $info['TENKH'] . "\n" .
+                        (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
+                            ? $info['NGAYCT']->format('Y-m-d') 
+                            : 'Undefined') 
+                        : '' ?>"
+                >
+                    <?= $rfid ?>
+                </td>
+            <?php endfor; ?>
+        </tr>
+    <?php endfor; ?>
+</table>
 
-    <table> 
-        <!-- Bảng Right Rack -->
-        <caption>Right Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php 
-                        $index = ($row - 1) * 14 + $col; 
-                        $rfid = $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
+<table> 
+    <!-- Bảng Right Rack -->
+    <caption>Right Rack</caption>
+    <?php for ($row = 7; $row >= 1; $row--): ?>
+        <tr>
+            <?php for ($col = 1; $col <= 14; $col++): ?>
+                <?php 
+                    $index = ($row - 1) * 14 + $col; 
+                    $rfid = $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
 
-                        // Kiểm tra xem RFID có trong danh sách highlight không
-                        $info = null;
-                        if (in_array($rfid, $highlighted)) {
-                            // Tìm dữ liệu chi tiết cho RFID
-                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
-                            $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
-                            if ($info) {
-                                // Xác định class dựa trên trạng thái PALLET_status
-                                if ($info['PALLET_status'] === 'stored') {
-                                    $statusClass = 'highlight-stored';
-                                } elseif ($info['PALLET_status'] === 'pending') {
-                                    $statusClass = 'highlight-pending';
-                                }
+                    // Kiểm tra xem RFID có trong danh sách highlight không
+                    $info = null;
+                    $statusClass = '';
+                    if (in_array($rfid, $highlighted)) {
+                        // Tìm dữ liệu chi tiết cho RFID
+                        $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+                        $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                        if ($info) {
+                            // Xác định class dựa trên trạng thái PALLET_status
+                            if ($info['PALLET_status'] === 'stored') {
+                                $statusClass = 'highlight-stored';
+                            } elseif ($info['PALLET_status'] === 'pending') {
+                                $statusClass = 'highlight-pending';
                             }
                         }
-                    ?>
-                    <td 
-                        class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 
-                            $info['MAKH'] . "\n" .
-                            $info['TENSP'] . "\n" .
-                            $info['TENKH'] . "\n" .
-                            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
-                                ? $info['NGAYCT']->format('Y-m-d') 
-                                : 'Undefined') 
-                            : '' ?>"
-                    >
-                        <?= $rfid ?>
-                    </td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
+                    }
+                ?>
+                <td 
+                    class="<?= $statusClass ?>" 
+                    data-tooltip="<?= $info ? 
+                        $info['MAKH'] . "\n" .
+                        $info['TENSP'] . "\n" .
+                        $info['TENKH'] . "\n" .
+                        (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
+                            ? $info['NGAYCT']->format('Y-m-d') 
+                            : 'Undefined') 
+                        : '' ?>"
+                >
+                    <?= $rfid ?>
+                </td>
+            <?php endfor; ?>
+        </tr>
+    <?php endfor; ?>
+</table>
 
     </div>
         <!-- Biểu đồ -->
