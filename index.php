@@ -764,7 +764,7 @@ sqlsrv_close($conn);
                         $info = null;
                         if (in_array($rfid, $highlighted)) {
                             // Tìm dữ liệu chi tiết cho RFID
-                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid) && isset($item['PALLET_status']) && $item['PALLET_status'] === 'stored');
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
                     ?>
@@ -800,7 +800,7 @@ sqlsrv_close($conn);
                         $info = null;
                         if (in_array($rfid, $highlighted)) {
                             // Tìm dữ liệu chi tiết cho RFID
-                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid) && isset($item['PALLET_status']) && $item['PALLET_status'] === 'stored');
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
                     ?>
