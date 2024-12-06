@@ -18,13 +18,13 @@ $params = null;
 
 switch ($station) {
 case 'all':
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID, PALLET_status FROM dbo.stored_warehouse";
     break;
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT, PALLET_status FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
     break;
 default:
@@ -40,12 +40,37 @@ if ($stmt === false) {
 // Tạo mảng để lưu dữ liệu
 $data = [];
 $customers = [];
-$highlighted = [];
+$highlighted = [
+    'stored' => [],  // RFID có trạng thái stored
+    'pending' => []  // RFID có trạng thái pending
+];
+
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    // Thêm dữ liệu vào mảng $data
     $data[] = $row;
-    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
-    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
+
+    // Xử lý thông tin khách hàng và RFID
+    $makh = trim($row['MAKH']); // Loại bỏ khoảng trắng
+    $rfid = trim($row['RFID']); // Loại bỏ khoảng trắng
+    $status = strtolower(trim($row['PALLET_status'])); // Chuyển trạng thái về chữ thường để so sánh
+
+    // Kiểm tra dữ liệu hợp lệ trước khi thêm vào
+    if (!empty($makh) && !empty($rfid)) {
+        $customers[$makh][] = $rfid;
+
+        // Phân loại RFID theo trạng thái
+        if ($status === 'stored') {
+            $highlighted['stored'][] = $rfid;
+        } elseif ($status === 'pending') {
+            $highlighted['pending'][] = $rfid;
+        }
+    }
 }
+
+// Loại bỏ trùng lặp trong danh sách RFID
+$highlighted['stored'] = array_unique($highlighted['stored']);
+$highlighted['pending'] = array_unique($highlighted['pending']);
+
 
 // Tính số lượng pallet (slots) cho mỗi khách hàng
 $customerSlotCount = [];
