@@ -979,6 +979,10 @@ var barChart = new Chart(ctxBar, {
     plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
 });
 
+// Lấy số lượng pending và stored từ PHP
+const pendingCount = <?= isset($highlighted['pending']) ? $highlighted['pending'] : 0 ?>;
+const storedCount = <?= isset($highlighted['stored']) ? $highlighted['stored'] : 0 ?>;
+
 // Biểu đồ tròn
 var ctxPie = document.getElementById('pieChart').getContext('2d');
 var pieChart = new Chart(ctxPie, {
@@ -986,7 +990,7 @@ var pieChart = new Chart(ctxPie, {
     data: {
         labels: ['Pending', 'Stored'], // Thêm nhãn Pending và Stored
         datasets: [{
-            data: [<?= $highlighted['pending'] ?>, <?= $highlighted['stored'] ?>], // Sử dụng số lượng pending và stored
+            data: [pendingCount, storedCount], // Sử dụng số lượng pending và stored
             backgroundColor: ['rgba(255, 255, 0, 1)', 'rgba(255, 0, 0, 1)'], // Màu vàng cho Pending, đỏ cho Stored
             borderColor: 'white',
             borderWidth: 2
@@ -1012,7 +1016,6 @@ var pieChart = new Chart(ctxPie, {
         }
     }
 });
-
 
     function toggleDropdown(event) {
         event.stopPropagation();
