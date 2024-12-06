@@ -18,13 +18,13 @@ $params = null;
 
 switch ($station) {
 case 'all':
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID, PALLET_status FROM dbo.stored_warehouse";
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
     break;
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT, PALLET_status FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
     break;
 default:
@@ -41,17 +41,10 @@ if ($stmt === false) {
 $data = [];
 $customers = [];
 $highlighted = [];
-$pending = []; 
-
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $data[] = $row;
     $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
-
-    // Kiểm tra nếu pallet đang "pending"
-    if (isset($row['PALLET_status']) && $row['PALLET_status'] == 'pending') {
-        $pending[] = trim($row['RFID']); // Thêm vào mảng pending
-    }
 }
 
 // Tính số lượng pallet (slots) cho mỗi khách hàng
@@ -764,7 +757,7 @@ sqlsrv_close($conn);
                         $info = null;
                         if (in_array($rfid, $highlighted)) {
                             // Tìm dữ liệu chi tiết cho RFID
-                            $filtered = array_filter($data, fn($item) => trim(strtolower($item['RFID'])) === $rfid && isset($item['PALLET_status']) && strtolower(trim($item['PALLET_status'])) === 'stored');
+                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
                     ?>
@@ -800,7 +793,7 @@ sqlsrv_close($conn);
                         $info = null;
                         if (in_array($rfid, $highlighted)) {
                             // Tìm dữ liệu chi tiết cho RFID
-                            $filtered = array_filter($data, fn($item) => trim(strtolower($item['RFID'])) === $rfid && isset($item['PALLET_status']) && strtolower(trim($item['PALLET_status'])) === 'stored');
+                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
                         }
                     ?>
