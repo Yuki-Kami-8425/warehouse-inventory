@@ -765,13 +765,11 @@ sqlsrv_close($conn);
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
 
-                            // Ghi thông tin vào log để kiểm tra
+                            // Kiểm tra và highlight chỉ khi trạng thái là 'stored'
                             if ($info) {
-                                error_log("RFID: $rfid - Status: " . $info['PALLET_status']);
+                                error_log("RFID: $rfid - Status: " . trim($info['PALLET_status'])); // Debug log
+                                $isStored = trim($info['PALLET_status']) === 'stored'; // Dùng trim để loại bỏ khoảng trắng
                             }
-
-                            // Chỉ highlight nếu trạng thái là stored
-                            $isStored = $info && $info['PALLET_status'] === 'stored';
                         }
                     ?>
                     <td 
@@ -810,13 +808,11 @@ sqlsrv_close($conn);
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
 
-                            // Ghi thông tin vào log để kiểm tra
+                            // Kiểm tra và highlight chỉ khi trạng thái là 'stored'
                             if ($info) {
-                                error_log("RFID: $rfid - Status: " . $info['PALLET_status']);
+                                error_log("RFID: $rfid - Status: " . trim($info['PALLET_status'])); // Debug log
+                                $isStored = trim($info['PALLET_status']) === 'stored'; // Dùng trim để loại bỏ khoảng trắng
                             }
-
-                            // Chỉ highlight nếu trạng thái là stored
-                            $isStored = $info && $info['PALLET_status'] === 'stored';
                         }
                     ?>
                     <td 
@@ -837,6 +833,7 @@ sqlsrv_close($conn);
         <?php endfor; ?>
     </table>
 </div>
+
 
         <!-- Biểu đồ -->
         <div class="charts">
