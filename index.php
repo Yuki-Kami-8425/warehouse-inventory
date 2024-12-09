@@ -954,7 +954,7 @@ sqlsrv_close($conn);
                         font: {
                             size: 20 // Kích thước chữ trục Y
                         },
-                        stepSize: 10, // Chia thang đo theo bước 10
+                        stepSize: 10, // Chia thang đo theo bước 10%
                         min: 0, // Giá trị tối thiểu của trục Y
                         max: 100, // Giá trị tối đa của trục Y
                         callback: function(value) {
