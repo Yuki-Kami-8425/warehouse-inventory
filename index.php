@@ -904,74 +904,80 @@ sqlsrv_close($conn);
         }
     };
 
-    // Khởi tạo biểu đồ
-    var ctxBar = document.getElementById('barChart').getContext('2d');
-    var barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
-            datasets: [{
-                label: 'Slots per Customer',
-                data: <?php echo json_encode($customerData); ?>, // Dữ liệu số lượng slot
-                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    display: false // Ẩn legend
+    // Khởi tạo biểu đồ cột
+var ctxBar = document.getElementById('barChart').getContext('2d');
+var barChart = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+        labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
+        datasets: [{
+            label: 'Slots per Customer',
+            data: customerLabels.map(label => {
+                const customerTotalSlots = 196; // Ví dụ, nếu mỗi khách hàng có 196 ô
+                const customerFilled = customers[label].filter(rfid => {
+                    const info = <?= json_encode($data) ?>.find(item => item.RFID === rfid);
+                    return info && info.PALLET_status === 'stored';
+                }).length;
+                return ((customerFilled / customerTotalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm đã sử dụng cho từng khách hàng
+            }), // Dữ liệu phần trăm cho mỗi khách hàng
+            backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
+            borderColor: 'white',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        plugins: {
+            legend: {
+                display: false // Ẩn legend
+            },
+            tooltip: {
+                bodyFont: {
+                    size: 20
                 },
-                tooltip: {
-                    bodyFont: {
-                        size: 20
-                    },
-                    titleFont: {
-                        size: 20
-                    },
-                    padding: 10,
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    displayColors: false,
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const customerId = tooltipItem.label;
-                            const slotCount = tooltipItem.raw;
-                            return `${customerId}: ${slotCount} slots`; 
-                        }
-                    },
-                    /* // Điều chỉnh vị trí của tooltip để không bị lệch
-                    position: 'average', // Đặt tooltip ở giữa các cột
-                    xAlign: 'center', // Đảm bảo tooltip canh giữa theo trục X */
+                titleFont: {
+                    size: 20
+                },
+                padding: 10,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                displayColors: false,
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const customerId = tooltipItem.label;
+                        const slotPercentage = tooltipItem.raw; // Số phần trăm đã sử dụng
+                        return `${customerId}: ${slotPercentage}% used`; 
+                    }
                 }
             },
-            scales: {
-                y: {
-                    min: 0, // Thang đo bắt đầu từ 0
-                    max: 100, // Thang đo tối đa là 100
-                    ticks: {
-                        color: 'white', // Màu chữ trục Y
-                        font: {
-                            size: 20 // Đặt kích thước chữ trục Y thành 20px
-                        },
-                        stepSize: 10 // Chia thang đo theo bước 10%
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false // Không hiển thị vạch dọc
+        },
+        scales: {
+            y: {
+                min: 0, // Thang đo bắt đầu từ 0
+                max: 100, // Thang đo tối đa là 100
+                ticks: {
+                    color: 'white', // Màu chữ trục Y
+                    font: {
+                        size: 20 // Đặt kích thước chữ trục Y thành 20px
                     },
-                    ticks: {
-                        color: 'white', // Màu chữ trục X
-                        font: {
-                            size: 20 // Đặt kích thước chữ trục X thành 20px
-                        }
+                    stepSize: 10, // Chia thang đo theo bước 10%
+                    callback: function(value) {
+                        return value + '%'; // Hiển thị phần trăm trên trục Y
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    display: false // Không hiển thị vạch dọc
+                },
+                ticks: {
+                    color: 'white', // Màu chữ trục X
+                    font: {
+                        size: 20 // Đặt kích thước chữ trục X thành 20px
                     }
                 }
             }
-        },
-        plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
-    });
+        }
+    }
+});
 
     // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
