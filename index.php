@@ -904,12 +904,6 @@ sqlsrv_close($conn);
         }
     };
 
-// Tính phần trăm dữ liệu
-var totalSlots = <?php echo array_sum($customerData); ?>; // Tổng số slot
-var customerPercentageData = <?php echo json_encode($customerData); ?>.map(function(slotCount) {
-    return (slotCount / totalSlots) * 100; // Tính phần trăm của mỗi khách hàng
-});
-
 // Khởi tạo biểu đồ cột (Bar Chart)
 var ctxBar = document.getElementById('barChart').getContext('2d');
 var barChart = new Chart(ctxBar, {
