@@ -765,9 +765,9 @@ sqlsrv_close($conn);
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
 
-                            // Debug: In thông tin để kiểm tra
+                            // Ghi thông tin vào log để kiểm tra
                             if ($info) {
-                                echo "RFID: $rfid - Status: " . $info['PALLET_status'] . "<br>";
+                                error_log("RFID: $rfid - Status: " . $info['PALLET_status']);
                             }
 
                             // Chỉ highlight nếu trạng thái là stored
@@ -810,9 +810,9 @@ sqlsrv_close($conn);
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
 
-                            // Debug: In thông tin để kiểm tra
+                            // Ghi thông tin vào log để kiểm tra
                             if ($info) {
-                                echo "RFID: $rfid - Status: " . $info['PALLET_status'] . "<br>";
+                                error_log("RFID: $rfid - Status: " . $info['PALLET_status']);
                             }
 
                             // Chỉ highlight nếu trạng thái là stored
@@ -837,6 +837,7 @@ sqlsrv_close($conn);
         <?php endfor; ?>
     </table>
 </div>
+
         <!-- Biểu đồ -->
         <div class="charts">
                 <div class="chart-container">
