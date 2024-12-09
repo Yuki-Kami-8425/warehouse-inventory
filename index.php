@@ -18,13 +18,13 @@ $params = null;
 
 switch ($station) {
 case 'all':
-    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID FROM dbo.stored_warehouse";
+    $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID, PALLET_status FROM dbo.stored_warehouse";
     break;
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT FROM dbo.stored_warehouse WHERE RFID LIKE ?";
+    $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT, PALLET_status FROM dbo.stored_warehouse WHERE RFID LIKE ?";
     $params = array($station . '%');
     break;
 default:
@@ -759,6 +759,8 @@ sqlsrv_close($conn);
                             // Tìm dữ liệu chi tiết cho RFID
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+
+                            $isStored = $info && $info['PALLET_status'] === 'stored';
                         }
                     ?>
                    <td 
@@ -795,6 +797,8 @@ sqlsrv_close($conn);
                             // Tìm dữ liệu chi tiết cho RFID
                             $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
                             $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+
+                            $isStored = $info && $info['PALLET_status'] === 'stored';
                         }
                     ?>
                     <td 
