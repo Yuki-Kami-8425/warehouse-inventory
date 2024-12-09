@@ -19,7 +19,8 @@ $params = null;
 switch ($station) {
 case 'all':
     $sql = "SELECT MAKH, TENKH, LUONG_PALLET, RFID, PALLET_status
-    FROM dbo.stored_warehouse";
+                FROM dbo.stored_warehouse
+                WHERE PALLET_status = 'stored'";
     break;
 case 'home':
     $sql = null; // Hoặc không cần khởi tạo $sql
