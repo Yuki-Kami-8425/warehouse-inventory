@@ -873,7 +873,7 @@ sqlsrv_close($conn);
         <?php break; } ?>
     </div>
     
-    <script>
+<script>
     // Dữ liệu biểu đồ
     const customers = <?= json_encode($customers) ?>;
     const customerLabels = Object.keys(customers); // Mã khách hàng
@@ -904,25 +904,24 @@ sqlsrv_close($conn);
         }
     };
 
-    // Khởi tạo biểu đồ
+// Tính phần trăm dữ liệu
+var totalSlots = <?php echo array_sum($customerData); ?>; // Tổng số slot
+var customerPercentageData = <?php echo json_encode($customerData); ?>.map(function(slotCount) {
+    return (slotCount / totalSlots) * 100; // Tính phần trăm của mỗi khách hàng
+});
+
+// Khởi tạo biểu đồ cột (Bar Chart)
 var ctxBar = document.getElementById('barChart').getContext('2d');
 var barChart = new Chart(ctxBar, {
-    type: 'bar',
+    type: 'bar', // Loại biểu đồ là cột
     data: {
         labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
         datasets: [{
-            label: 'Slots per Customer (%)',
-            data: <?php echo json_encode($customerData); ?>.map(label => {
-                const customerTotalSlots = 196; // Giả sử mỗi khách hàng có 196 ô
-                const customerFilled = customers[label].filter(rfid => {
-                    const info = <?= json_encode($data) ?>.find(item => item.RFID === rfid);
-                    return info && info.PALLET_status === 'stored';
-                }).length;
-                return ((customerFilled / customerTotalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm cho mỗi khách hàng
-            }), // Dữ liệu phần trăm cho mỗi khách hàng
+            label: 'Slots per Customer (%)', // Tiêu đề cho dữ liệu
+            data: customerPercentageData, // Dữ liệu phần trăm số lượng slot
             backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
-            borderColor: 'white',
-            borderWidth: 2
+            borderColor: 'white', // Màu viền cột
+            borderWidth: 2 // Độ dày viền cột
         }]
     },
     options: {
@@ -932,53 +931,54 @@ var barChart = new Chart(ctxBar, {
             },
             tooltip: {
                 bodyFont: {
-                    size: 20
+                    size: 20 // Kích thước chữ trong tooltip
                 },
                 titleFont: {
-                    size: 20
+                    size: 20 // Kích thước chữ tiêu đề trong tooltip
                 },
-                padding: 10,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                displayColors: false,
+                padding: 10, // Khoảng cách padding trong tooltip
+                backgroundColor: 'rgba(0, 0, 0, 0.8)', // Màu nền của tooltip
+                displayColors: false, // Ẩn màu sắc dữ liệu trong tooltip
                 callbacks: {
                     label: function(tooltipItem) {
                         const customerId = tooltipItem.label;
-                        const slotPercentage = tooltipItem.raw; // Phần trăm đã sử dụng
-                        return `${customerId}: ${slotPercentage}% used`; // Hiển thị phần trăm trong tooltip
+                        const percentage = tooltipItem.raw.toFixed(2); // Làm tròn phần trăm
+                        return `${customerId}: ${percentage}%`; 
                     }
                 }
-            },
+            }
         },
         scales: {
             y: {
-                min: 0, // Thang đo bắt đầu từ 0
-                max: 100, // Thang đo tối đa là 100% cho phần trăm
+                beginAtZero: true, // Thang đo bắt đầu từ 0
                 ticks: {
                     color: 'white', // Màu chữ trục Y
                     font: {
                         size: 20 // Kích thước chữ trục Y
                     },
-                    stepSize: 10, // Chia thang đo theo bước 10%
+                    stepSize: 10, // Chia thang đo theo bước 10
+                    min: 0, // Giá trị tối thiểu của trục Y
+                    max: 100, // Giá trị tối đa của trục Y
                     callback: function(value) {
-                        return value + '%'; // Hiển thị phần trăm trên trục Y
+                        return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
                     }
                 }
             },
             x: {
                 grid: {
-                    display: false // Không hiển thị vạch dọc
+                    display: false // Không hiển thị vạch dọc trên trục X
                 },
                 ticks: {
                     color: 'white', // Màu chữ trục X
                     font: {
-                        size: 20 // Đặt kích thước chữ trục X thành 20px
+                        size: 20 // Kích thước chữ trục X
                     }
                 }
             }
         }
-    }
+    },
+    plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm (nếu cần)
 });
-
 
     // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
