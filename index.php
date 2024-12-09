@@ -874,13 +874,23 @@ sqlsrv_close($conn);
     
     <script>
     // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+        // Dữ liệu từ PHP
+        const customers = <?= json_encode($customers) ?>; // Mã khách hàng và RFID
+        const customerLabels = Object.keys(customers); // Mã khách hàng
+        const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
 
-    // Tổng số ô (slots) cho tất cả trạm (ví dụ, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm)
-    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô (slots)
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
+        // Truyền trạng thái RFID từ PHP sang JavaScript
+        const rfidStatus = <?= json_encode(array_column($data, 'PALLET_status', 'RFID')) ?>; // Trạng thái của mỗi RFID
+
+        // Tổng số ô (slots) cho tất cả trạm
+        const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Nếu là 'all' thì 7 trạm, nếu là một trạm cụ thể thì 1 trạm
+
+        // Tính số lượng filledSlots chỉ với trạng thái "stored"
+        const filledSlots = <?= json_encode($highlighted) ?>
+            .filter(rfid => {
+                // Kiểm tra trạng thái của mỗi RFID
+                return rfidStatus[rfid] === 'stored'; // Chỉ đếm nếu trạng thái là "stored"
+            }).length; // Đếm số lượng các RFID có trạng thái "stored"
 
     // Tính phần trăm ô đã sử dụng
     const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
