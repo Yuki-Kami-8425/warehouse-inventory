@@ -743,81 +743,85 @@ sqlsrv_close($conn);
         <h2><?= $station === 'all' ? 'Warehouse Overview' : 'Warehouse Station ' . $station ?></h2>
         <!-- Bảng Left Rack và Right Rack chỉ hiển thị khi chọn trạm A-G -->
         <div class="container">
-    <table> 
-        <!-- Bảng Left Rack -->
-        <caption>Left Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php 
-                        $index = ($row - 1) * 14 + $col; 
-                        $rfid = $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
+        <table> 
+    <!-- Bảng Left Rack -->
+    <caption>Left Rack</caption>
+    <?php for ($row = 7; $row >= 1; $row--): ?>
+        <tr>
+            <?php for ($col = 1; $col <= 14; $col++): ?>
+                <?php 
+                    $index = ($row - 1) * 14 + $col; 
+                    $rfid = $station . 'L' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
 
-                        // Kiểm tra xem RFID có trong danh sách highlight không
-                        $info = null;
-                        if (in_array($rfid, $highlighted)) {
-                            // Tìm dữ liệu chi tiết cho RFID
-                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
-                            $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                    // Kiểm tra xem RFID có trong danh sách highlight không
+                    $info = null;
+                    $isStored = false;
+                    if (in_array($rfid, $highlighted)) {
+                        // Tìm dữ liệu chi tiết cho RFID
+                        $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+                        $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
 
-                            $isStored = $info && $info['PALLET_status'] === 'stored';
-                        }
-                    ?>
-                   <td 
-                        class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 
-                            $info['MAKH'] . "\n" .
-                            $info['TENSP'] . "\n" .
-                            $info['TENKH'] . "\n" .
-                            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
-                                ? $info['NGAYCT']->format('Y-m-d') 
-                                : 'Undefined') 
-                            : '' ?>"
-                    >
-                        <?= $rfid ?>
-                    </td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
+                        // Chỉ highlight nếu trạng thái là stored
+                        $isStored = $info && $info['PALLET_status'] === 'stored';
+                    }
+                ?>
+                <td 
+                    class="<?= $isStored ? 'highlight' : '' ?>" 
+                    data-tooltip="<?= $info ? 
+                        $info['MAKH'] . "\n" .
+                        $info['TENSP'] . "\n" .
+                        $info['TENKH'] . "\n" .
+                        (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
+                            ? $info['NGAYCT']->format('Y-m-d') 
+                            : 'Undefined') 
+                        : '' ?>"
+                >
+                    <?= $rfid ?>
+                </td>
+            <?php endfor; ?>
+        </tr>
+    <?php endfor; ?>
+</table>
 
-    <table> 
-        <!-- Bảng Right Rack -->
-        <caption>Right Rack</caption>
-        <?php for ($row = 7; $row >= 1; $row--): ?>
-            <tr>
-                <?php for ($col = 1; $col <= 14; $col++): ?>
-                    <?php 
-                        $index = ($row - 1) * 14 + $col; 
-                        $rfid = $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
+<table> 
+    <!-- Bảng Right Rack -->
+    <caption>Right Rack</caption>
+    <?php for ($row = 7; $row >= 1; $row--): ?>
+        <tr>
+            <?php for ($col = 1; $col <= 14; $col++): ?>
+                <?php 
+                    $index = ($row - 1) * 14 + $col; 
+                    $rfid = $station . 'R' . str_pad($index, 2, '0', STR_PAD_LEFT); // Tạo RFID hiện tại
 
-                        // Kiểm tra xem RFID có trong danh sách highlight không
-                        $info = null;
-                        if (in_array($rfid, $highlighted)) {
-                            // Tìm dữ liệu chi tiết cho RFID
-                            $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
-                            $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
+                    // Kiểm tra xem RFID có trong danh sách highlight không
+                    $info = null;
+                    $isStored = false;
+                    if (in_array($rfid, $highlighted)) {
+                        // Tìm dữ liệu chi tiết cho RFID
+                        $filtered = array_filter($data, fn($item) => trim($item['RFID']) === $rfid);
+                        $info = reset($filtered); // Lấy dòng dữ liệu đầu tiên (nếu có)
 
-                            $isStored = $info && $info['PALLET_status'] === 'stored';
-                        }
-                    ?>
-                    <td 
-                        class="<?= $info ? 'highlight' : '' ?>" 
-                        data-tooltip="<?= $info ? 
-                            $info['MAKH'] . "\n" .
-                            $info['TENSP'] . "\n" .
-                            $info['TENKH'] . "\n" .
-                            (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
-                                ? $info['NGAYCT']->format('Y-m-d') 
-                                : 'Undefined') 
-                            : '' ?>"
-                    >
-                        <?= $rfid ?>
-                    </td>
-                <?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
-    </table>
+                        // Chỉ highlight nếu trạng thái là stored
+                        $isStored = $info && $info['PALLET_status'] === 'stored';
+                    }
+                ?>
+                <td 
+                    class="<?= $isStored ? 'highlight' : '' ?>" 
+                    data-tooltip="<?= $info ? 
+                        $info['MAKH'] . "\n" .
+                        $info['TENSP'] . "\n" .
+                        $info['TENKH'] . "\n" .
+                        (isset($info['NGAYCT']) && $info['NGAYCT'] instanceof DateTime 
+                            ? $info['NGAYCT']->format('Y-m-d') 
+                            : 'Undefined') 
+                        : '' ?>"
+                >
+                    <?= $rfid ?>
+                </td>
+            <?php endfor; ?>
+        </tr>
+    <?php endfor; ?>
+</table>
 
     </div>
         <!-- Biểu đồ -->
