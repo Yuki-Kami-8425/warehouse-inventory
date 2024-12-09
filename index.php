@@ -904,21 +904,21 @@ sqlsrv_close($conn);
         }
     };
 
-    // Khởi tạo biểu đồ cột
+    // Khởi tạo biểu đồ
 var ctxBar = document.getElementById('barChart').getContext('2d');
 var barChart = new Chart(ctxBar, {
     type: 'bar',
     data: {
         labels: <?php echo json_encode($customerLabels); ?>, // Các nhãn khách hàng
         datasets: [{
-            label: 'Slots per Customer',
-            data: customerLabels.map(label => {
-                const customerTotalSlots = 196; // Ví dụ, nếu mỗi khách hàng có 196 ô
+            label: 'Slots per Customer (%)',
+            data: <?php echo json_encode($customerData); ?>.map(label => {
+                const customerTotalSlots = 196; // Giả sử mỗi khách hàng có 196 ô
                 const customerFilled = customers[label].filter(rfid => {
                     const info = <?= json_encode($data) ?>.find(item => item.RFID === rfid);
                     return info && info.PALLET_status === 'stored';
                 }).length;
-                return ((customerFilled / customerTotalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm đã sử dụng cho từng khách hàng
+                return ((customerFilled / customerTotalSlots) * 100).toFixed(2); // Tính tỷ lệ phần trăm cho mỗi khách hàng
             }), // Dữ liệu phần trăm cho mỗi khách hàng
             backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
             borderColor: 'white',
@@ -943,8 +943,8 @@ var barChart = new Chart(ctxBar, {
                 callbacks: {
                     label: function(tooltipItem) {
                         const customerId = tooltipItem.label;
-                        const slotPercentage = tooltipItem.raw; // Số phần trăm đã sử dụng
-                        return `${customerId}: ${slotPercentage}% used`; 
+                        const slotPercentage = tooltipItem.raw; // Phần trăm đã sử dụng
+                        return `${customerId}: ${slotPercentage}% used`; // Hiển thị phần trăm trong tooltip
                     }
                 }
             },
@@ -952,11 +952,11 @@ var barChart = new Chart(ctxBar, {
         scales: {
             y: {
                 min: 0, // Thang đo bắt đầu từ 0
-                max: 100, // Thang đo tối đa là 100
+                max: 100, // Thang đo tối đa là 100% cho phần trăm
                 ticks: {
                     color: 'white', // Màu chữ trục Y
                     font: {
-                        size: 20 // Đặt kích thước chữ trục Y thành 20px
+                        size: 20 // Kích thước chữ trục Y
                     },
                     stepSize: 10, // Chia thang đo theo bước 10%
                     callback: function(value) {
@@ -978,6 +978,7 @@ var barChart = new Chart(ctxBar, {
         }
     }
 });
+
 
     // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
