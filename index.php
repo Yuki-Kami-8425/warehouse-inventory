@@ -1,4 +1,4 @@
-<?php 
+<p?php 
 
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
@@ -664,9 +664,13 @@ sqlsrv_close($conn);
 
                 <section id="overview">
                     <h2>What is Smart Warehouse?</h2>
-                    <p>
-                        A Smart Warehouse is an advanced storage and logistics facility that leverages modern technologies to improve efficiency, accuracy, and flexibility in warehouse operations. Unlike traditional warehouses, smart warehouses incorporate automation, real-time data tracking, and intelligent systems to streamline processes such as inventory management, order fulfillment, and shipping.
-                    </p>
+                        <p>
+    The Fourth Industrial Revolution marked a significant shift in the integration of IoT (Internet of Things) technology within warehouse operations, greatly enhancing the efficiency and performance of storage systems. <br>
+    Traditional Warehouse Management Systems (WMS) have been elevated through the adoption of IoT, which fully leverages RFID technology. With IoT, every activity and asset within the warehouse can be monitored and controlled, enabling precise manageability. <br>
+    However, this technological advancement also introduces security challenges, as IoT-enabled systems are susceptible to online threats. <br>
+    At Eastern International University (EIU), the Smart Warehouse project serves as an applied testing center, utilizing a scaled-down physical prototype to simulate real-world scenarios. <br>
+    This miniature model replicates the impacts, influences, and outcomes of a fully functional smart warehouse, providing valuable insights into modern warehouse management systems and their potential.
+                      </p>
                 </section>
 
                 <div class="slideshow-container">
