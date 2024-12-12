@@ -693,17 +693,17 @@ sqlsrv_close($conn);
                     <h2>Our Key Features</h2>
                     <div class="features">
                         <div class="feature">
-                            <img src="pic4.png" alt="Feature 1">
+                            <img src="Picture4.png" alt="">
                             <h3>Real-time Tracking</h3>
                             <p>Monitor your inventory with precision using IoT sensors.</p>
                         </div>
                         <div class="feature">
-                            <img src="pic5.png" alt="Feature 2">
+                            <img src="Picture5.png" alt="">
                             <h3>Automation</h3>
                             <p>Streamline operations with AI-driven robotics.</p>
                         </div>
                         <div class="feature">
-                            <img src="pic6.png" alt="Feature 3">
+                            <img src="Picture6.png" alt="">
                             <h3>Cloud Integration</h3>
                             <p>Sync data seamlessly with cloud platforms.</p>
                         </div>
