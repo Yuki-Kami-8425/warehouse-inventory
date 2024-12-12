@@ -1,4 +1,4 @@
-<p?php 
+<?php 
 
 $serverName = "eiusmartwarehouse.database.windows.net";
 $connectionOptions = array(
