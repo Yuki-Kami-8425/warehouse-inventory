@@ -113,6 +113,15 @@ sqlsrv_close($conn);
             margin: 0;  /* Remove default margin */
         }
 
+        .limited-text {
+            max-width: 600px; /* Giới hạn chiều rộng */
+            margin: 0 auto;  /* Căn giữa khối văn bản (tùy chọn) */
+            text-align: justify; /* Căn đều văn bản */
+            line-height: 1.6; /* Tăng khoảng cách giữa các dòng cho dễ đọc */
+            font-family: Arial, sans-serif; /* Đặt kiểu chữ */
+            font-size: 16px; /* Cỡ chữ */
+        }
+
         .overlay h2, .overlay p {
             text-align: center;
             margin-top: 20px; /* Khoảng cách từ trên xuống */
@@ -663,7 +672,7 @@ sqlsrv_close($conn);
                 </div>
 
                 <section id="overview">
-                    <h2>What is Smart Warehouse?</h2>
+                    <h2>About our smart warehouse</h2>
                         <p>
     The Fourth Industrial Revolution marked a significant shift in the integration of IoT (Internet of Things) technology within warehouse operations, greatly enhancing the efficiency and performance of storage systems. <br>
     Traditional Warehouse Management Systems (WMS) have been elevated through the adoption of IoT, which fully leverages RFID technology. With IoT, every activity and asset within the warehouse can be monitored and controlled, enabling precise manageability. <br>
