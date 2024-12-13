@@ -963,9 +963,8 @@ sqlsrv_close($conn);
         y: {
             beginAtZero: true, // Thang đo bắt đầu từ 0
             grid: {
-                color: 'transparent', // Ẩn các vạch lưới ngang
-                borderColor: 'white', // Màu trục Y
-                borderWidth: 2 // Độ dày của trục Y
+                color: 'white', // Màu các vạch ngang trên trục Y
+                lineWidth: 2 // Độ đậm của vạch ngang
             },
             ticks: {
                 color: 'white', // Màu chữ trục Y
@@ -982,9 +981,8 @@ sqlsrv_close($conn);
         },
         x: {
             grid: {
-                color: 'transparent', // Ẩn các vạch lưới dọc
-                borderColor: 'white', // Màu trục X
-                borderWidth: 2 // Độ dày của trục X
+                color: 'white', // Màu các vạch dọc trên trục X
+                lineWidth: 2, // Độ đậm của vạch dọc
             },
             ticks: {
                 color: 'white', // Màu chữ trục X
