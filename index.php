@@ -963,8 +963,11 @@ sqlsrv_close($conn);
         y: {
             beginAtZero: true, // Thang đo bắt đầu từ 0
             grid: {
-                color: 'white', // Màu các vạch ngang trên trục Y
-                lineWidth: 2 // Độ đậm của vạch ngang
+                color: (context) => context.tick.value === 0 ? 'transparent' : 'white', // Loại bỏ vạch gốc
+            lineWidth: 2, // Độ đậm của vạch lưới
+            drawBorder: false, // Không vẽ đường viền trục
+            drawOnChartArea: true, // Vẽ các vạch lưới trên biểu đồ
+            drawTicks: false // Loại bỏ các vạch nhỏ trên trục
             },
             ticks: {
                 color: 'white', // Màu chữ trục Y
@@ -984,8 +987,11 @@ sqlsrv_close($conn);
         },
         x: {
             grid: {
-                color: 'white', // Màu các vạch dọc trên trục X
-                lineWidth: 2 // Độ đậm của vạch dọc
+                color: (context) => context.tick.value === 0 ? 'transparent' : 'white', // Loại bỏ vạch gốc
+            lineWidth: 2, // Độ đậm của vạch lưới
+            drawBorder: false, // Không vẽ đường viền trục
+            drawOnChartArea: true, // Vẽ các vạch lưới trên biểu đồ
+            drawTicks: false // Loại bỏ các vạch nhỏ trên trục
             },
             ticks: {
                 color: 'white', // Màu chữ trục X
