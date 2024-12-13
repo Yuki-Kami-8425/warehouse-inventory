@@ -114,7 +114,7 @@ sqlsrv_close($conn);
         }
 
         .limited-text {
-            max-width: 600px; /* Giới hạn chiều rộng */
+            max-width: 500px; /* Giới hạn chiều rộng */
             margin: 0 auto;  /* Căn giữa khối văn bản (tùy chọn) */
             text-align: justify; /* Căn đều văn bản */
             line-height: 1.6; /* Tăng khoảng cách giữa các dòng cho dễ đọc */
