@@ -963,9 +963,9 @@ sqlsrv_close($conn);
         y: {
             beginAtZero: true, // Thang đo bắt đầu từ 0
             grid: {
-                drawOnChartArea: false,
-                color: 'white', // Màu các vạch dọc trên trục Y
-                lineWidth: 2 // Độ đậm của vạch dọc
+                drawTicks: false,
+                color: 'white', // Màu các vạch ngang trên trục Y
+                lineWidth: 2 // Độ đậm của vạch ngang
             },
             ticks: {
                 color: 'white', // Màu chữ trục Y
@@ -979,15 +979,12 @@ sqlsrv_close($conn);
                     return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
                 }
             },
-            border: {
-            display: false // Loại bỏ đường kẻ bên phải trục Y
-        }
         },
         x: {
             grid: {
-                drawOnChartArea: false,
-                color: 'white',
-                lineWidth: 2, // Độ đậm của vạch lưới
+                drawTicks: false,
+                color: 'white', // Màu các vạch dọc trên trục X
+                lineWidth: 2 // Độ đậm của vạch dọc
             },
             ticks: {
                 color: 'white', // Màu chữ trục X
@@ -995,9 +992,6 @@ sqlsrv_close($conn);
                     size: 20 // Kích thước chữ trục X
                 }
             },
-            border: {
-            display: false // Loại bỏ đường kẻ bên phải trục X
-        }
         }
     }
         },
