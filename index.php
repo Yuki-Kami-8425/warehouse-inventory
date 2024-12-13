@@ -960,40 +960,41 @@ sqlsrv_close($conn);
                     }
                 },
                 scales: {
-        y: {
-            beginAtZero: true, // Thang đo bắt đầu từ 0
-            grid: {
-                display: false,
-                color: 'white', // Màu các vạch ngang trên trục Y
-                lineWidth: 2 // Độ đậm của vạch ngang
-            },
-            ticks: {
-                color: 'white', // Màu chữ trục Y
-                font: {
-                    size: 20 // Kích thước chữ trục Y
-                },
-                stepSize: 10, // Chia thang đo theo bước 10%
-                min: 0, // Giá trị tối thiểu của trục Y
-                max: 100, // Giá trị tối đa của trục Y
-                callback: function(value) {
-                    return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
-                }
-            },
+    y: {
+        beginAtZero: true,
+        grid: {
+            drawOnChartArea: false, // Tắt vạch lưới ngang trong biểu đồ
+            drawTicks: true,        // Hiển thị các vạch chia nhỏ trên trục
+            drawBorder: true,       // Hiển thị trục Y
+            borderColor: 'white',   // Màu trục Y
+            borderWidth: 2          // Độ dày trục Y
         },
-        x: {
-            grid: {
-                display: false,
-                color: 'white', // Màu các vạch dọc trên trục X
-                lineWidth: 2 // Độ đậm của vạch dọc
+        ticks: {
+            color: 'white',
+            font: {
+                size: 20
             },
-            ticks: {
-                color: 'white', // Màu chữ trục X
-                font: {
-                    size: 20 // Kích thước chữ trục X
-                }
-            },
+            callback: function(value) {
+                return value + '%';
+            }
+        }
+    },
+    x: {
+        grid: {
+            drawOnChartArea: false, // Tắt vạch lưới dọc trong biểu đồ
+            drawTicks: true,        // Hiển thị các vạch chia nhỏ trên trục
+            drawBorder: true,       // Hiển thị trục X
+            borderColor: 'white',   // Màu trục X
+            borderWidth: 2          // Độ dày trục X
+        },
+        ticks: {
+            color: 'white',
+            font: {
+                size: 20
+            }
         }
     }
+}
         },
         plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
     });
