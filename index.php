@@ -963,7 +963,7 @@ sqlsrv_close($conn);
                 y: {
                     beginAtZero: true, // Thang đo bắt đầu từ 0
                     grid: {
-                        borderColor: 'white', 
+                        color: 'white',
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục Y
@@ -980,7 +980,7 @@ sqlsrv_close($conn);
                 },
                 x: {
                     grid: {
-                        borderColor: 'white', 
+                        color: 'white', 
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục X
