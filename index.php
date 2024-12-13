@@ -960,44 +960,41 @@ sqlsrv_close($conn);
                 }
             },
             scales: {
-                y: {
-                    beginAtZero: true, // Thang đo bắt đầu từ 0
-                    grid: {
-                        drawBorder: true, // Hiển thị đường viền trục Y
-                        drawTicks: true,  // Hiển thị các tick (vạch nhỏ)
-                        color: 'transparent', // Ẩn các vạch ngang (lưới)
-                        borderColor: 'white', // Màu trục Y
-                        borderWidth: 2 // Độ dày của trục Y
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trục Y
-                        font: {
-                            size: 20 // Kích thước chữ trục Y
-                        },
-                        stepSize: 10, // Chia thang đo theo bước 10%
-                        min: 0, // Giá trị tối thiểu của trục Y
-                        max: 100, // Giá trị tối đa của trục Y
-                        callback: function(value) {
-                            return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        drawBorder: true, // Hiển thị đường viền trục X
-                        drawTicks: true,  // Hiển thị các tick (vạch nhỏ)
-                        display: false,   // Ẩn các vạch lưới dọc (trên nền biểu đồ)
-                        borderColor: 'white', // Màu trục X
-                        borderWidth: 2 // Độ dày của trục X
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trục X
-                        font: {
-                            size: 20 // Kích thước chữ trục X
-                        }
-                    }
-                }
+    y: {
+        beginAtZero: true, // Thang đo bắt đầu từ 0
+        grid: {
+            color: 'transparent', // Ẩn các vạch lưới ngang
+        },
+        ticks: {
+            color: 'white', // Màu chữ trục Y
+            font: {
+                size: 20 // Kích thước chữ trục Y
+            },
+            stepSize: 10, // Chia thang đo theo bước 10%
+            min: 0, // Giá trị tối thiểu của trục Y
+            max: 100, // Giá trị tối đa của trục Y
+            callback: function(value) {
+                return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
             }
+        },
+        borderColor: 'white', // Màu trục Y
+        borderWidth: 2 // Độ dày của trục Y
+    },
+    x: {
+        grid: {
+            color: 'transparent', // Ẩn các vạch lưới dọc
+        },
+        ticks: {
+            color: 'white', // Màu chữ trục X
+            font: {
+                size: 20 // Kích thước chữ trục X
+            }
+        },
+        borderColor: 'white', // Màu trục X
+        borderWidth: 2 // Độ dày của trục X
+    }
+}
+
         },
         plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
     });
