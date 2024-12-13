@@ -23,7 +23,7 @@ case 'all':
                 WHERE PALLET_status = 'stored'";
     break;
 case 'home':
-    $sql = null; // Hoặc không cần khởi tạo $sql
+    $sql = null;
     break;
 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
     $sql = "SELECT MAKH, TENSP, TENKH, LUONG_PALLET, RFID, NGAYCT, PALLET_status
@@ -796,7 +796,7 @@ sqlsrv_close($conn);
                                 ? $info['NGAYCT']->format('Y-m-d') 
                                 : 'Undefined') 
                             : '' ?>"
-                    >
+                                >
                         <?= $rfid ?>
                     </td>
                 <?php endfor; ?>
@@ -962,6 +962,10 @@ sqlsrv_close($conn);
             scales: {
                 y: {
                     beginAtZero: true, // Thang đo bắt đầu từ 0
+                    grid: {
+                        color: 'white', // Màu các vạch ngang trên trục Y
+                        lineWidth: 2 // Độ đậm của vạch ngang
+                    },
                     ticks: {
                         color: 'white', // Màu chữ trục Y
                         font: {
@@ -977,7 +981,9 @@ sqlsrv_close($conn);
                 },
                 x: {
                     grid: {
-                        display: false // Không hiển thị vạch dọc trên trục X
+                        color: 'white', // Màu các vạch dọc trên trục X
+                        lineWidth: 2, // Độ đậm của vạch dọc
+                        display: false // Không hiển thị vạch lưới (có thể bật lại nếu cần)
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục X
