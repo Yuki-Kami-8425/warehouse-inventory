@@ -978,6 +978,9 @@ sqlsrv_close($conn);
                     return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
                 }
             },
+            border: {
+            display: false // Loại bỏ đường kẻ bên phải trục Y
+        }
         },
         x: {
             grid: {
@@ -990,6 +993,9 @@ sqlsrv_close($conn);
                     size: 20 // Kích thước chữ trục X
                 }
             },
+            border: {
+            display: false // Loại bỏ đường kẻ bên phải trục X
+        }
         }
     }
         },
