@@ -963,11 +963,9 @@ sqlsrv_close($conn);
     y: {
         beginAtZero: true,
         grid: {
-            drawOnChartArea: false, // Tắt vạch lưới ngang trong biểu đồ
-            drawTicks: true,        // Hiển thị các vạch chia nhỏ trên trục
-            drawBorder: true,       // Hiển thị trục Y
-            borderColor: 'white',   // Màu trục Y
-            borderWidth: 2          // Độ dày trục Y
+            //color: 'white',
+            //lineWidth: 2
+            display: false
         },
         ticks: {
             color: 'white',
@@ -977,22 +975,24 @@ sqlsrv_close($conn);
             callback: function(value) {
                 return value + '%';
             }
-        }
+        },
+        borderColor: 'white',  // Màu vạch kẻ của trục X
+        borderWidth: 2         // Độ dày vạch kẻ của trục X
     },
     x: {
         grid: {
-            drawOnChartArea: false, // Tắt vạch lưới dọc trong biểu đồ
-            drawTicks: true,        // Hiển thị các vạch chia nhỏ trên trục
-            drawBorder: true,       // Hiển thị trục X
-            borderColor: 'white',   // Màu trục X
-            borderWidth: 2          // Độ dày trục X
+            //color: 'white',
+            //lineWidth: 2,
+            display: false
         },
         ticks: {
             color: 'white',
             font: {
                 size: 20
             }
-        }
+        },
+        borderColor: 'white',  // Màu vạch kẻ của trục X
+        borderWidth: 2         // Độ dày vạch kẻ của trục X
     }
 }
         },
