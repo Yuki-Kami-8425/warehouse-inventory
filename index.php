@@ -872,13 +872,13 @@ sqlsrv_close($conn);
                 <div class="chart-container">
                     <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
                         Percentage of Total Slots (%)
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
                         Distribution of Storage Slots 
                     </div>
                 </div>
