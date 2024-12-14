@@ -855,13 +855,13 @@ sqlsrv_close($conn);
                     <!-- Biểu đồ cột -->
                     <canvas id="barChart";"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
-                        <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
+                        <?= $station === 'all' ? 'Customer Occupancy Rate in Warehouse' : 'Customer Occupancy Rate in station ' . $station ?>
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
-                        <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
+                        <?= $station === 'all' ? 'Warehouse Storage Usage Rate in Warehouse' : 'Warehouse Storage Usage Rate in Station ' . $station ?>
                     </div>
                 </div>
         </div>
@@ -873,13 +873,13 @@ sqlsrv_close($conn);
                     <!-- Biểu đồ cột -->
                     <canvas id="barChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
-                        Percentage of Total Slots (%)
+                        Customer Occupancy Rate in Warehouse
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
-                        Distribution of Storage Slots 
+                        Warehouse Storage Usage Rate
                     </div>
                 </div>
             </div>
