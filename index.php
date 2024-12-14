@@ -853,14 +853,14 @@ sqlsrv_close($conn);
         <div class="charts">
                 <div class="chart-container">
                     <!-- Biểu đồ cột -->
-                    <canvas id="barChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                    <canvas id="barChart" style="border: 5px solid white;"></canvas>
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
                         <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
                     </div>
                 </div>
                 <div class="chart-container"> <!-- Biểu đồ tròn -->
                     <canvas id="pieChart"></canvas>
-                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 5px;">
+                    <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
                         <?= $station === 'all' ? 'Distribution of Slots in All Stations' : 'Distribution of Slots in Station ' . $station ?>
                     </div>
                 </div>
@@ -963,8 +963,8 @@ sqlsrv_close($conn);
                 y: {
                     beginAtZero: true, // Thang đo bắt đầu từ 0
                     grid: {
-                        borderColor: 'white',
-                        borderWidth: 5,  
+                       // borderColor: 'white',
+                       // borderWidth: 5,  
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục Y
@@ -981,8 +981,8 @@ sqlsrv_close($conn);
                 },
                 x: {
                     grid: {
-                        borderColor: 'white',
-                        borderWidth: 5,  
+                        //borderColor: 'white',
+                       // borderWidth: 5,  
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục X
