@@ -963,8 +963,8 @@ sqlsrv_close($conn);
                 y: {
                     beginAtZero: true, // Thang đo bắt đầu từ 0
                     grid: {
-                        color: 'white',
-                        lineWidth: 2, 
+                        borderColor: 'white',
+                        borderWidth: 5,  
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục Y
@@ -981,26 +981,13 @@ sqlsrv_close($conn);
                 },
                 x: {
                     grid: {
-                        color: 'white', // Màu đường lưới trục X
-                        borderColor: 'white', // Màu đường trục X
-                        lineWidth: 2, // Độ dày đường lưới
-                        drawOnChartArea: true, // Hiển thị các đường lưới
-                        drawTicks: true, // Vẽ các dấu ticks (dọc)
-                        // Chỉ vẽ đường lưới cho tick đầu tiên
-                        tickLength: 0, // Tắt vạch ngang cho các ticks không phải đầu tiên
-                        offsetGridLines: true // Đảm bảo đường lưới đầu tiên không bị ẩn
+                        borderColor: 'white',
+                        borderWidth: 5,  
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục X
                         font: {
                             size: 20 // Kích thước chữ trục X
-                        },
-                        callback: function(value, index, values) {
-                            // Hiển thị đường lưới tại tick đầu tiên
-                            if (index === 0) {
-                                return value; // Hiển thị giá trị của tick đầu tiên
-                            }
-                            return ''; // Ẩn các giá trị của các ticks còn lại
                         }
                     }
                 }
