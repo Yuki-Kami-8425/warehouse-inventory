@@ -853,7 +853,7 @@ sqlsrv_close($conn);
         <div class="charts">
                 <div class="chart-container">
                     <!-- Biểu đồ cột -->
-                    <canvas id="barChart" style="border: 5px solid white;"></canvas>
+                    <canvas id="barChart";"></canvas>
                     <div id="chartCaption" style="text-align: center; color: white; margin-top: 10px; font-weight: bold; font-size: 20px;">
                         <?= $station === 'all' ? 'Total Customers Using the Warehouse: ' : 'Total Customers at Station ' . $station ?>
                     </div>
@@ -963,8 +963,7 @@ sqlsrv_close($conn);
                 y: {
                     beginAtZero: true, // Thang đo bắt đầu từ 0
                     grid: {
-                       // borderColor: 'white',
-                       // borderWidth: 5,  
+                        display: false 
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục Y
@@ -977,18 +976,25 @@ sqlsrv_close($conn);
                         callback: function(value) {
                             return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
                         }
+                    },
+                    border: {
+                        color: 'white', // Đổi màu đường trục Y
+                        width: 5 // Độ dày đường trục Y
                     }
                 },
                 x: {
                     grid: {
-                        //borderColor: 'white',
-                       // borderWidth: 5,  
+                        display: false  
                     },
                     ticks: {
                         color: 'white', // Màu chữ trục X
                         font: {
                             size: 20 // Kích thước chữ trục X
                         }
+                    },
+                    border: {
+                        color: 'white', // Đổi màu đường trục X
+                        width: 2 // Độ dày đường trục X
                     }
                 }
             }
