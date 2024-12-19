@@ -896,7 +896,7 @@ sqlsrv_close($conn);
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô (slots)
     
     // Tính phần trăm số slot cho mỗi khách hàng
-    const customerPercentageData = customerData.map(slots => (slots / totalSlots) * 100); // Không làm tròn ở đây
+    const customerPercentageData = customerData.map(slots => ((slots / totalSlots) * 100).toFixed(2));
 
     // Tính số lượng ô đã sử dụng và phần trăm ô đã sử dụng
     const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
@@ -962,6 +962,8 @@ sqlsrv_close($conn);
             scales: {
                 y: {
                     beginAtZero: true, // Thang đo bắt đầu từ 0
+                    suggestedMin: 0,
+                    suggestedMax: 100,
                     grid: {
                         display: false 
                     },
