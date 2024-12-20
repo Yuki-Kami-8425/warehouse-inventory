@@ -587,7 +587,6 @@ sqlsrv_close($conn);
 
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
 </head>
 
 <body>
@@ -1005,7 +1004,7 @@ sqlsrv_close($conn);
         plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
     });
 
-   // Biểu đồ tròn
+    // Biểu đồ tròn
     var ctxPie = document.getElementById('pieChart').getContext('2d');
     var pieChart = new Chart(ctxPie, {
         type: 'pie',
@@ -1021,37 +1020,53 @@ sqlsrv_close($conn);
         options: {
             plugins: {
                 legend: {
-                    display: true, // Hiển thị ô màu đại diện
                     labels: {
                         color: 'white'
                     }
                 },
                 tooltip: {
-                    enabled: true, // Giữ nguyên hiệu ứng tooltip
                     callbacks: {
                         label: function(tooltipItem) {
                             const data = tooltipItem.dataset.data;
                             const currentValue = data[tooltipItem.dataIndex];
-                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2);
-                            return tooltipItem.label + ': ' + percentage + '%';
+                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
+                            return tooltipItem.label + ': ' + percentage + '%'; // Hiển thị phần trăm trong tooltip
                         }
                     }
-                },
-                datalabels: {
-                    anchor: 'end', // Đặt nhãn bên ngoài
-                    align: 'end',
-                    color: 'white', // Màu chữ
-                    formatter: function(value, context) {
-                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                        const percentage = ((value / total) * 100).toFixed(2);
-                        return percentage + '%'; // Hiển thị phần trăm
-                    },
-                    offset: 20, // Khoảng cách nhãn với biểu đồ
-                    clip: false // Đảm bảo nhãn không bị cắt nếu vượt ra ngoài canvas
                 }
             }
-        },
-        plugins: [ChartDataLabels] // Kích hoạt plugin Datalabels
+        }
+    });
+
+    function toggleDropdown(event) {
+        event.stopPropagation();
+        closeDropdowns(); // Đảm bảo các dropdown khác đều đóng
+        const dropdown = event.currentTarget.nextElementSibling;
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function closeDropdowns() {
+        const allDropdowns = document.querySelectorAll('.dropdown-container');
+        allDropdowns.forEach(d => {
+            d.style.display = 'none';
+        });
+    }
+
+    function showPage(page) {
+        console.log(`Loading page: ${page}`);
+        closeDropdowns();  // Đảm bảo tất cả dropdown đều đóng lại khi đổi trang
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const station = urlParams.get('station');
+        const links = document.querySelectorAll('.sidebar a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href.includes(`station=${station}`)) {
+                link.classList.add('active');
+            }
+        });
     });
     
     function toggleSidebar() {
