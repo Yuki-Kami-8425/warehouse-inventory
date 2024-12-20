@@ -587,7 +587,7 @@ sqlsrv_close($conn);
 
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
 </head>
 
 <body>
@@ -1021,26 +1021,25 @@ sqlsrv_close($conn);
         options: {
             plugins: {
                 legend: {
-                    labels: {
-                        color: 'white'
-                    }
+                    display: false // Ẩn legend nếu không cần
                 },
-                datalabels: {
-                    color: 'white', // Màu của nhãn
-                    formatter: function(value, context) {
-                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); // Tính tổng
-                        const percentage = ((value / total) * 100).toFixed(2); // Tính phần trăm
-                        return percentage + '%'; // Hiển thị phần trăm
-                    },
-                    anchor: 'end',
-                    align: 'start',
-                    offset: 10 // Khoảng cách từ trung tâm
+                outlabels: {
+                    text: '%l: %p', // Hiển thị label và phần trăm
+                    color: 'white', // Màu chữ
+                    backgroundColor: null, // Không có nền
+                    borderWidth: 0, // Không có viền
+                    lineColor: 'white', // Màu đường nối
+                    lineWidth: 2, // Độ dày đường nối
+                    stretch: 20, // Khoảng cách giữa nhãn và biểu đồ
+                    font: {
+                        size: 14, // Kích thước chữ
+                        family: 'Arial',
+                        weight: 'bold'
+                    }
                 }
             }
-        },
-        plugins: [ChartDataLabels] // Kích hoạt plugin Datalabels
+        }
     });
-
 
     function toggleDropdown(event) {
         event.stopPropagation();
