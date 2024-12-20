@@ -587,6 +587,7 @@ sqlsrv_close($conn);
 
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 </head>
 
 <body>
@@ -1024,19 +1025,22 @@ sqlsrv_close($conn);
                         color: 'white'
                     }
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const data = tooltipItem.dataset.data;
-                            const currentValue = data[tooltipItem.dataIndex];
-                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                            return tooltipItem.label + ': ' + percentage + '%'; // Hiển thị phần trăm trong tooltip
-                        }
-                    }
+                datalabels: {
+                    color: 'white', // Màu của nhãn
+                    formatter: function(value, context) {
+                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); // Tính tổng
+                        const percentage = ((value / total) * 100).toFixed(2); // Tính phần trăm
+                        return percentage + '%'; // Hiển thị phần trăm
+                    },
+                    anchor: 'end',
+                    align: 'start',
+                    offset: 10 // Khoảng cách từ trung tâm
                 }
             }
-        }
+        },
+        plugins: [ChartDataLabels] // Kích hoạt plugin Datalabels
     });
+
 
     function toggleDropdown(event) {
         event.stopPropagation();
