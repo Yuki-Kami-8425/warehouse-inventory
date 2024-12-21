@@ -90,6 +90,7 @@ sqlsrv_close($conn);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
 
+
     <script>
         window.onload = function() { // Kiểm tra xem URL có chứa tham số station không
             const urlParams = new URLSearchParams(window.location.search);
@@ -984,6 +985,9 @@ var barChart = new Chart(ctxBar, {
 });
 
 // Biểu đồ tròn
+// Đảm bảo Chart.js và plugin được tải trước khi sử dụng
+Chart.register(ChartPiechartOutlabels);
+
 var ctxPie = document.getElementById('pieChart').getContext('2d');
 var pieChart = new Chart(ctxPie, {
     type: 'pie',
