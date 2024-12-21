@@ -1006,6 +1006,26 @@ var pieChart = new Chart(ctxPie, {
                         return `${tooltipItem.label}: ${percentage}%`;
                     }
                 }
+            },
+            datalabels: {
+                color: 'white',
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                },
+                formatter: function(value, context) {
+                    const total = context.chart.data.datasets[0].data.reduce((acc, val) => acc + val, 0);
+                    const percentage = ((value / total) * 100).toFixed(2);
+                    return `${percentage}%`;
+                },
+                anchor: 'end', // Đặt vị trí bên ngoài biểu đồ
+                align: 'end',  // Canh lề theo vị trí anchor
+                offset: 10,    // Khoảng cách từ biểu đồ
+                borderColor: 'white', // Màu đường kẻ
+                borderWidth: 1,       // Độ dày đường kẻ
+                borderRadius: 4,      // Bo góc khung nhãn
+                backgroundColor: 'rgba(0, 0, 0, 0.5)', // Màu nền nhãn
+                padding: 6            // Khoảng cách padding bên trong nhãn
             }
         }
     }
