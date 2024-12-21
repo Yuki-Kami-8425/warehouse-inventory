@@ -934,7 +934,7 @@ var barChart = new Chart(ctxBar, {
                 titleFont: {
                     size: 20 // Kích thước chữ tiêu đề trong tooltip
                 },
-                padding: 10, // Khoảng cách padding trong tooltip
+                padding: 2, // Khoảng cách padding trong tooltip
                 backgroundColor: 'rgba(0, 0, 0, 0.8)', // Màu nền của tooltip
                 displayColors: false, // Ẩn màu sắc dữ liệu trong tooltip
                 callbacks: {
@@ -1007,7 +1007,10 @@ var pieChart = new Chart(ctxPie, {
                     }
                 }
             },
-            datalabels: {
+            
+        }
+    },
+    datalabels: {
                 color: 'white',
                 font: {
                     size: 16,
@@ -1027,8 +1030,6 @@ var pieChart = new Chart(ctxPie, {
                 backgroundColor: 'rgba(0, 0, 0, 0.5)', // Màu nền nhãn
                 padding: 6            // Khoảng cách padding bên trong nhãn
             }
-        }
-    }
 });
 
 
