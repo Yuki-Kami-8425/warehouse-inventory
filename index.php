@@ -51,6 +51,12 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
 
+// Tính số lượng pallet (slots) cho mỗi khách hàng
+$customerSlotCount = [];
+foreach ($customers as $customerId => $rfids) {
+    $customerSlotCount[$customerId] = count($rfids); // Mỗi khách hàng có số lượng slot (RFID)
+}
+
 // Sắp xếp số lượng slot giảm dần
 arsort($customerSlotCount);
 
@@ -66,8 +72,14 @@ $customerLabels = array_keys($topCustomers);
 $customerData = array_values($topCustomers);
 
 // Thêm nhãn "Other" và dữ liệu nếu có
-$customerLabels[] = 'Other';
-$customerData[] = $otherSum;
+if ($otherSum > 0) {
+    $customerLabels[] = 'Other';
+    $customerData[] = $otherSum;
+}
+
+// Đảm bảo chỉ có tối đa 4 cột (bao gồm "Other")
+$customerLabels = array_slice($customerLabels, 0, 4);
+$customerData = array_slice($customerData, 0, 4);
 
 // Đảm bảo mảng nhãn và dữ liệu luôn khớp nhau
 sqlsrv_close($conn);
