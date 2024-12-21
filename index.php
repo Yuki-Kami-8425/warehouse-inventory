@@ -998,16 +998,6 @@ var pieChart = new Chart(ctxPie, {
     options: {
         plugins: {
             legend: { labels: { color: 'white' } },
-            outlabels: {
-                text: '%l %p',
-                color: 'white',
-                stretch: 35,
-                font: {
-                resizable: true,
-                minSize: 12,
-                maxSize: 18,
-                },
-            },
             tooltip: {
                 callbacks: {
                     label: function(tooltipItem) {
@@ -1017,7 +1007,27 @@ var pieChart = new Chart(ctxPie, {
                         return `${tooltipItem.label}: ${percentage}%`;
                     }
                 }
-            },
+            }
+        },
+        // Custom code to add labels directly on the chart
+        animation: {
+            onComplete: function() {
+                var chartInstance = this.chart;
+                var ctx = chartInstance.ctx;
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                chartInstance.data.datasets[0].data.forEach(function(value, index) {
+                    var label = chartInstance.data.labels[index];
+                    var angle = chartInstance.getDatasetMeta(0).data[index].angle + (Math.PI / 2);
+                    var x = chartInstance.getDatasetMeta(0).data[index].x;
+                    var y = chartInstance.getDatasetMeta(0).data[index].y;
+                    var percentage = ((value / totalSlots) * 100).toFixed(2);
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(`${label}: ${percentage}%`, x, y);
+                });
+            }
         }
     }
 });
