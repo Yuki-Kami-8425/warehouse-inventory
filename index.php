@@ -999,7 +999,7 @@ var pieChart = new Chart(ctxPie, {
         responsive: true,
         plugins: {
             legend: { labels: { color: 'white' } },
-            tooltip: { enabled: false }, // Tắt hiệu ứng tooltip
+            tooltip: { enabled: false } // Tắt tooltip
         },
         animation: {
             onComplete: function() {
@@ -1011,17 +1011,16 @@ var pieChart = new Chart(ctxPie, {
 
                 chartInstance.data.datasets[0].data.forEach(function(value, index) {
                     var label = chartInstance.data.labels[index];
+                    var percentage = ((value / totalSlots) * 100).toFixed(2);
                     var angle = chartInstance.getDatasetMeta(0).data[index].angle + (Math.PI / 2);
                     var x = chartInstance.getDatasetMeta(0).data[index].x;
                     var y = chartInstance.getDatasetMeta(0).data[index].y;
 
-                    // Tính toán tỷ lệ phần trăm
-                    var percentage = ((value / totalSlots) * 100).toFixed(2);
-
-                    // Tính toán vị trí của nhãn để hiển thị bên ngoài biểu đồ
+                    // Tính toán vị trí của nhãn bên ngoài
                     var outLabelX = x + (Math.cos(angle) * 20); // Dịch chuyển nhãn ra ngoài
                     var outLabelY = y + (Math.sin(angle) * 20);
 
+                    // Vẽ nhãn tên phần và phần trăm bên ngoài
                     ctx.fillStyle = 'white';
                     ctx.fillText(`${label}: ${percentage}%`, outLabelX, outLabelY);
                 });
@@ -1029,6 +1028,7 @@ var pieChart = new Chart(ctxPie, {
         }
     }
 });
+
 
 
     function toggleDropdown(event) {
