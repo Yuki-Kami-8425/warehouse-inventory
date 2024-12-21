@@ -51,39 +51,27 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
 }
 
-// Tính số lượng pallet (slots) cho mỗi khách hàng
-$customerSlotCount = [];
-foreach ($customers as $customerId => $rfids) {
-    $customerSlotCount[$customerId] = count($rfids); // Mỗi khách hàng có số lượng slot (RFID)
-}
-
 // Sắp xếp số lượng slot giảm dần
 arsort($customerSlotCount);
 
-// Lấy 3 khách hàng nhiều nhất và một cột "Other" cho các khách hàng còn lại
+// Lấy 3 khách hàng nhiều nhất và gộp từ khách hàng thứ 4 thành "Other"
 $topCustomers = array_slice($customerSlotCount, 0, 3, true); // Lấy 3 khách hàng đầu tiên
 $otherData = array_slice($customerSlotCount, 3); // Các khách hàng còn lại
 
 // Tính tổng số slot cho các khách hàng còn lại (Other)
 $otherSum = array_sum($otherData);
 
-// Cập nhật dữ liệu cho biểu đồ
+// Chuẩn bị dữ liệu cho biểu đồ
 $customerLabels = array_keys($topCustomers);
 $customerData = array_values($topCustomers);
 
-// Nếu có dữ liệu "Other", thêm vào labels và dữ liệu
-if ($otherSum > 0) {
-    $customerLabels[] = 'Other';
-    $customerData[] = $otherSum;
-}
+// Thêm nhãn "Other" và dữ liệu nếu có
+$customerLabels[] = 'Other';
+$customerData[] = $otherSum;
 
-// Đảm bảo có đủ 4 cột (Nếu không đủ 3 khách hàng, thêm "Other" vào cuối)
-if (count($customerLabels) < 4) {
-    $customerLabels[] = 'Other';
-    $customerData[] = $otherSum;
-}
-
+// Đảm bảo mảng nhãn và dữ liệu luôn khớp nhau
 sqlsrv_close($conn);
+?>
 ?>
 
 <!DOCTYPE html>
@@ -887,20 +875,15 @@ sqlsrv_close($conn);
     </div>
     
     <script>
-    // Dữ liệu biểu đồ
-    const customers = <?= json_encode($customers) ?>;
-    const customerLabels = Object.keys(customers); // Mã khách hàng
-    const customerData = customerLabels.map(key => customers[key].length); // Đếm số lượng RFID cho mỗi khách hàng
+ // Dữ liệu biểu đồ
+ const customerLabels = <?= json_encode($customerLabels) ?>; // Mã khách hàng (bao gồm "Other")
+    const customerData = <?= json_encode($customerData) ?>; // Số lượng slot (bao gồm dữ liệu "Other")
 
-    // Tổng số ô (slots) cho tất cả trạm (ví dụ, nếu là 'all' thì 7 trạm, nếu trạm cụ thể thì 1 trạm)
+    // Tổng số ô (slots) cho tất cả trạm
     const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô (slots)
     
     // Tính phần trăm số slot cho mỗi khách hàng
     const customerPercentageData = customerData.map(slots => ((slots / totalSlots) * 100).toFixed(2));
-
-    // Tính số lượng ô đã sử dụng và phần trăm ô đã sử dụng
-    const filledSlots = <?= count($highlighted) ?>; // Số ô đã sử dụng
-    const filledPercentage = ((filledSlots / totalSlots) * 100).toFixed(2);
 
     const percentageLabelPlugin = {
         id: 'percentageLabel',
