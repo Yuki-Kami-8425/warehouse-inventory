@@ -41,49 +41,44 @@ if ($stmt === false) {
     die(print_r(sqlsrv_errors(), true));
 }
 
-// Tạo mảng để lưu dữ liệu
+// Xử lý dữ liệu
 $data = [];
 $customers = [];
 $highlighted = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
     $data[] = $row;
-    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID cho mỗi khách hàng
-    $highlighted[] = trim($row['RFID']); // Dùng trim để loại bỏ khoảng trắng
+    $customers[$row['MAKH']][] = $row['RFID']; // Lưu danh sách RFID
+    $highlighted[] = trim($row['RFID']); // Lưu các RFID đã sử dụng
 }
 
-// Tính số lượng pallet (slots) cho mỗi khách hàng
+// Tổng số slot và slot đã sử dụng
+$totalSlots = 196 * ($station === 'all' ? 7 : 1);
+$filledSlots = count($highlighted);
+
+// Xử lý dữ liệu khách hàng
 $customerSlotCount = [];
 foreach ($customers as $customerId => $rfids) {
-    $customerSlotCount[$customerId] = count($rfids); // Mỗi khách hàng có số lượng slot (RFID)
+    $customerSlotCount[$customerId] = count($rfids);
 }
-
-// Sắp xếp số lượng slot giảm dần
 arsort($customerSlotCount);
 
-// Lấy 3 khách hàng nhiều nhất và gộp từ khách hàng thứ 4 thành "Other"
-$topCustomers = array_slice($customerSlotCount, 0, 3, true); // Lấy 3 khách hàng đầu tiên
-$otherData = array_slice($customerSlotCount, 3); // Các khách hàng còn lại
-
-// Tính tổng số slot cho các khách hàng còn lại (Other)
+// Gộp khách hàng từ thứ 4 trở đi thành "Other"
+$topCustomers = array_slice($customerSlotCount, 0, 3, true);
+$otherData = array_slice($customerSlotCount, 3);
 $otherSum = array_sum($otherData);
 
-// Chuẩn bị dữ liệu cho biểu đồ
 $customerLabels = array_keys($topCustomers);
 $customerData = array_values($topCustomers);
-
-// Thêm nhãn "Other" và dữ liệu nếu có
 if ($otherSum > 0) {
     $customerLabels[] = 'Other';
     $customerData[] = $otherSum;
 }
 
-// Đảm bảo chỉ có tối đa 4 cột (bao gồm "Other")
+// Đảm bảo chỉ có tối đa 4 cột
 $customerLabels = array_slice($customerLabels, 0, 4);
 $customerData = array_slice($customerData, 0, 4);
 
-// Đảm bảo mảng nhãn và dữ liệu luôn khớp nhau
 sqlsrv_close($conn);
-?>
 ?>
 
 <!DOCTYPE html>
@@ -887,151 +882,81 @@ sqlsrv_close($conn);
     </div>
     
     <script>
- // Dữ liệu biểu đồ
- const customerLabels = <?= json_encode($customerLabels) ?>; // Mã khách hàng (bao gồm "Other")
-    const customerData = <?= json_encode($customerData) ?>; // Số lượng slot (bao gồm dữ liệu "Other")
+// Dữ liệu cho biểu đồ cột
+const customerLabels = <?= json_encode($customerLabels) ?>;
+const customerData = <?= json_encode($customerData) ?>;
+const totalSlots = <?= $totalSlots ?>;
+const filledSlots = <?= $filledSlots ?>;
 
-    // Tổng số ô (slots) cho tất cả trạm
-    const totalSlots = 196 * (<?= $station === 'all' ? 7 : 1 ?>); // Tổng số ô (slots)
-    
-    // Tính phần trăm số slot cho mỗi khách hàng
-    const customerPercentageData = customerData.map(slots => ((slots / totalSlots) * 100).toFixed(2));
+// Tính phần trăm số slot cho biểu đồ cột
+const customerPercentageData = customerData.map(slots => ((slots / totalSlots) * 100).toFixed(2));
 
-    const percentageLabelPlugin = {
-        id: 'percentageLabel',
-        afterDatasetsDraw(chart) {
-            const { ctx, scales: { x, y } } = chart;
-            const dataset = chart.data.datasets[0].data;
-            
-            dataset.forEach((value, index) => {
-                const percentage = value; // Đã tính phần trăm trong dữ liệu
-                const xPos = x.getPixelForValue(index);
-                const yPos = y.getPixelForValue(value);
-                
-                ctx.fillStyle = 'white';
-                ctx.textAlign = 'center';
-                ctx.font = 'bold 20px Arial';
-                ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm
-            });
-        }
-    };
-
-    // Khởi tạo biểu đồ cột (Bar Chart)
-    var ctxBar = document.getElementById('barChart').getContext('2d');
-    var barChart = new Chart(ctxBar, {
-        type: 'bar', // Loại biểu đồ là cột
-        data: {
-            labels: customerLabels, // Các nhãn khách hàng
-            datasets: [{
-                label: 'Slots per Customer (%)', // Tiêu đề cho dữ liệu
-                data: customerPercentageData, // Dữ liệu phần trăm số lượng slot
-                backgroundColor: 'rgba(54, 162, 235, 1)', // Màu cột
-                borderColor: 'white', // Màu viền cột
-                borderWidth: 2 // Độ dày viền cột
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    display: false // Ẩn legend
-                },
-                tooltip: {
-                    bodyFont: {
-                        size: 20 // Kích thước chữ trong tooltip
-                    },
-                    titleFont: {
-                        size: 20 // Kích thước chữ tiêu đề trong tooltip
-                    },
-                    padding: 10, // Khoảng cách padding trong tooltip
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Màu nền của tooltip
-                    displayColors: false, // Ẩn màu sắc dữ liệu trong tooltip
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const customerId = tooltipItem.label;
-                            const percentage = tooltipItem.raw; // Lấy giá trị phần trăm
-                            return `${customerId}: ${percentage}%`; 
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true, // Thang đo bắt đầu từ 0
-                    suggestedMin: 0,
-                    suggestedMax: 100,
-                    grid: {
-                        display: false 
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trục Y
-                        font: {
-                            size: 20 // Kích thước chữ trục Y
-                        },
-                        stepSize: 20, // Chia thang đo theo bước 20%
-                        min: 0, // Giá trị tối thiểu của trục Y
-                        max: 100, // Giá trị tối đa của trục Y
-                        callback: function(value) {
-                            return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
-                        }
-                    },
-                    border: {
-                        color: 'white', // Đổi màu đường trục Y
-                        width: 5 // Độ dày đường trục Y
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false  
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trục X
-                        font: {
-                            size: 20 // Kích thước chữ trục X
-                        }
-                    },
-                    border: {
-                        color: 'white', // Đổi màu đường trục X
-                        width: 2 // Độ dày đường trục X
+// Biểu đồ cột
+var ctxBar = document.getElementById('barChart').getContext('2d');
+var barChart = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+        labels: customerLabels,
+        datasets: [{
+            label: 'Slots per Customer (%)',
+            data: customerPercentageData,
+            backgroundColor: 'rgba(54, 162, 235, 1)',
+            borderColor: 'white',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const percentage = tooltipItem.raw;
+                        return `${tooltipItem.label}: ${percentage}%`;
                     }
                 }
             }
         },
-        plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
-    });
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: value => value + '%'
+                }
+            }
+        }
+    }
+});
 
-    // Biểu đồ tròn
-    var ctxPie = document.getElementById('pieChart').getContext('2d');
-    var pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Used', 'Remaining'],
-            datasets: [{
-                data: [filledSlots, totalSlots - filledSlots],
-                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const data = tooltipItem.dataset.data;
-                            const currentValue = data[tooltipItem.dataIndex];
-                            const percentage = ((currentValue / totalSlots) * 100).toFixed(2); // Tính phần trăm
-                            return tooltipItem.label + ': ' + percentage + '%'; // Hiển thị phần trăm trong tooltip
-                        }
+// Biểu đồ tròn
+var ctxPie = document.getElementById('pieChart').getContext('2d');
+var pieChart = new Chart(ctxPie, {
+    type: 'pie',
+    data: {
+        labels: ['Used', 'Remaining'],
+        datasets: [{
+            data: [filledSlots, totalSlots - filledSlots],
+            backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+            borderColor: 'white',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { labels: { color: 'white' } },
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const data = tooltipItem.dataset.data;
+                        const value = data[tooltipItem.dataIndex];
+                        const percentage = ((value / totalSlots) * 100).toFixed(2);
+                        return `${tooltipItem.label}: ${percentage}%`;
                     }
                 }
             }
         }
-    });
+    }
+});
 
     function toggleDropdown(event) {
         event.stopPropagation();
