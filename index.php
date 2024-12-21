@@ -89,9 +89,6 @@ sqlsrv_close($conn);
     <title>Warehouse Management - <?= $station === 'all' ? 'All Stations' : 'Station ' . $station ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
-
     <script>
         window.onload = function() { // Kiểm tra xem URL có chứa tham số station không
             const urlParams = new URLSearchParams(window.location.search);
@@ -986,25 +983,29 @@ var barChart = new Chart(ctxBar, {
 });
 
 // Biểu đồ tròn
-// Đảm bảo Chart.js và plugin được tải trước khi sử dụng
-Chart.register(ChartPiechartOutlabels);
-
 var ctxPie = document.getElementById('pieChart').getContext('2d');
 var pieChart = new Chart(ctxPie, {
     type: 'pie',
     data: {
-        labels: ['Used', 'Remaining'], // Nhãn
+        labels: ['Used', 'Remaining'],
         datasets: [{
-            data: [filledSlots, totalSlots - filledSlots], // Dữ liệu
-            backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu sắc
+            data: [filledSlots, totalSlots - filledSlots],
+            backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
             borderColor: 'white',
             borderWidth: 2
         }]
     },
     options: {
         plugins: {
-            legend: { 
-                display: false // Ẩn legend nếu không cần thiết
+            legend: { labels: { color: 'white' } },
+            outlabels: {
+                text: '%l %p',
+                color: 'white',
+                stretch: 35,
+                font: {
+                resizable: true,
+                minSize: 12,
+                maxSize: 18,
             },
             tooltip: {
                 callbacks: {
@@ -1015,21 +1016,6 @@ var pieChart = new Chart(ctxPie, {
                         return `${tooltipItem.label}: ${percentage}%`;
                     }
                 }
-            },
-            outlabels: { // Cấu hình outlabels
-                text: '%l: %p%', // Hiển thị tên (%l) và phần trăm (%p)
-                color: 'white', // Màu chữ
-                backgroundColor: 'rgba(0, 0, 0, 0.5)', // Màu nền nhãn
-                borderColor: 'white', // Màu viền nhãn
-                borderRadius: 5, // Độ bo góc
-                borderWidth: 2, // Độ dày viền
-                stretch: 35, // Khoảng cách nhãn so với biểu đồ
-                lineColor: 'white', // Màu đường nối
-                lineWidth: 2, // Độ dày đường nối
-                font: {
-                    size: 14, // Kích thước chữ
-                    weight: 'bold', // Tô đậm chữ
-                },
             }
         }
     }
