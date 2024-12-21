@@ -986,17 +986,19 @@ var ctxPie = document.getElementById('pieChart').getContext('2d');
 var pieChart = new Chart(ctxPie, {
     type: 'pie',
     data: {
-        labels: ['Used', 'Remaining'],
+        labels: ['Used', 'Remaining'], // Nhãn
         datasets: [{
-            data: [filledSlots, totalSlots - filledSlots],
-            backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+            data: [filledSlots, totalSlots - filledSlots], // Dữ liệu
+            backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'], // Màu sắc
             borderColor: 'white',
             borderWidth: 2
         }]
     },
     options: {
         plugins: {
-            legend: { labels: { color: 'white' } },
+            legend: { 
+                display: false // Ẩn legend nếu không cần thiết
+            },
             tooltip: {
                 callbacks: {
                     label: function(tooltipItem) {
@@ -1007,31 +1009,24 @@ var pieChart = new Chart(ctxPie, {
                     }
                 }
             },
-            
-        }
-    },
-    datalabels: {
-                color: 'white',
-                font: {
-                    size: 16,
-                    weight: 'bold'
-                },
-                formatter: function(value, context) {
-                    const total = context.chart.data.datasets[0].data.reduce((acc, val) => acc + val, 0);
-                    const percentage = ((value / total) * 100).toFixed(2);
-                    return `${percentage}%`;
-                },
-                anchor: 'end', // Đặt vị trí bên ngoài biểu đồ
-                align: 'end',  // Canh lề theo vị trí anchor
-                offset: 10,    // Khoảng cách từ biểu đồ
-                borderColor: 'white', // Màu đường kẻ
-                borderWidth: 1,       // Độ dày đường kẻ
-                borderRadius: 4,      // Bo góc khung nhãn
+            outlabels: { // Cấu hình outlabels
+                text: '%l: %p%', // Hiển thị tên (%l) và phần trăm (%p)
+                color: 'white', // Màu chữ
                 backgroundColor: 'rgba(0, 0, 0, 0.5)', // Màu nền nhãn
-                padding: 6            // Khoảng cách padding bên trong nhãn
+                borderColor: 'white', // Màu viền nhãn
+                borderRadius: 5, // Độ bo góc
+                borderWidth: 2, // Độ dày viền
+                stretch: 35, // Khoảng cách nhãn so với biểu đồ
+                lineColor: 'white', // Màu đường nối
+                lineWidth: 2, // Độ dày đường nối
+                font: {
+                    size: 14, // Kích thước chữ
+                    weight: 'bold', // Tô đậm chữ
+                },
             }
+        }
+    }
 });
-
 
     function toggleDropdown(event) {
         event.stopPropagation();
