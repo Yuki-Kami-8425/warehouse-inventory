@@ -882,13 +882,33 @@ sqlsrv_close($conn);
     </div>
     
     <script>
-    const customerLabels = <?= json_encode($customerLabels) ?>;
-    const customerData = <?= json_encode($customerData) ?>;
-    const totalSlots = <?= $totalSlots ?>;
-    const filledSlots = <?= $filledSlots ?>;
+   const customerLabels = <?= json_encode($customerLabels) ?>;
+const customerData = <?= json_encode($customerData) ?>;
+const totalSlots = <?= $totalSlots ?>;
+const filledSlots = <?= $filledSlots ?>;
 
 // Tính phần trăm số slot cho biểu đồ cột
 const customerPercentageData = customerData.map(slots => ((slots / totalSlots) * 100).toFixed(2));
+
+// Plugin hiển thị phần trăm trên mỗi cột
+const percentageLabelPlugin = {
+    id: 'percentageLabel',
+    afterDatasetsDraw(chart) {
+        const { ctx, scales: { x, y } } = chart;
+        const dataset = chart.data.datasets[0].data;
+
+        dataset.forEach((value, index) => {
+            const percentage = value; // Phần trăm đã được tính sẵn
+            const xPos = x.getPixelForValue(index); // Vị trí X của cột
+            const yPos = y.getPixelForValue(value); // Vị trí Y của giá trị
+
+            ctx.fillStyle = 'white'; // Màu chữ
+            ctx.textAlign = 'center'; // Căn giữa
+            ctx.font = 'bold 20px Arial'; // Font chữ
+            ctx.fillText(`${percentage}%`, xPos, yPos - 10); // Hiển thị phần trăm
+        });
+    }
+};
 
 // Biểu đồ cột
 var ctxBar = document.getElementById('barChart').getContext('2d');
@@ -909,8 +929,8 @@ var barChart = new Chart(ctxBar, {
             legend: { display: false },
             tooltip: {
                 bodyFont: {
-                        size: 20 // Kích thước chữ trong tooltip
-                    },
+                    size: 20 // Kích thước chữ trong tooltip
+                },
                 titleFont: {
                     size: 20 // Kích thước chữ tiêu đề trong tooltip
                 },
@@ -924,49 +944,41 @@ var barChart = new Chart(ctxBar, {
                         return `${customerId}: ${percentage}%`; 
                     }
                 }
-            },
+            }
+        },
         scales: {
-                y: {
-                    beginAtZero: true, // Thang đo bắt đầu từ 0
-                    suggestedMin: 0,
-                    suggestedMax: 100,
-                    grid: {
-                        display: false 
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trục Y
-                        font: {
-                            size: 20 // Kích thước chữ trục Y
-                        },
-                        stepSize: 20, // Chia thang đo theo bước 20%
-                        min: 0, // Giá trị tối thiểu của trục Y
-                        max: 100, // Giá trị tối đa của trục Y
-                        callback: function(value) {
-                            return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
-                        }
-                    },
-                    border: {
-                        color: 'white', // Đổi màu đường trục Y
-                        width: 5 // Độ dày đường trục Y
+            y: {
+                beginAtZero: true,
+                suggestedMin: 0,
+                suggestedMax: 100,
+                grid: { display: false },
+                ticks: {
+                    color: 'white',
+                    font: { size: 20 },
+                    stepSize: 20,
+                    callback: function(value) {
+                        return value + '%'; // Hiển thị giá trị dưới dạng phần trăm
                     }
                 },
-                x: {
-                    grid: {
-                        display: false  
-                    },
-                    ticks: {
-                        color: 'white', // Màu chữ trục X
-                        font: {
-                            size: 20 // Kích thước chữ trục X
-                        }
-                    },
-                    border: {
-                        color: 'white', // Đổi màu đường trục X
-                        width: 2 // Độ dày đường trục X
-                    }
+                border: {
+                    color: 'white',
+                    width: 5
+                }
+            },
+            x: {
+                grid: { display: false },
+                ticks: {
+                    color: 'white',
+                    font: { size: 20 }
+                },
+                border: {
+                    color: 'white',
+                    width: 2
                 }
             }
-    }
+        }
+    },
+    plugins: [percentageLabelPlugin] // Thêm plugin hiển thị phần trăm
 });
 
 // Biểu đồ tròn
@@ -998,6 +1010,7 @@ var pieChart = new Chart(ctxPie, {
         }
     }
 });
+
 
     function toggleDropdown(event) {
         event.stopPropagation();
