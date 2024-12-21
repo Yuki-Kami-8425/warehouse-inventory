@@ -1006,6 +1006,7 @@ var pieChart = new Chart(ctxPie, {
                 resizable: true,
                 minSize: 12,
                 maxSize: 18,
+                },
             },
             tooltip: {
                 callbacks: {
@@ -1016,7 +1017,7 @@ var pieChart = new Chart(ctxPie, {
                         return `${tooltipItem.label}: ${percentage}%`;
                     }
                 }
-            }
+            },
         }
     }
 });
