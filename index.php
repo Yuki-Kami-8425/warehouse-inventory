@@ -928,14 +928,14 @@ var barChart = new Chart(ctxBar, {
     options: {
         plugins: {
             legend: { display: false },
-            tooltip: {
+            /* tooltip: {
                 bodyFont: {
                     size: 20 // Kích thước chữ trong tooltip
                 },
                 titleFont: {
                     size: 20 // Kích thước chữ tiêu đề trong tooltip
                 },
-                padding: 2, // Khoảng cách padding trong tooltip
+                padding: 5, // Khoảng cách padding trong tooltip
                 backgroundColor: 'rgba(0, 0, 0, 0.8)', // Màu nền của tooltip
                 displayColors: false, // Ẩn màu sắc dữ liệu trong tooltip
                 callbacks: {
@@ -945,7 +945,7 @@ var barChart = new Chart(ctxBar, {
                         return `${customerId}: ${percentage}%`; 
                     }
                 }
-            }
+            } */
         },
         scales: {
             y: {
@@ -996,20 +996,11 @@ var pieChart = new Chart(ctxPie, {
         }]
     },
     options: {
+        responsive: true,
         plugins: {
             legend: { labels: { color: 'white' } },
-            tooltip: {
-                callbacks: {
-                    label: function(tooltipItem) {
-                        const data = tooltipItem.dataset.data;
-                        const value = data[tooltipItem.dataIndex];
-                        const percentage = ((value / totalSlots) * 100).toFixed(2);
-                        return `${tooltipItem.label}: ${percentage}%`;
-                    }
-                }
-            }
+            tooltip: { enabled: false }, // Tắt hiệu ứng tooltip
         },
-        // Custom code to add labels directly on the chart
         animation: {
             onComplete: function() {
                 var chartInstance = this.chart;
@@ -1023,14 +1014,22 @@ var pieChart = new Chart(ctxPie, {
                     var angle = chartInstance.getDatasetMeta(0).data[index].angle + (Math.PI / 2);
                     var x = chartInstance.getDatasetMeta(0).data[index].x;
                     var y = chartInstance.getDatasetMeta(0).data[index].y;
+
+                    // Tính toán tỷ lệ phần trăm
                     var percentage = ((value / totalSlots) * 100).toFixed(2);
+
+                    // Tính toán vị trí của nhãn để hiển thị bên ngoài biểu đồ
+                    var outLabelX = x + (Math.cos(angle) * 20); // Dịch chuyển nhãn ra ngoài
+                    var outLabelY = y + (Math.sin(angle) * 20);
+
                     ctx.fillStyle = 'white';
-                    ctx.fillText(`${label}: ${percentage}%`, x, y);
+                    ctx.fillText(`${label}: ${percentage}%`, outLabelX, outLabelY);
                 });
             }
         }
     }
 });
+
 
     function toggleDropdown(event) {
         event.stopPropagation();
